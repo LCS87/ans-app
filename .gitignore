@@ -179,3 +179,17 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Ignorar ambiente virtual
+.venv/
+__pycache__/
+
+# Ignorar pastas de dados pesados (ETL)
+etl/data/raw/
+etl/data/interim/
+etl/data/processed/
+
+# Ignorar arquivos específicos de dados
+*.csv
+*.zip
+*.pdf
