@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: Run backend tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre ghostscript poppler-utils
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Download CADOP and required data
+        env:
+          CADOP_CSV_PATH: ${{ github.workspace }}/etl/data/raw/operadoras_ativas/relatorio_cadop.csv
+        run: |
+          python etl/scraping/download_dados_abertos_ans.py
+
+      - name: Start backend (uvicorn)
+        run: |
+          nohup python -m uvicorn api.main:app --host 127.0.0.1 --port 8002 > uvicorn.log 2>&1 &
+          sleep 3
+
+      - name: Wait for backend to become healthy
+        run: |
+          for i in {1..15}; do
+            if curl -s http://127.0.0.1:8002/health | grep -q "ok"; then
+              echo "Backend is healthy"; break
+            fi
+            echo "Waiting for backend... ($i)"; sleep 1
+          done
+
+      - name: Run tests
+        run: |
+          python -m pytest -q
+
+      - name: Upload uvicorn log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: uvicorn-log
+          path: uvicorn.log

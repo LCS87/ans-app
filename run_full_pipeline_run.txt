@@ -1,0 +1,7 @@
+=== Pipeline completo: download -> extraþÒo -> zip final ===
+
+[1/4] Baixando Anexos (Anexo I e II)
+Falha no download dos anexos: No module named 'etl'
+
+[2/4] Extraindo Rol de Procedimentos do Anexo I
+Falha na extraþÒo: No module named 'etl'

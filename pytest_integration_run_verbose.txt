@@ -1,0 +1,17 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- E:\Projetos lv1\ans-app\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: E:\Projetos lv1\ans-app
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 4 items / 3 deselected / 1 selected
+
+tests/test_pipeline.py::test_full_pipeline_creates_zip PASSED            [100%]
+
+============================== warnings summary ===============================
+tests/test_pipeline.py::test_full_pipeline_creates_zip
+  E:\Projetos lv1\ans-app\.venv\Lib\site-packages\pypdf\_crypt_providers\_cryptography.py:32: CryptographyDeprecationWarning: ARC4 has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.ARC4 and will be removed from cryptography.hazmat.primitives.ciphers.algorithms in 48.0.0.
+    from cryptography.hazmat.primitives.ciphers.algorithms import AES, ARC4
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 1 passed, 3 deselected, 1 warning in 904.54s (0:15:04) ============

@@ -1,0 +1,27 @@
+Querying https://www.gov.br/ans/search?origem=termos&SearchableText=anexo i rol de procedimentos pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo i rol de procedimentos pdf
+Error https://www.gov.br/ans/pt-br/busca?q=anexo i rol de procedimentos pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo%20i%20rol%20de%20procedimentos%20pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+de+procedimentos+pdf
+Error https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+de+procedimentos+pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+de+procedimentos+pdf
+Querying https://www.gov.br/ans/search?origem=termos&SearchableText=anexo i rol procedimentos pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo i rol procedimentos pdf
+Error https://www.gov.br/ans/pt-br/busca?q=anexo i rol procedimentos pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo%20i%20rol%20procedimentos%20pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+procedimentos+pdf
+Error https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+procedimentos+pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+procedimentos+pdf
+Querying https://www.gov.br/ans/search?origem=termos&SearchableText=anexo i rol de procedimentos ans pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo i rol de procedimentos ans pdf
+Error https://www.gov.br/ans/pt-br/busca?q=anexo i rol de procedimentos ans pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo%20i%20rol%20de%20procedimentos%20ans%20pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+de+procedimentos+ans+pdf
+Error https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+de+procedimentos+ans+pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol+de+procedimentos+ans+pdf
+Querying https://www.gov.br/ans/search?origem=termos&SearchableText=anexo i rol
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo i rol
+Error https://www.gov.br/ans/pt-br/busca?q=anexo i rol 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo%20i%20rol
+Querying https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol
+Error https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=anexo+i+rol
+Querying https://www.gov.br/ans/search?origem=termos&SearchableText=rol de procedimentos anexo i pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=rol de procedimentos anexo i pdf
+Error https://www.gov.br/ans/pt-br/busca?q=rol de procedimentos anexo i pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=rol%20de%20procedimentos%20anexo%20i%20pdf
+Querying https://www.gov.br/ans/pt-br/busca?q=rol+de+procedimentos+anexo+i+pdf
+Error https://www.gov.br/ans/pt-br/busca?q=rol+de+procedimentos+anexo+i+pdf 404 Client Error: Not Found for url: https://www.gov.br/ans/pt-br/busca?q=rol+de+procedimentos+anexo+i+pdf
+
+Results:

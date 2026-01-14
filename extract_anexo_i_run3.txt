@@ -1,0 +1,62 @@
+E:\Projetos lv1\ans-app\.venv\Lib\site-packages\pypdf\_crypt_providers\_cryptography.py:32: CryptographyDeprecationWarning: ARC4 has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.ARC4 and will be removed from cryptography.hazmat.primitives.ciphers.algorithms in 48.0.0.
+  from cryptography.hazmat.primitives.ciphers.algorithms import AES, ARC4
+Failed to import jpype dependencies. Fallback to subprocess.
+No module named 'jpype'
+Got stderr: jan. 10, 2026 6:53:46 PM org.apache.fontbox.ttf.CmapSubtable processSubtype14
+
+ADVERT╩NCIA: Format 14 cmap table is not supported and will be ignored
+
+jan. 10, 2026 6:53:46 PM org.apache.fontbox.ttf.CmapSubtable processSubtype14
+
+ADVERT╩NCIA: Format 14 cmap table is not supported and will be ignored
+
+jan. 10, 2026 6:53:47 PM org.apache.fontbox.ttf.CmapSubtable processSubtype14
+
+ADVERT╩NCIA: Format 14 cmap table is not supported and will be ignored
+
+jan. 10, 2026 6:53:47 PM org.apache.fontbox.ttf.CmapSubtable processSubtype14
+
+ADVERT╩NCIA: Format 14 cmap table is not supported and will be ignored
+
+jan. 10, 2026 6:54:10 PM org.apache.fontbox.ttf.CmapSubtable processSubtype14
+
+ADVERT╩NCIA: Format 14 cmap table is not supported and will be ignored
+
+jan. 10, 2026 6:54:10 PM org.apache.fontbox.ttf.CmapSubtable processSubtype14
+
+ADVERT╩NCIA: Format 14 cmap table is not supported and will be ignored
+
+
+=== ExtraþÒo e TransformaþÒo do Anexo I ===
+
+Processando arquivo: E:\Projetos lv1\ans-app\data\raw\Anexo_II_DUT_2021_RN_465.2021_RN660.2025.pdf
+Legenda encontrada: {'OD': 'Odontol¾gico', 'AMB': 'Ambulatorial'}
+Modo preferencial: Tabula (ANS_PREFER_TABULA definido). Pulando Camelot.
+Tabula encoding utf-8 falhou: 'utf-8' codec can't decode byte 0xca in position 100: invalid continuation byte
+Tabula encontrou 51 tabelas (encoding=latin-1)
+Tabela 9 processada: (17, 3)
+Tabela 11 processada: (70, 6)
+Tabela 12 processada: (70, 6)
+Tabela 13 processada: (35, 6)
+Tabela 14 processada: (35, 6)
+Tabela 15 processada: (25, 5)
+Tabela 19 processada: (52, 6)
+Tabela 25 processada: (52, 6)
+Tabela 36 processada: (21, 4)
+Tabela 37 processada: (21, 4)
+Tabela 39 processada: (61, 3)
+Tabela 41 processada: (74, 3)
+Tabela 42 processada: (65, 3)
+Tabela 43 processada: (61, 3)
+Tabela 44 processada: (63, 3)
+Tabela 45 processada: (69, 3)
+Tabela 46 processada: (6, 3)
+Tabela 48 processada: (1, 4)
+Tabela 49 processada: (3, 3)
+Tabela 50 processada: (5, 4)
+DataFrame final: (584, 21)
+CSV salvo em: E:\Projetos lv1\ans-app\etl\data\interim\rol_procedimentos_ans.csv
+Arquivo ZIP criado: E:\Projetos lv1\ans-app\etl\data\processed\Teste_Nome.zip
+
+Processo concluÝdo com sucesso!
+Arquivo final: E:\Projetos lv1\ans-app\etl\data\processed\Teste_Nome.zip
