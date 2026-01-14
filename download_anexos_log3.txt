@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 159, in _get_module_details
+  File "<frozen importlib._bootstrap_external>", line 1074, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1004, in source_to_code
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "E:\Projetos lv1\ans-app\etl\scraping\download_anexos.py", line 195
+    for m in re.finditer(r"https?://[^\s\"'>]+\.pdf"", txt, flags=re.I):
+                                                    ^
+SyntaxError: unterminated string literal (detected at line 195)

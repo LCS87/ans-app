@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "ANS App - Search",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /search (amil)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{BASE_URL}}/search?query=amil",
+          "host": ["{{BASE_URL}}"],
+          "path": ["search"],
+          "query": [{ "key": "query", "value": "amil" }]
+        }
+      }
+    },
+    {
+      "name": "GET /search (cnpj parcial)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{BASE_URL}}/search?query=342",
+          "host": ["{{BASE_URL}}"],
+          "path": ["search"],
+          "query": [{ "key": "query", "value": "342" }]
+        }
+      }
+    },
+    {
+      "name": "GET /search (registro ans)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{BASE_URL}}/search?query=418374",
+          "host": ["{{BASE_URL}}"],
+          "path": ["search"],
+          "query": [{ "key": "query", "value": "418374" }]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:8000"
+    }
+  ]
+}
