@@ -1,7 +1,8 @@
-version: '3.8'
+name: ans-intelligence
 
 services:
   backend:
+    container_name: ans-backend
     build:
       context: ../
       dockerfile: ./docker/backend/Dockerfile
@@ -30,6 +31,7 @@ services:
     restart: unless-stopped
 
   frontend:
+    container_name: ans-frontend
     build:
       context: ../
       dockerfile: ./docker/frontend/Dockerfile
@@ -47,6 +49,7 @@ services:
     restart: unless-stopped
 
   db:
+    container_name: ans-mysql
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
@@ -55,7 +58,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-password}
     volumes:
       - db_data:/var/lib/mysql
-      - ../db/mysql:/docker-entrypoint-initdb.d
+      - ../db/mysql/01_ddl.sql:/docker-entrypoint-initdb.d/01_ddl.sql:ro
     ports:
       - "3307:3306"
     healthcheck:
@@ -66,6 +69,7 @@ services:
     restart: unless-stopped
 
   redis:
+    container_name: ans-redis
     image: redis:7-alpine
     ports:
       - "6379:6379"

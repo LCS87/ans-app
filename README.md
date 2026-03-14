@@ -97,7 +97,7 @@ pip install -r requirements.txt
 
 ```bash
 cd docker && docker-compose up -d
-```
+```py 
 
 ### 3. Iniciar backend
 
@@ -209,6 +209,48 @@ ans-intelligence/
 ├── .env.example
 └── requirements.txt
 ```
+
+---
+
+## Docker
+
+Todos os comandos devem ser executados dentro da pasta `docker/`.
+
+```bash
+# Subir todos os containers
+docker-compose up -d
+
+# Subir e forçar rebuild das imagens
+docker-compose up -d --build
+
+# Parar os containers (mantém dados)
+docker-compose stop
+
+# Parar e remover containers e rede (mantém volumes)
+docker-compose down
+
+# Parar e remover tudo, incluindo volumes (apaga dados do banco)
+docker-compose down -v
+
+# Ver status dos containers
+docker-compose ps
+
+# Ver logs em tempo real
+docker-compose logs -f
+
+# Ver logs de um serviço específico
+docker-compose logs -f backend
+docker-compose logs -f db
+```
+
+### Containers
+
+| Nome | Serviço | Porta |
+|---|---|---|
+| ans-backend | FastAPI + Uvicorn | 8000 |
+| ans-frontend | Nginx | 8080 |
+| ans-mysql | MySQL 8.0 | 3307 |
+| ans-redis | Redis 7 | 6379 |
 
 ---
 
