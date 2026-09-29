@@ -3,8 +3,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
+import { onMounted, ref, watch } from 'vue'
 
 Chart.register(...registerables)
 
@@ -34,6 +34,7 @@ const createChart = () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: { duration: 800, easing: 'easeOutQuart' },
         ...props.options
       }
     })
