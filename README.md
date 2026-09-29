@@ -2,17 +2,76 @@
 
 Aplicação full-stack de Business Intelligence para dados da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras de saúde, analisar gastos assistenciais e visualizar a concentração de mercado através de um dashboard interativo.
 
----
-
-## Screenshots
-
-![Dashboard Analytics](assets/picture01.png)
-
-![Busca de Operadoras](assets/picture02.png)
+> **Status:**  Backend 100% funcional | 🟡 Frontend 80% funcional | 🔴 ETL em desenvolvimento
 
 ---
 
-## Tecnologias
+## 📸 Screenshots
+
+![Dashboard Analytics](assets/pictures01.png)
+
+![Busca de Operadoras](assets/pictures02.png)
+
+![Busca de Operadoras](assets/pictures03.png)
+
+![Busca de Operadoras](assets/pictures04.png)
+
+![Busca de Operadoras](assets/pictures05.png)
+
+---
+
+## ✨ Funcionalidades
+
+### 🔍 Busca de Operadoras
+- Busca por registro ANS, CNPJ, razão social ou nome fantasia
+- Normalização Unicode para buscas sem acento
+- Paginação completa com metadata (page, limit, total, pages)
+- Filtro por modalidade (Medicina de Grupo, Cooperativa, etc.)
+- Exportação para CSV com encoding UTF-8 BOM
+- Validação tolerante (registros inválidos são pulados silenciosamente)
+
+### 📊 Ranking de Gastos
+- Top 10 operadoras com maiores gastos assistenciais
+- Barras de progresso relativas ao líder
+- Valores formatados em R$ com separador de milhares
+- *Dados atualmente em modo demonstração (ETL em desenvolvimento)*
+
+### 📈 Dashboard Analytics
+- Ranking de gastos anuais em R$ Bilhões (barras horizontais)
+- Análise de concentração de mercado com linha de Pareto (80%)
+- Evolução mensal das Top 3 operadoras em R$ Milhões
+- Treemap de participação de mercado com paleta de cores consistente
+- KPI cards: gastos totais, operadoras ativas, média e concentração Top 3
+- Skeleton loaders para estados de carregamento
+
+### 🎨 Interface
+- Toggle Dark/Light com persistência via localStorage
+- CSS Variables para temas consistentes
+- Design responsivo (mobile-first)
+- Animações suaves (fadeIn, hover effects)
+
+### ⚙️ Administração
+- Painel Admin com status do sistema em tempo real
+- Execução manual de atualização via UI
+- Monitoramento de uso de disco com breakdown por categoria
+- Histórico de execuções com status e duração
+- Health check detalhado (MySQL, Redis, uptime)
+
+### 🔄 Pipeline ETL
+- Limpeza automática de arquivos antigos (políticas de retenção)
+- Notificações de falha via Discord webhook
+- Scheduler mensal configurado (1º domingo, 03:00)
+- Lock Redis para prevenir execução concorrente
+- *Pipeline completo em desenvolvimento (download/extract/transform/load)*
+
+### 📊 Observabilidade
+- Prometheus + Grafana via Docker Compose
+- Health checks endpoints
+- Logs estruturados com rotação automática
+
+---
+
+## 🛠️ Tecnologias
 
 ### Backend
 
@@ -22,15 +81,17 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 | FastAPI | 0.100+ | Framework REST API |
 | Pydantic | 2.x | Validação e serialização de dados |
 | Pandas | 2.x | Processamento de dados CSV |
+| PyMySQL | 1.1+ | Driver MySQL |
 | Redis | 7 | Cache em memória |
 | MySQL | 8.0 | Banco de dados relacional |
+| APScheduler | 3.10+ | Agendamento de tarefas |
 
 ### Frontend
 
 | Tecnologia | Versão | Uso |
 |---|---|---|
 | Vue.js | 3 | Framework reativo (Composition API) |
-| Vite | 4+ | Build tool e dev server |
+| Vite | 5+ | Build tool e dev server |
 | Chart.js | 4 | Gráficos interativos |
 | vue-chartjs | 5 | Wrapper Vue para Chart.js |
 
@@ -40,7 +101,8 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 |---|---|
 | BeautifulSoup4 | Web scraping do portal ANS |
 | Tabula-py | Extração de tabelas de PDFs |
-| Requests | Download de arquivos |
+| Requests/httpx | Download de arquivos |
+| Loguru | Logging estruturado |
 
 ### Infraestrutura
 
@@ -48,227 +110,38 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 |---|---|
 | Docker Compose | Orquestração de containers |
 | Uvicorn | ASGI server para FastAPI |
+| Prometheus | Coleta de métricas |
+| Grafana | Dashboards de monitoramento |
 
 ---
 
-## Funcionalidades
-
-**Busca de Operadoras**
-- Busca por registro ANS, CNPJ, razão social ou nome fantasia
-- Normalização Unicode para buscas sem acento
-- Paginação com metadata
-
-**Ranking de Gastos**
-- Top 10 operadoras com maiores gastos assistenciais em 2024
-- Barras de progresso relativas ao líder
-
-**Dashboard Analytics**
-- Ranking de gastos anuais em R$ Bilhões (barras horizontais)
-- Análise de concentração de mercado com linha de Pareto (80%)
-- Evolução mensal das Top 3 operadoras em R$ Milhões
-- Treemap de participação de mercado com contraste automático
-- KPI cards: gastos totais, operadoras ativas, média e concentração Top 3
-
----
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Pré-requisitos
 
 - Python 3.11+
 - Node.js 18+
 - Docker e Docker Compose
+- PowerShell (Windows) ou Bash (Linux/Mac)
 
-### 1. Configurar ambiente
+### 1. Clonar e configurar ambiente
 
 ```bash
-cp .env.example .env
-python -m venv .venv
+# Clonar repositório
+git clone <repo-url>
+cd ans-app
 
-# Windows
-.venv\Scripts\activate
+# Copiar variáveis de ambiente
+cp .env.example .env
+
+# Criar ambiente virtual Python
+py -m venv .venv
+
+# Windows (PowerShell)
+.\.venv\Scripts\Activate.ps1
+
 # Linux/Mac
 source .venv/bin/activate
 
-pip install -r requirements.txt
-```
-
-### 2. Subir infraestrutura
-
-```bash
-cd docker && docker-compose up -d
-```py 
-
-### 3. Iniciar backend
-
-```bash
-python -m uvicorn api.main:app --reload
-```
-
-### 4. Iniciar frontend
-
-```bash
-cd frontend/vue-app
-npm install
-npm run dev
-```
-
-| Serviço | URL |
-|---|---|
-| Frontend | http://localhost:5173 |
-| Backend | http://localhost:8000 |
-| Swagger UI | http://localhost:8000/api/v1/docs |
-| ReDoc | http://localhost:8000/api/v1/redoc |
-
----
-
-## API
-
-### Busca de operadoras
-
-```http
-GET /api/v1/operadoras?q={query}&page={page}&limit={limit}
-```
-
-```json
-{
-  "query": "amil",
-  "results": [
-    {
-      "registro_ans": "326305",
-      "cnpj": "29309127000187",
-      "razao_social": "AMIL ASSISTENCIA MEDICA INTERNACIONAL S.A.",
-      "nome_fantasia": "AMIL",
-      "modalidade": "Medicina de Grupo"
-    }
-  ],
-  "metadata": { "page": 1, "limit": 50, "total": 1, "pages": 1 }
-}
-```
-
-### Ranking de gastos
-
-```http
-GET /api/v1/analytics/gastos?periodo=2024&top=10
-```
-
-```json
-{
-  "periodo": "2024",
-  "ranking": [
-    {
-      "posicao": 1,
-      "razao_social": "AMIL ASSISTENCIA MEDICA INTERNACIONAL S.A.",
-      "valor_total": 1234567890.50
-    }
-  ]
-}
-```
-
-### Health check
-
-```http
-GET /health
-```
-
----
-
-## Estrutura do Projeto
-
-```
-ans-intelligence/
-├── api/                        # Backend FastAPI
-│   ├── main.py                 # Rotas e configuração da API
-│   ├── models.py               # Pydantic models
-│   ├── config.py               # Variáveis de ambiente
-│   ├── cache.py                # Integração Redis
-│   └── services/
-│       ├── operadoras_service.py
-│       └── analytics_service.py
-├── frontend/vue-app/           # Frontend Vue.js
-│   └── src/
-│       ├── App.vue             # Componente principal
-│       └── components/
-│           ├── BarChart.vue
-│           ├── LineChart.vue
-│           └── TreemapChart.vue
-├── etl/                        # Pipeline de dados
-│   ├── scraping/               # Web scraping ANS
-│   ├── transform/              # Transformação de dados
-│   └── data/                   # Dados brutos e processados
-├── db/
-│   ├── mysql/                  # DDL, import e analytics
-│   └── postgres/
-├── docker/
-│   ├── docker-compose.yml
-│   ├── backend/Dockerfile
-│   └── frontend/Dockerfile
-├── tests/
-├── scripts/                    # Scripts de setup e utilitários
-├── assets/                     # Screenshots do projeto
-├── .env.example
-└── requirements.txt
-```
-
----
-
-## Docker
-
-Todos os comandos devem ser executados dentro da pasta `docker/`.
-
-```bash
-# Subir todos os containers
-docker-compose up -d
-
-# Subir e forçar rebuild das imagens
-docker-compose up -d --build
-
-# Parar os containers (mantém dados)
-docker-compose stop
-
-# Parar e remover containers e rede (mantém volumes)
-docker-compose down
-
-# Parar e remover tudo, incluindo volumes (apaga dados do banco)
-docker-compose down -v
-
-# Ver status dos containers
-docker-compose ps
-
-# Ver logs em tempo real
-docker-compose logs -f
-
-# Ver logs de um serviço específico
-docker-compose logs -f backend
-docker-compose logs -f db
-```
-
-### Containers
-
-| Nome | Serviço | Porta |
-|---|---|---|
-| ans-backend | FastAPI + Uvicorn | 8000 |
-| ans-frontend | Nginx | 8080 |
-| ans-mysql | MySQL 8.0 | 3307 |
-| ans-redis | Redis 7 | 6379 |
-
----
-
-## Testes
-
-```bash
-# Todos os testes
-pytest
-
-# Com cobertura
-pytest --cov=api --cov-report=html
-
-# Testes específicos
-pytest tests/test_refactored_api.py -v
-```
-
----
-
-## Licença
-
-MIT
+# Instalar dependências
+py -m pip install -r requirements.txt

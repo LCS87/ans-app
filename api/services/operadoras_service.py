@@ -97,7 +97,7 @@ class OperadorasService:
     
     def search(self, query: str, limit: int = 50) -> List[OperadoraResponse]:
         """
-        Busca operadoras por termo.
+        Busca operadoras por termo com validação tolerante.
         
         Args:
             query: Termo de busca
@@ -134,5 +134,35 @@ class OperadorasService:
         # Ordena por score decrescente
         hits.sort(key=lambda h: h["score"], reverse=True)
         
-        # Converte para Pydantic models
-        return [OperadoraResponse(**hit) for hit in hits[:limit]]
+        # Converte para Pydantic models COM TRATAMENTO DE ERRO
+        results = []
+        for hit in hits[:limit * 2]:  # Pega mais pra compensar inválidos
+            try:
+                # Limpa e valida campos antes de criar o model
+                registro = str(hit.get("registro_ans", "")).strip()
+                cnpj = ''.join(filter(str.isdigit, str(hit.get("cnpj", ""))))
+                razao = str(hit.get("razao_social", "")).strip()
+                
+                # Normalizações defensivas
+                registro = registro.zfill(6)[:6] if registro else "000000"
+                cnpj = cnpj[:14].ljust(14, '0') if cnpj else "00000000000000"
+                razao = razao if razao else "SEM RAZÃO SOCIAL"
+                
+                clean_hit = {
+                    "registro_ans": registro,
+                    "cnpj": cnpj,
+                    "razao_social": razao,
+                    "nome_fantasia": str(hit.get("nome_fantasia", "")).strip() or None,
+                    "modalidade": str(hit.get("modalidade", "")).strip() or None,
+                    "score": hit.get("score", 0)
+                }
+                results.append(OperadoraResponse(**clean_hit))
+                
+                if len(results) >= limit:
+                    break
+            except Exception as e:
+                # Log silencioso - pula registro inválido
+                print(f"⚠ Registro inválido pulado: {hit.get('registro_ans', '?')} - {e}")
+                continue
+        
+        return results

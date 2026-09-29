@@ -61,6 +61,9 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["*"],
     )
+    # Admin routes (ADICIONA ISSO)
+    from api.admin import router as admin_router
+    app.include_router(admin_router)
     
     return app
 

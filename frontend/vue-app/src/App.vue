@@ -13,6 +13,9 @@
       <button @click="loadDashboard" :class="{ active: view === 'dashboard' }">
         📈 Dashboard Analytics
       </button>
+      <button @click="view = 'admin'" :class="{ active: view === 'admin' }">
+        ⚙️ Admin
+      </button>
     </div>
 
     <div v-if="view === 'search'" class="card">
@@ -20,6 +23,7 @@
         <input type="text" v-model="query" placeholder="Ex.: Bradesco ou 005711" @input="debouncedSearch" @keydown.enter="handleEnter" />
         <select v-model="filterModalidade" class="filter-select"><option value="">Todas</option><option>Medicina de Grupo</option><option>Cooperativa</option></select>
         <button :disabled="loadingSearch || !query.trim()" @click="() => doSearch(1)">Buscar</button>
+        <ExportButton :data="results" filename="operadoras_ans.csv" />
       </div>
 
       <div v-if="results.length > 0" style="margin-top: 20px;">
@@ -41,6 +45,11 @@
             </tr>
           </tbody>
         </table>
+        <div v-if="totalPages > 1" class="pagination">
+          <button @click="doSearch(currentPage - 1)" :disabled="currentPage === 1">← Anterior</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button @click="doSearch(currentPage + 1)" :disabled="currentPage === totalPages">Próxima →</button>
+        </div>
       </div>
     </div>
 
@@ -70,6 +79,10 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="view === 'admin'" class="card">
+      <AdminPanel />
     </div>
 
     <div v-if="view === 'dashboard'" class="dashboard">
@@ -143,7 +156,9 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import AdminPanel from './components/AdminPanel.vue'
 import BarChart from './components/BarChart.vue'
+import ExportButton from './components/ExportButton.vue'; // ← ADICIONA ISSO
 import LineChart from './components/LineChart.vue'
 import SkeletonChart from './components/SkeletonChart.vue'
 import ThemeToggle from './components/ThemeToggle.vue'

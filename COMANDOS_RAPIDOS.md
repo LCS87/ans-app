@@ -1,6 +1,6 @@
 # ⚡ Comandos Rápidos
 
-Referência rápida de comandos para o projeto ANS Intelligence.
+Referência rápida de comandos para o projeto ANS Intelligence (atualizado 2026-09-29).
 
 ## 🚀 Setup Inicial
 
@@ -223,6 +223,20 @@ Health Check:    http://localhost:8000/health
 MySQL:           localhost:3307
 Redis:           localhost:6379
 ```
+
+# Pipeline ETL
+py -c "from etl.cleanup import cleanup_old_files; cleanup_old_files()"
+py -m etl.pipeline
+
+# Admin / Monitoring
+py -m uvicorn api.main:app --reload
+docker-compose -f docker-compose.monitoring.yml up -d
+
+# Testes
+pytest --cov=api --cov-report=term-missing
+
+# Frontend
+cd frontend/vue-app && npm run dev
 
 ## 📚 Documentação
 
