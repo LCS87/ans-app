@@ -1,70 +1,84 @@
 """Pydantic models para validação e serialização."""
 from typing import List, Optional
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
+import re
 
 
 class OperadoraBase(BaseModel):
     """Modelo base de operadora."""
-    registro_ans: str = Field(..., description="Registro ANS da operadora")
-    cnpj: str = Field(..., description="CNPJ da operadora")
-    razao_social: str = Field(..., description="Razão social")
+    registro_ans: str = Field(..., min_length=6, max_length=6, description="Registro ANS")
+    cnpj: str = Field(..., min_length=14, max_length=14, description="CNPJ")
+    razao_social: str = Field(..., min_length=1, description="Razão social")
     nome_fantasia: Optional[str] = Field(None, description="Nome fantasia")
-    modalidade: Optional[str] = Field(None, description="Modalidade da operadora")
+    modalidade: Optional[str] = Field(None, description="Modalidade")
+    
+    @field_validator('registro_ans')
+    @classmethod
+    def validate_registro(cls, v: str) -> str:
+        if not v.isdigit():
+            raise ValueError('registro_ans deve conter apenas números')
+        return v
+    
+    @field_validator('cnpj')
+    @classmethod
+    def validate_cnpj(cls, v: str) -> str:
+        if not re.match(r'^\d{14}$', v):
+            raise ValueError('CNPJ deve ter 14 dígitos numéricos')
+        return v
 
 
 class OperadoraResponse(OperadoraBase):
     """Resposta de operadora com score de busca."""
-    score: Optional[int] = Field(None, description="Score de relevância na busca")
+    score: Optional[int] = Field(None, ge=0, le=100, description="Score 0-100")
 
 
 class PaginationMetadata(BaseModel):
     """Metadados de paginação."""
-    page: int = Field(..., ge=1, description="Página atual")
-    limit: int = Field(..., ge=1, le=200, description="Itens por página")
-    total: int = Field(..., ge=0, description="Total de itens")
-    pages: int = Field(..., ge=0, description="Total de páginas")
+    page: int = Field(..., ge=1)
+    limit: int = Field(..., ge=1, le=200)
+    total: int = Field(..., ge=0)
+    pages: int = Field(..., ge=0)
 
 
 class OperadorasSearchResponse(BaseModel):
-    """Resposta paginada de busca de operadoras."""
-    query: str = Field(..., description="Query de busca")
+    """Resposta paginada de busca."""
+    query: str
     results: List[OperadoraResponse]
     metadata: PaginationMetadata
 
 
 class GastoOperadora(BaseModel):
-    """Modelo de gasto por operadora."""
-    posicao: int = Field(..., ge=1, description="Posição no ranking")
+    """Gasto por operadora."""
+    posicao: int = Field(..., ge=1)
     registro_ans: str
     razao_social: str
-    valor_total: float = Field(..., description="Valor total em reais")
+    valor_total: float = Field(..., ge=0)
     
-    @validator('valor_total')
-    def validate_valor(cls, v):
-        if v < 0:
-            raise ValueError('Valor não pode ser negativo')
+    @field_validator('valor_total')
+    @classmethod
+    def validate_valor(cls, v: float) -> float:
         return round(v, 2)
 
 
 class AnalyticsGastosResponse(BaseModel):
-    """Resposta de analytics de gastos."""
-    periodo: str = Field(..., description="Período da análise (ex: 2024)")
-    top: int = Field(..., description="Quantidade de operadoras no ranking")
-    total_geral: float = Field(..., description="Soma total dos gastos")
+    """Analytics de gastos."""
+    periodo: str = Field(..., pattern=r'^\d{4}$')
+    top: int = Field(..., ge=1, le=100)
+    total_geral: float = Field(..., ge=0)
     ranking: List[GastoOperadora]
 
 
 class HealthCheckResponse(BaseModel):
-    """Resposta de health check."""
-    status: str = Field(..., description="Status geral (ok/degraded/down)")
+    """Health check."""
+    status: str = Field(..., pattern=r'^(ok|degraded|down)$')
     version: str
-    database: str = Field(..., description="Status do banco de dados")
-    cache: Optional[str] = Field(None, description="Status do cache")
-    uptime_seconds: float
+    database: str
+    cache: Optional[str] = None
+    uptime_seconds: float = Field(..., ge=0)
 
 
 class ErrorResponse(BaseModel):
-    """Resposta de erro padronizada."""
-    error: str = Field(..., description="Tipo do erro")
-    message: str = Field(..., description="Mensagem descritiva")
-    details: Optional[dict] = Field(None, description="Detalhes adicionais")
+    """Erro padronizado."""
+    error: str
+    message: str
+    details: Optional[dict] = None
