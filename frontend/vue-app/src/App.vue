@@ -2,6 +2,7 @@
   <div class="container">
     <h1>ANS - Inteligência de Dados</h1>
     
+    <ThemeToggle />
     <div class="tabs">
       <button @click="view = 'search'" :class="{ active: view === 'search' }">
         🔍 Busca de Operadoras
@@ -16,7 +17,8 @@
 
     <div v-if="view === 'search'" class="card">
       <div class="row">
-        <input type="text" v-model="query" placeholder="Ex.: Bradesco ou 005711" @keydown.enter="handleEnter" />
+        <input type="text" v-model="query" placeholder="Ex.: Bradesco ou 005711" @input="debouncedSearch" @keydown.enter="handleEnter" />
+        <select v-model="filterModalidade" class="filter-select"><option value="">Todas</option><option>Medicina de Grupo</option><option>Cooperativa</option></select>
         <button :disabled="loadingSearch || !query.trim()" @click="() => doSearch(1)">Buscar</button>
       </div>
 
@@ -46,8 +48,7 @@
       <h2>Top 10 Maiores Gastos Assistenciais (2024)</h2>
       <p class="muted">Análise baseada no desacumulado de sinistros médico-hospitalares.</p>
       
-      <div v-if="loadingRank" class="loading">Processando dados financeiros...</div>
-      
+      <SkeletonChart v-if="loadingRank" />
       <table v-else class="table">
         <thead>
           <tr>
@@ -72,8 +73,7 @@
     </div>
 
     <div v-if="view === 'dashboard'" class="dashboard">
-      <div v-if="loadingDashboard" class="loading">Carregando analytics...</div>
-      
+      <SkeletonChart v-if="loadingDashboard" />
       <template v-else>
         <div class="dashboard-header">
           <h2>📈 Dashboard de Analytics</h2>
@@ -145,6 +145,8 @@
 import { computed, ref } from 'vue'
 import BarChart from './components/BarChart.vue'
 import LineChart from './components/LineChart.vue'
+import SkeletonChart from './components/SkeletonChart.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
 import TreemapChart from './components/TreemapChart.vue'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
@@ -155,6 +157,7 @@ const ranking = ref([])
 const loadingSearch = ref(false)
 const loadingRank = ref(false)
 const loadingDashboard = ref(false)
+const filterModalidade = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
 const totalResults = ref(0)
