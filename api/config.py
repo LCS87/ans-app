@@ -33,9 +33,9 @@ class Settings(BaseSettings):
     # Database (MySQL)
     mysql_host: str = "localhost"
     mysql_port: int = 3307
-    mysql_user: str = "ans_user"
-    mysql_password: str = "ans_password"
-    mysql_database: str = "ans_intelligence"
+    mysql_user: str = "user"
+    mysql_password: str = "password"
+    mysql_database: str = "ans_db"
     
     @property
     def database_url(self) -> str:

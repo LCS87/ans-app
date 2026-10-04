@@ -1,7 +1,7 @@
 """Serviço de busca de operadoras."""
-import unicodedata
 from pathlib import Path
-from typing import List
+from typing import List, Optional
+import unicodedata
 
 import pandas as pd
 
@@ -25,6 +25,7 @@ class OperadorasService:
     
     def __init__(self, settings: Settings):
         self.settings = settings
+        # Usar o caminho configurado
         self.csv_path = Path(settings.cadop_csv_path)
         self._items: List[dict] = []
         self._index: List[dict] = []
@@ -35,47 +36,102 @@ class OperadorasService:
             raise FileNotFoundError(f"CSV não encontrado: {self.csv_path}")
         
         try:
-            # Tenta ler com TAB separator
-            df = pd.read_csv(
-                self.csv_path,
-                skiprows=1,
-                sep='\t',
-                dtype=str,
-                encoding="latin1",
-                quoting=3
-            )
+            # Detectar formato automaticamente
+            # Tentar com ';' (formato novo) ou '\t' (formato antigo)
+            df = None
             
-            # Fallback para auto-detect
-            if len(df.columns) < 2:
-                df = pd.read_csv(
-                    self.csv_path,
-                    skiprows=1,
-                    sep=None,
-                    engine='python',
-                    encoding="latin1",
-                    quoting=3
-                )
+            for sep in [';', '\t', ',']:
+                try:
+                    df_test = pd.read_csv(
+                        self.csv_path,
+                        sep=sep,
+                        dtype=str,
+                        encoding="utf-8",
+                        on_bad_lines='skip',
+                        nrows=5
+                    )
+                    # Se tiver mais de 2 colunas, é o separator correto
+                    if len(df_test.columns) > 2:
+                        df = pd.read_csv(
+                            self.csv_path,
+                            sep=sep,
+                            dtype=str,
+                            encoding="utf-8",
+                            on_bad_lines='skip'
+                        )
+                        break
+                except Exception:
+                    continue
             
-            # Normaliza colunas
+            if df is None:
+                # Fallback: tentar latin1
+                for sep in [';', '\t', ',']:
+                    try:
+                        df_test = pd.read_csv(
+                            self.csv_path,
+                            sep=sep,
+                            dtype=str,
+                            encoding="latin1",
+                            on_bad_lines='skip',
+                            nrows=5
+                        )
+                        if len(df_test.columns) > 2:
+                            df = pd.read_csv(
+                                self.csv_path,
+                                sep=sep,
+                                dtype=str,
+                                encoding="latin1",
+                                on_bad_lines='skip'
+                            )
+                            break
+                    except Exception:
+                        continue
+            
+            if df is None or len(df.columns) < 2:
+                raise ValueError(f"Não foi possível ler o CSV com nenhum formato conhecido")
+            
+            # Normalizar colunas (uppercase)
             df.columns = [str(c).strip().upper() for c in df.columns]
             df = df.fillna("")
             
             items = []
             index = []
             
+            # Mapeamento flexível de colunas
+            def find_col(df, candidates):
+                """Encontra coluna por possíveis nomes."""
+                for cand in candidates:
+                    for col in df.columns:
+                        if cand.upper() in col.upper():
+                            return col
+                return None
+            
+            col_reg = find_col(df, ['REGISTRO', 'REG_ANS'])
+            col_cnpj = find_col(df, ['CNPJ'])
+            col_razao = find_col(df, ['RAZAO', 'RAZÃO SOCIAL'])
+            col_fantasia = find_col(df, ['FANTASIA', 'NOME FANTASIA'])
+            col_modalidade = find_col(df, ['MODALIDADE'])
+            
+            if not col_reg or not col_razao:
+                raise ValueError(f"Colunas essenciais não encontradas. Disponível: {list(df.columns)}")
+            
             for _, row in df.iterrows():
-                reg_ans = str(row.get("REGISTRO ANS", "")).strip().replace('"', '')
-                cnpj = str(row.get("CNPJ", "")).strip()
-                razao = str(row.get("RAZÃO SOCIAL", row.get("RAZAO SOCIAL", ""))).strip().replace('"', '')
-                fantasia = str(row.get("NOME FANTASIA", "")).strip()
-                modalidade = str(row.get("MODALIDADE", "")).strip()
+                reg_ans = str(row.get(col_reg, "")).strip().replace('"', '')
+                cnpj = str(row.get(col_cnpj, "")).strip() if col_cnpj else ""
+                razao = str(row.get(col_razao, "")).strip().replace('"', '')
+                fantasia = str(row.get(col_fantasia, "")).strip() if col_fantasia else ""
+                modalidade = str(row.get(col_modalidade, "")).strip() if col_modalidade else ""
+                
+                # Pular linhas sem registro
+                if not reg_ans:
+                    continue
                 
                 item_data = {
                     "registro_ans": reg_ans,
                     "cnpj": cnpj,
                     "razao_social": razao,
-                    "nome_fantasia": fantasia,
-                    "modalidade": modalidade
+                    "nome_fantasia": fantasia or None,
+                    "modalidade": modalidade or None
                 }
                 
                 items.append(item_data)
@@ -97,7 +153,7 @@ class OperadorasService:
     
     def search(self, query: str, limit: int = 50) -> List[OperadoraResponse]:
         """
-        Busca operadoras por termo com validação tolerante.
+        Busca operadoras por termo.
         
         Args:
             query: Termo de busca
@@ -136,7 +192,7 @@ class OperadorasService:
         
         # Converte para Pydantic models COM TRATAMENTO DE ERRO
         results = []
-        for hit in hits[:limit * 2]:  # Pega mais pra compensar inválidos
+        for hit in hits[:limit * 2]:
             try:
                 # Limpa e valida campos antes de criar o model
                 registro = str(hit.get("registro_ans", "")).strip()
@@ -161,7 +217,6 @@ class OperadorasService:
                 if len(results) >= limit:
                     break
             except Exception as e:
-                # Log silencioso - pula registro inválido
                 print(f"⚠ Registro inválido pulado: {hit.get('registro_ans', '?')} - {e}")
                 continue
         
