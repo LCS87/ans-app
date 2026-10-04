@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1>ANS - Inteligência de Dados</h1>
-    
+
     <ThemeToggle />
     <div class="tabs">
       <button @click="view = 'search'" :class="{ active: view === 'search' }">
@@ -18,10 +18,15 @@
       </button>
     </div>
 
+    <!-- ABA: BUSCA -->
     <div v-if="view === 'search'" class="card">
       <div class="row">
-        <input type="text" v-model="query" placeholder="Ex.: Bradesco ou 005711" @input="debouncedSearch" @keydown.enter="handleEnter" />
-        <select v-model="filterModalidade" class="filter-select"><option value="">Todas</option><option>Medicina de Grupo</option><option>Cooperativa</option></select>
+        <input type="text" v-model="query" placeholder="Ex.: Bradesco ou 005711" @keydown.enter="handleEnter" />
+        <select v-model="filterModalidade" class="filter-select">
+          <option value="">Todas</option>
+          <option>Medicina de Grupo</option>
+          <option>Cooperativa</option>
+        </select>
         <button :disabled="loadingSearch || !query.trim()" @click="() => doSearch(1)">Buscar</button>
         <ExportButton :data="results" filename="operadoras_ans.csv" />
       </div>
@@ -53,10 +58,16 @@
       </div>
     </div>
 
+    <!-- ABA: RANKING -->
     <div v-if="view === 'ranking'" class="card">
-      <h2>Top 10 Maiores Gastos Assistenciais (2024)</h2>
-      <p class="muted">Análise baseada no desacumulado de sinistros médico-hospitalares.</p>
-      
+      <div class="ranking-header">
+        <h2>Top 10 Maiores Gastos Assistenciais ({{ selectedYear }})</h2>
+        <select v-model="selectedYear" @change="onYearChange" class="year-select">
+          <option v-for="ano in availableYears" :key="ano" :value="ano">{{ ano }}</option>
+        </select>
+      </div>
+      <p class="muted">Análise baseada em sinistros médico-hospitalares. Total: {{ formatCompact(dashboardExtras.totalGeral) }}</p>
+
       <SkeletonChart v-if="loadingRank" />
       <table v-else class="table">
         <thead>
@@ -81,33 +92,42 @@
       </table>
     </div>
 
+    <!-- ABA: ADMIN -->
     <div v-if="view === 'admin'" class="card">
       <AdminPanel />
     </div>
 
+    <!-- ABA: DASHBOARD -->
     <div v-if="view === 'dashboard'" class="dashboard">
       <SkeletonChart v-if="loadingDashboard" />
       <template v-else>
         <div class="dashboard-header">
           <h2>📈 Dashboard de Analytics</h2>
           <p class="muted">Visualizações interativas dos dados de operadoras de saúde</p>
+          <div class="year-control">
+            <label>Período:</label>
+            <select v-model="selectedYear" @change="onYearChange" class="year-select">
+              <option v-for="ano in availableYears" :key="ano" :value="ano">{{ ano }}</option>
+            </select>
+          </div>
         </div>
 
+        <!-- KPI Cards -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">💰</div>
             <div class="stat-value">{{ formatCompact(dashboardData.totalGastos) }}</div>
-            <div class="stat-label">Gastos Totais Anuais</div>
+            <div class="stat-label">Gastos Totais ({{ selectedYear }})</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🏥</div>
             <div class="stat-value">{{ dashboardData.totalOperadoras.toLocaleString('pt-BR') }}</div>
-            <div class="stat-label">Operadoras Ativas</div>
+            <div class="stat-label">Operadoras com Gastos</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📊</div>
             <div class="stat-value">{{ formatCompact(dashboardData.mediaGastos) }}</div>
-            <div class="stat-label">Média de Gastos</div>
+            <div class="stat-label">Média por Operadora</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🎯</div>
@@ -116,36 +136,50 @@
           </div>
         </div>
 
+        <!-- Gráficos -->
         <div class="charts-grid">
-          <div class="chart-card">
-            <h3>📊 Ranking de Gastos Anuais (R$ Bilhões)</h3>
-            <p class="chart-subtitle">Total acumulado em 2024</p>
-            <div class="chart-container">
+          <!-- Ranking do ano selecionado -->
+          <div class="chart-card chart-card-wide">
+            <h3>📊 Ranking de Gastos Anuais (R$ Bilhões) - {{ selectedYear }}</h3>
+            <p class="chart-subtitle">Top 10 operadoras do período</p>
+            <div class="chart-container-wide">
               <BarChart :data="barChartData" :options="barChartOptions" />
             </div>
           </div>
 
+          <!-- Market Share (Pie) -->
           <div class="chart-card">
-            <h3>📊 Análise de Concentração de Mercado</h3>
-            <p class="chart-subtitle">Percentual acumulado do Top 10</p>
+            <h3>🎯 Market Share - {{ selectedYear }}</h3>
+            <p class="chart-subtitle">Participação das Top 5 + Outras</p>
             <div class="chart-container">
-              <BarChart :data="concentrationChartData" :options="concentrationChartOptions" />
+              <PieChart :data="pieChartData" :options="pieChartOptions" />
             </div>
           </div>
 
+          <!-- Evolução Anual -->
+          <div class="chart-card">
+            <h3>📈 Evolução Anual dos Gastos</h3>
+            <p class="chart-subtitle">Total de gastos assistenciais (R$ Bi)</p>
+            <div class="chart-container">
+              <BarChart :data="evolucaoAnualData" :options="evolucaoAnualOptions" />
+            </div>
+          </div>
+
+          <!-- Comparação Temporal Top 5 -->
           <div class="chart-card chart-card-wide">
-            <h3>📈 Evolução Mensal de Gastos (R$ Milhões)</h3>
-            <p class="chart-subtitle">Projeção mensal das Top 3 operadoras - 2024</p>
+            <h3>🔄 Comparação Temporal - Top 5 Operadoras</h3>
+            <p class="chart-subtitle">Gastos por ano (R$ Bilhões)</p>
             <div class="chart-container-wide">
-              <LineChart :data="lineChartData" :options="lineChartOptions" />
+              <BarChart :data="comparacaoTemporalData" :options="comparacaoTemporalOptions" />
             </div>
           </div>
 
-          <div class="chart-card">
-            <h3>🎯 Treemap de Participação de Mercado</h3>
-            <p class="chart-subtitle">Visualização hierárquica do Top 10</p>
-            <div class="chart-container">
-              <TreemapChart :data="treemapData" />
+          <!-- Concentração de Mercado -->
+          <div class="chart-card chart-card-wide">
+            <h3>📊 Análise de Concentração de Mercado - {{ selectedYear }}</h3>
+            <p class="chart-subtitle">Percentual acumulado do Top 10</p>
+            <div class="chart-container-wide">
+              <BarChart :data="concentrationChartData" :options="concentrationChartOptions" />
             </div>
           </div>
         </div>
@@ -158,13 +192,14 @@
 import { computed, ref } from 'vue'
 import AdminPanel from './components/AdminPanel.vue'
 import BarChart from './components/BarChart.vue'
-import ExportButton from './components/ExportButton.vue'; // ← ADICIONA ISSO
-import LineChart from './components/LineChart.vue'
+import ExportButton from './components/ExportButton.vue'
+import PieChart from './components/PieChart.vue'
 import SkeletonChart from './components/SkeletonChart.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 import TreemapChart from './components/TreemapChart.vue'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+
 const view = ref('search')
 const query = ref('')
 const results = ref([])
@@ -177,7 +212,20 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const totalResults = ref(0)
 
-// Formatador compacto para valores grandes
+// Controle de ano
+const selectedYear = ref('2024')
+const availableYears = ['2023', '2024', '2025']
+
+// Dados extras
+const dashboardExtras = ref({
+  totalGeral: 0,
+  totalOperadoras: 0
+})
+
+// Dados de comparação temporal
+const evolucaoAnual = ref({})
+
+// Formatação
 const formatCompact = (value) => {
   if (value >= 1000000000) {
     return `R$ ${(value / 1000000000).toFixed(2)} Bi`
@@ -189,75 +237,62 @@ const formatCompact = (value) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 }
 
+const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
+
 // Dados do dashboard
 const dashboardData = computed(() => {
   if (ranking.value.length === 0) {
     return {
       totalGastos: 0,
-      totalOperadoras: 1180,
+      totalOperadoras: 0,
       mediaGastos: 0,
       concentracao: 0
     }
   }
 
-  const total = ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
+  const total = dashboardExtras.value.totalGeral ||
+                ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
+
   const top3 = ranking.value.slice(0, 3).reduce((sum, item) => sum + item.valor_real, 0)
-  
+  const totalOperadoras = dashboardExtras.value.totalOperadoras || ranking.value.length
+
   return {
     totalGastos: total,
-    totalOperadoras: 1180,
-    mediaGastos: total / ranking.value.length,
-    concentracao: ((top3 / total) * 100).toFixed(1)
+    totalOperadoras: totalOperadoras,
+    mediaGastos: total / Math.max(totalOperadoras, 1),
+    concentracao: total > 0 ? ((top3 / total) * 100).toFixed(1) : 0
   }
 })
 
-// Paleta de cores consistente - MESMA COR = MESMA OPERADORA
+// Cores
 const getOperadoraColor = (index) => {
   const colors = [
-    '#2C5282', // Azul escuro - Líder
-    '#3182CE', // Azul médio - 2º
-    '#4299E1', // Azul claro - 3º
-    '#4A5568', // Cinza escuro - 4º
-    '#718096', // Cinza médio - 5º
-    '#2B6CB0', // Azul intermediário - 6º
-    '#63B3ED', // Azul muito claro - 7º
-    '#A0AEC0', // Cinza claro - 8º
-    '#2D3748', // Cinza muito escuro - 9º
-    '#90CDF4'  // Azul pastel - 10º
+    '#2C5282', '#3182CE', '#4299E1', '#4A5568', '#718096',
+    '#2B6CB0', '#63B3ED', '#A0AEC0', '#2D3748', '#90CDF4'
   ]
   return colors[index % colors.length]
 }
 
-// Treemap Data com cores consistentes
-const treemapData = computed(() => {
-  if (ranking.value.length === 0) return []
-  
-  const total = ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
-  
-  return ranking.value.map((item, index) => {
-    const name = item['Razao Social']
-    const shortName = name.split(' ').slice(0, 3).join(' ')
-    
-    return {
-      label: name,
-      shortLabel: shortName.length > 25 ? shortName.substring(0, 25) + '...' : shortName,
-      value: item.valor_real,
-      percentage: ((item.valor_real / total) * 100).toFixed(1),
-      color: getOperadoraColor(index),
-      index: index
-    }
-  })
-})
+const getYearColor = (ano) => {
+  const colors = {
+    '2023': '#718096',
+    '2024': '#3182CE',
+    '2025': '#48BB78'
+  }
+  return colors[ano] || '#A0AEC0'
+}
 
-// Gráfico de Barras - Ranking (em BILHÕES) com cores consistentes
+// Curto nome da operadora (para gráficos)
+const getShortName = (name) => {
+  if (!name) return 'N/A'
+  const words = name.split(' ')
+  if (words.length <= 3) return name
+  return words.slice(0, 3).join(' ')
+}
+
+// ==================== GRÁFICO 1: Ranking do Ano ====================
 const barChartData = computed(() => ({
-  labels: ranking.value.map(item => {
-    const name = item['Razao Social']
-    // Criar short name inteligente: primeiras 3 palavras
-    const words = name.split(' ')
-    if (words.length <= 3) return name
-    return words.slice(0, 3).join(' ')
-  }),
+  labels: ranking.value.map(item => getShortName(item['Razao Social'])),
   datasets: [{
     label: 'Gastos Anuais (R$ Bilhões)',
     data: ranking.value.map(item => (item.valor_real / 1000000000).toFixed(2)),
@@ -270,14 +305,12 @@ const barChartData = computed(() => ({
 const barChartOptions = {
   indexAxis: 'y',
   plugins: {
-    legend: {
-      display: false
-    },
+    legend: { display: false },
     tooltip: {
       callbacks: {
         label: (context) => {
           const billions = context.parsed.x
-          return `R$ ${billions} Bilhões (R$ ${(billions * 1000000000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`
+          return `R$ ${billions} Bi (R$ ${(billions * 1000000000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`
         }
       }
     }
@@ -285,103 +318,93 @@ const barChartOptions = {
   scales: {
     x: {
       beginAtZero: true,
-      title: {
-        display: true,
-        text: 'Gastos Anuais (R$ Bilhões)',
-        font: {
-          size: 14,
-          weight: 'bold'
-        }
-      },
-      ticks: {
-        callback: (value) => `R$ ${value} Bi`
+      title: { display: true, text: 'Gastos Anuais (R$ Bilhões)', font: { size: 14, weight: 'bold' } },
+      ticks: { callback: (value) => `R$ ${value} Bi` }
+    },
+    y: { ticks: { font: { size: 11 }, autoSkip: false } }
+  },
+  layout: { padding: { left: 10, right: 10 } },
+  maintainAspectRatio: true
+}
+
+// ==================== GRÁFICO 2: Market Share (Pie) ====================
+const pieChartData = computed(() => {
+  if (ranking.value.length === 0) return { labels: [], datasets: [] }
+
+  const total = dashboardExtras.value.totalGeral ||
+                ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
+
+  const top5 = ranking.value.slice(0, 5)
+  const top5Total = top5.reduce((sum, item) => sum + item.valor_real, 0)
+  const outrasTotal = total - top5Total
+
+  const labels = top5.map(item => getShortName(item['Razao Social']))
+  const values = top5.map(item => item.valor_real)
+
+  if (outrasTotal > 0) {
+    labels.push('Outras Operadoras')
+    values.push(outrasTotal)
+  }
+
+  return {
+    labels: labels,
+    datasets: [{
+      data: values.map(v => (v / total * 100).toFixed(1)),
+      backgroundColor: [
+        '#2C5282', '#3182CE', '#4299E1', '#4A5568', '#718096', '#A0AEC0'
+      ],
+      borderColor: '#ffffff',
+      borderWidth: 2
+    }]
+  }
+})
+
+const pieChartOptions = {
+  plugins: {
+    legend: {
+      position: 'right',
+      labels: {
+        font: { size: 11 },
+        padding: 12,
+        boxWidth: 15
       }
     },
-    y: {
-      ticks: {
-        font: {
-          size: 11
-        },
-        autoSkip: false
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          const percent = context.parsed
+          return `${context.label}: ${percent}%`
+        }
       }
-    }
-  },
-  layout: {
-    padding: {
-      left: 10,
-      right: 10
     }
   },
   maintainAspectRatio: true
 }
 
-// Gráfico de Linha - Evolução (APENAS TOP 3, em MILHÕES) com cores consistentes
-const lineChartData = computed(() => {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-  const top3 = ranking.value.slice(0, 3)
+// ==================== GRÁFICO 3: Evolução Anual ====================
+const evolucaoAnualData = computed(() => {
+  const anos = availableYears.filter(ano => evolucaoAnual.value[ano])
   
   return {
-    labels: months,
-    datasets: top3.map((item, idx) => {
-      const baseValue = item.valor_real / 12
-      const color = getOperadoraColor(idx)
-      
-      // Short name: primeiras 3 palavras
-      const words = item['Razao Social'].split(' ')
-      const shortName = words.length <= 3 ? item['Razao Social'] : words.slice(0, 3).join(' ')
-      
-      return {
-        label: shortName,
-        data: months.map(() => {
-          const variation = (Math.random() - 0.5) * 0.2
-          return ((baseValue + baseValue * variation) / 1000000).toFixed(2)
-        }),
-        borderColor: color,
-        backgroundColor: color + '20',
-        tension: 0.4,
-        fill: false,
-        borderWidth: 3,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: color,
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2
-      }
-    })
+    labels: anos,
+    datasets: [{
+      label: 'Gastos Totais (R$ Bi)',
+      data: anos.map(ano => (evolucaoAnual.value[ano] / 1000000000).toFixed(2)),
+      backgroundColor: anos.map(ano => getYearColor(ano)),
+      borderColor: anos.map(ano => getYearColor(ano)),
+      borderWidth: 2
+    }]
   }
 })
 
-const lineChartOptions = {
+const evolucaoAnualOptions = {
   plugins: {
-    legend: {
-      position: 'bottom',
-      labels: {
-        boxWidth: 12,
-        padding: 15,
-        font: {
-          size: 11
-        },
-        usePointStyle: true,
-        generateLabels: (chart) => {
-          const datasets = chart.data.datasets
-          return datasets.map((dataset, i) => ({
-            text: dataset.label,
-            fillStyle: dataset.borderColor,
-            strokeStyle: dataset.borderColor,
-            lineWidth: 2,
-            hidden: false,
-            index: i,
-            pointStyle: 'circle'
-          }))
-        }
-      }
-    },
+    legend: { display: false },
     tooltip: {
-      mode: 'index',
-      intersect: false,
       callbacks: {
         label: (context) => {
-          return `${context.dataset.label}: R$ ${context.parsed.y} Milhões`
+          const billions = context.parsed.y
+          return `R$ ${billions} Bi`
         }
       }
     }
@@ -389,47 +412,92 @@ const lineChartOptions = {
   scales: {
     y: {
       beginAtZero: true,
-      title: {
-        display: true,
-        text: 'Gastos Mensais (R$ Milhões)',
-        font: {
-          size: 14,
-          weight: 'bold'
-        }
-      },
-      ticks: {
-        callback: (value) => `R$ ${value} Mi`
-      }
+      title: { display: true, text: 'R$ Bilhões', font: { size: 12, weight: 'bold' } },
+      ticks: { callback: (value) => `R$ ${value} Bi` }
     },
     x: {
-      title: {
-        display: true,
-        text: 'Mês (2024)',
-        font: {
-          size: 12
+      title: { display: true, text: 'Ano', font: { size: 12 } }
+    }
+  },
+  maintainAspectRatio: true
+}
+
+// ==================== GRÁFICO 4: Comparação Temporal Top 5 ====================
+const comparacaoTemporalData = computed(() => {
+  // Coletar operadoras únicas que aparecem no top 5 de qualquer ano
+  const operadorasSet = new Set()
+  const dadosPorAno = {}
+
+  availableYears.forEach(ano => {
+    if (evolucaoAnual.value[ano + '_top5']) {
+      dadosPorAno[ano] = evolucaoAnual.value[ano + '_top5']
+      evolucaoAnual.value[ano + '_top5'].forEach(item => {
+        operadorasSet.add(item.razao_social)
+      })
+    }
+  })
+
+  if (operadorasSet.size === 0) return { labels: [], datasets: [] }
+
+  const operadoras = Array.from(operadorasSet).slice(0, 5)
+
+  return {
+    labels: operadoras.map(op => getShortName(op)),
+    datasets: availableYears
+      .filter(ano => dadosPorAno[ano])
+      .map(ano => ({
+        label: ano,
+        data: operadoras.map(op => {
+          const item = dadosPorAno[ano].find(i => i.razao_social === op)
+          return item ? (item.valor_total / 1000000000).toFixed(2) : 0
+        }),
+        backgroundColor: getYearColor(ano),
+        borderColor: getYearColor(ano),
+        borderWidth: 2
+      }))
+  }
+})
+
+const comparacaoTemporalOptions = {
+  plugins: {
+    legend: {
+      position: 'top',
+      labels: { font: { size: 12 }, padding: 15, boxWidth: 15 }
+    },
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          return `${context.dataset.label}: R$ ${context.parsed.y} Bi`
         }
       }
     }
   },
-  interaction: {
-    mode: 'nearest',
-    axis: 'x',
-    intersect: false
-  }
+  scales: {
+    y: {
+      beginAtZero: true,
+      title: { display: true, text: 'R$ Bilhões', font: { size: 12, weight: 'bold' } },
+      ticks: { callback: (value) => `R$ ${value} Bi` }
+    },
+    x: {
+      title: { display: true, text: 'Operadora', font: { size: 12 } }
+    }
+  },
+  maintainAspectRatio: true
 }
 
-// Gráfico de Concentração com linha de Pareto
+// ==================== GRÁFICO 5: Concentração ====================
 const concentrationChartData = computed(() => {
   if (ranking.value.length === 0) return { labels: [], datasets: [] }
-  
-  const total = ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
+
+  const total = dashboardExtras.value.totalGeral ||
+                ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
   let accumulated = 0
-  
+
   const accumulatedData = ranking.value.map(item => {
     accumulated += item.valor_real
     return ((accumulated / total) * 100).toFixed(1)
   })
-  
+
   return {
     labels: ranking.value.map((_, idx) => `Top ${idx + 1}`),
     datasets: [
@@ -461,14 +529,7 @@ const concentrationChartOptions = {
     legend: {
       display: true,
       position: 'top',
-      labels: {
-        boxWidth: 12,
-        padding: 10,
-        font: {
-          size: 11
-        },
-        usePointStyle: true
-      }
+      labels: { boxWidth: 12, padding: 10, font: { size: 11 }, usePointStyle: true }
     },
     tooltip: {
       callbacks: {
@@ -486,29 +547,16 @@ const concentrationChartOptions = {
     y: {
       beginAtZero: true,
       max: 100,
-      title: {
-        display: true,
-        text: 'Percentual Acumulado (%)',
-        font: {
-          size: 14,
-          weight: 'bold'
-        }
-      },
-      ticks: {
-        callback: (value) => `${value}%`
-      }
+      title: { display: true, text: 'Percentual Acumulado (%)', font: { size: 14, weight: 'bold' } },
+      ticks: { callback: (value) => `${value}%` }
     },
     x: {
-      title: {
-        display: true,
-        text: 'Posição no Ranking',
-        font: {
-          size: 12
-        }
-      }
+      title: { display: true, text: 'Posição no Ranking', font: { size: 12 } }
     }
   }
 }
+
+// ==================== FUNÇÕES DE DADOS ====================
 
 function handleEnter(event) {
   event.preventDefault()
@@ -517,69 +565,125 @@ function handleEnter(event) {
 
 async function doSearch(page = 1) {
   if (!query.value.trim()) return
-  
+
   loadingSearch.value = true
   try {
     const res = await fetch(`${API_BASE}/api/v1/operadoras?q=${encodeURIComponent(query.value)}&page=${page}&limit=50`)
     const data = await res.json()
-    
+
     if (data.results) {
       results.value = data.results
       currentPage.value = data.metadata.page
       totalPages.value = data.metadata.pages
       totalResults.value = data.metadata.total
     }
-  } catch (e) { 
+  } catch (e) {
     alert("Erro na API de busca")
     console.error(e)
+  } finally {
+    loadingSearch.value = false
   }
-  finally { loadingSearch.value = false }
+}
+
+async function fetchAnalyticsData(ano = null) {
+  const periodo = ano || selectedYear.value
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/analytics/gastos?periodo=${periodo}&top=10`)
+    const data = await res.json()
+
+    return {
+      ranking: data.ranking ? data.ranking.map(item => ({
+        'Razao Social': item.razao_social,
+        'valor_real': item.valor_total
+      })) : [],
+      totalGeral: data.total_geral || 0,
+      top5: data.ranking ? data.ranking.slice(0, 5) : []
+    }
+  } catch (e) {
+    console.error('Erro ao buscar analytics:', e)
+    return null
+  }
+}
+
+async function fetchEvolucaoAnual() {
+  // Buscar total de cada ano em paralelo
+  const promises = availableYears.map(ano =>
+    fetch(`${API_BASE}/api/v1/analytics/gastos?periodo=${ano}&top=5`)
+      .then(res => res.json())
+      .catch(() => null)
+  )
+
+  const results = await Promise.all(promises)
+
+  const evolucao = {}
+  results.forEach((data, idx) => {
+    if (data && data.total_geral) {
+      const ano = availableYears[idx]
+      evolucao[ano] = data.total_geral
+      evolucao[ano + '_top5'] = data.ranking || []
+    }
+  })
+
+  return evolucao
+}
+
+async function onYearChange() {
+  // Resetar dados
+  ranking.value = []
+  dashboardExtras.value.totalGeral = 0
+
+  // Recarregar dados do ano selecionado
+  if (view.value === 'ranking') {
+    await loadRanking()
+  } else if (view.value === 'dashboard') {
+    await loadDashboard()
+  }
 }
 
 async function loadRanking() {
   view.value = 'ranking'
-  if (ranking.value.length > 0) return
-  
+
   loadingRank.value = true
   try {
-    const res = await fetch(`${API_BASE}/api/v1/analytics/gastos?periodo=2024&top=10`)
-    const data = await res.json()
-    
-    if (data.ranking) {
-      ranking.value = data.ranking.map(item => ({
-        'Razao Social': item.razao_social,
-        'valor_real': item.valor_total
-      }))
+    const data = await fetchAnalyticsData(selectedYear.value)
+    if (data && data.ranking.length > 0) {
+      ranking.value = data.ranking
+      if (data.totalGeral > 0) {
+        dashboardExtras.value.totalGeral = data.totalGeral
+      }
     }
-  } catch (e) { 
+  } catch (e) {
     console.error(e)
     alert("Erro ao carregar ranking")
+  } finally {
+    loadingRank.value = false
   }
-  finally { loadingRank.value = false }
 }
 
 async function loadDashboard() {
   view.value = 'dashboard'
-  
-  if (ranking.value.length > 0) return
-  
   loadingDashboard.value = true
+
   try {
-    const res = await fetch(`${API_BASE}/api/v1/analytics/gastos?periodo=2024&top=10`)
-    const data = await res.json()
-    
-    if (data.ranking) {
-      ranking.value = data.ranking.map(item => ({
-        'Razao Social': item.razao_social,
-        'valor_real': item.valor_total
-      }))
+    // Buscar dados do ano selecionado
+    const data = await fetchAnalyticsData(selectedYear.value)
+    if (data && data.ranking.length > 0) {
+      ranking.value = data.ranking
+      if (data.totalGeral > 0) {
+        dashboardExtras.value.totalGeral = data.totalGeral
+      }
     }
-  } catch (e) { 
+
+    // Buscar evolução anual (todos os anos em paralelo)
+    const evolucao = await fetchEvolucaoAnual()
+    if (evolucao && Object.keys(evolucao).length > 0) {
+      evolucaoAnual.value = evolucao
+    }
+  } catch (e) {
     console.error(e)
     alert("Erro ao carregar dashboard")
+  } finally {
+    loadingDashboard.value = false
   }
-  finally { loadingDashboard.value = false }
 }
-
-const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
 </script>

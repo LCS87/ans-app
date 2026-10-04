@@ -6,7 +6,7 @@ from typing import Optional
 from fastapi import FastAPI, Query, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
+from api.scheduler import start_scheduler, stop_scheduler
 from api.config import get_settings, Settings
 from api.models import (
     OperadorasSearchResponse,
@@ -33,8 +33,11 @@ async def lifespan(app: FastAPI):
     # Carrega dados em memória
     app.state.operadoras_service.load()
     
+    start_scheduler()
+
     yield
     
+    stop_scheduler()
     # Shutdown
     # Cleanup se necessário
 
