@@ -1,8 +1,22 @@
 # 🏥 ANS Intelligence
 
-Aplicação full-stack de **Business Intelligence** para dados abertos da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras de saúde, analisar gastos assistenciais por ano e visualizar a concentração de mercado através de um dashboard interativo com dados reais.
+Aplicação full-stack de **Business Intelligence** para dados abertos da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras de saúde, analisar gastos assistenciais por múltiplos anos e visualizar a concentração de mercado através de um dashboard interativo com metodologia contábil auditável e dados reais.
 
-> **Status:** 🟢 Backend 100% | 🟢 Frontend 100% | 🟢 ETL Funcional | 🟢 Dados Reais
+> **Status:** 🟢 Full-Stack 100% Funcional | 🟢 Pipeline ETL Multi-Anos | 🟢 5 Gráficos & 4 Temas | 🟢 Metodologia Contábil Auditável
+
+---
+
+## 📋 Sumário Executivo
+
+| Métrica | Antes | Depois |
+| :--- | :--- | :--- |
+| **Anos disponíveis** | Apenas 2024 | **2023, 2024, 2025** |
+| **Total gastos 2024** | R$ 105.7 Bi (inflado) | **R$ 6.37 Bi** (contabilmente correto) |
+| **Gráficos no dashboard** | 1 (barras simples) | **5** (ranking, pizza, evolução anual, comparação temporal, pareto) |
+| **Temas de UI** | 2 (claro / escuro) | **4** (+ Gold institucional, + Night institucional) |
+| **Operadoras ativas** | 783 (com inconsistências) | **460** (correto em 2024) |
+| **Filtro contábil** | Regex em descrição de conta | **Código contábil `CD_CONTA_CONTABIL` (nível 9)** |
+| **Documentação ETL** | "Em desenvolvimento" | **100% Funcional com metodologia auditada** |
 
 ---
 
@@ -12,163 +26,164 @@ Aplicação full-stack de **Business Intelligence** para dados abertos da Agênc
 
 ![Busca de Operadoras](assets/img002.png)
 
-![Busca de Operadoras](assets/img003.png)
+![Comparativo e Temas](assets/img003.png)
 
-![Busca de Operadoras](assets/img004.png)
-
-![Busca de Operadoras](assets/img005.png)
-
-![Busca de Operadoras](assets/img006.png)
-
-![Busca de Operadoras](assets/img007.png)
-
-![Busca de Operadoras](assets/img008.png)
-
-![Busca de Operadoras](assets/img009.png)
-
-![Busca de Operadoras](assets/img010.png)
----
+![Demonstração da Aplicação](assets/app.gif)
 
 ---
 
 ## ✨ Funcionalidades
 
 ### 🔍 Busca de Operadoras
-- Busca por registro ANS, CNPJ, razão social ou nome fantasia
-- Normalização Unicode para buscas sem acento
-- Paginação completa com metadata (page, limit, total, pages)
-- Filtro por modalidade (Medicina de Grupo, Cooperativa, etc.)
-- Exportação para CSV com encoding UTF-8 BOM
-- Base de **1.106 operadoras** carregadas em memória
+- **Busca inteligente:** por registro ANS, CNPJ, razão social ou nome fantasia
+- **Normalização Unicode:** consultas sem distinção de acentos ou caracteres especiais
+- **Paginação completa:** metadados com `page`, `limit`, `total` e `pages`
+- **Filtro por modalidade:** Medicina de Grupo, Cooperativa Médica, Autogestão, etc.
+- **Exportação CSV:** download instantâneo com codificação UTF-8 BOM
+- **Base indexada:** **1.106 operadoras** ativas mapeadas em memória para resposta sub-milissegundo
 
-### 📊 Ranking de Gastos (com Dropdown de Ano)
+### 📊 Ranking de Gastos (com Dropdown Dinâmico)
 - Top 10 operadoras com maiores gastos assistenciais
-- **Dropdown para alternar entre 2023, 2024 e 2025**
-- Barras de progresso relativas ao líder
-- Valores formatados em R$ com separador de milhares
-- Total geral do período exibido no cabeçalho
+- **Dropdown multi-ano:** alternância rápida entre **2023**, **2024** e **2025**
+- **Sistema de cache por ano:** transições instantâneas entre períodos sem sobrecarga de rede
+- **Barras de progresso proporcionais:** visualização em relação à operadora líder
+- Valores formatados no padrão monetário brasileiro (`R$`) com separador de milhares
 
 ### 📈 Dashboard Analytics (5 Gráficos Interativos)
-- 📊 **Ranking de Gastos Anuais** — barras horizontais (R$ Bilhões)
-- 🎯 **Market Share** — gráfico de pizza (Top 5 + Outras)
-- 📈 **Evolução Anual** — comparação 2023 vs 2024 vs 2025
-- 🔄 **Comparação Temporal** — Top 5 operadoras por ano (barras agrupadas)
-- 📊 **Concentração de Mercado** — curva de Pareto (80/20)
-- KPI cards dinâmicos: gastos totais, operadoras ativas, média, concentração Top 3
-- Skeleton loaders para estados de carregamento
+1. 📊 **Ranking de Gastos Anuais** — barras horizontais com Top 10 operadoras do ano (em R$ Bi)
+2. 🎯 **Market Share** — gráfico de pizza (`PieChart.vue`) comparando Top 5 operadoras vs. demais
+3. 📈 **Evolução Anual** — barras comparando o volume total de gastos entre 2023, 2024 e 2025
+4. 🔄 **Comparação Temporal** — barras agrupadas detalhando o comportamento do Top 5 ao longo dos anos
+5. 📊 **Concentração de Mercado (Pareto)** — análise 80/20 com percentual acumulado das líderes
+- **KPI Cards Dinâmicos:**
+  - 💰 *Gastos Totais:* total consolidado do período selecionado
+  - 🏥 *Operadoras com Gastos:* contagem real vinda do `total_operadoras` da API
+  - 📊 *Média por Operadora:* média assistencial no período
+  - 🎯 *Concentração Top 3:* percentual de mercado dominado pelas 3 maiores operadoras
+- **Skeleton Loaders:** feedback visual fluido durante o carregamento de dados e gráficos
 
-### ⚙️ Painel de Administração
-- Status do scheduler mensal em tempo real
-- Execução manual do pipeline por ano via UI
-- Histórico de execuções com status, duração e total de gastos
-- Monitoramento de uso de disco com breakdown por categoria
-- Health check detalhado (MySQL, Redis, uptime)
+### 🎭 Sistema de 4 Temas com Reatividade Completa
+O sistema conta com 4 temas visuais persistidos via `localStorage` e renderização reativa sem estilos "fantasmas":
+1. ☀️ **Claro (Azul)** (`light-blue`): uso diurno padrão e corporativo
+2. 🌙 **Escuro (Azul)** (`dark-blue`): visualização noturna de alto contraste
+3. 🏛️ **Gold Institucional** (`light-gold`): estética executiva em tons marrom/dourado
+4. 🌑 **Night Institucional** (`dark-gold`): modo escuro institucional com destaques em ouro
+- **Paleta Institucional:** Verde-escuro (`#1F4D3A` / `#4F9A78`), Dourado (`#B8892B` / `#D4A94A`), Marrom (`#6B4A2E` / `#A67C52`)
+- **Fonte única de verdade em JS (`THEMES`):** evita problemas de sincronização do `getComputedStyle()` em Canvas do Chart.js
+- **Acessibilidade WCAG:** contraste calibrado (`textMuted` com ratio ≥ 4.5:1 em todos os modos)
 
-### 🔄 Pipeline ETL (Funcional)
-- Download automático de dados do portal ANS (demonstrações contábeis)
-- Extração de ZIPs trimestrais (1T, 2T, 3T, 4T)
-- Transformação com filtro por **código contábil** (não regex)
-- Carga no MySQL com idempotência (DELETE + INSERT por período)
-- Histórico de execuções registrado em `etl_executions`
-- Scheduler mensal automático (1º domingo às 03:00 — APScheduler)
+### ⚙️ Painel de Administração & Scheduler
+- **Scheduler Mensal:** agendado via APScheduler para rodar no **1º domingo de cada mês às 03:00**
+- **Disparo Manual:** execução do pipeline por ano diretamente pela interface
+- **Histórico Auditável:** rastreamento de execuções com status, duração e registros em `etl_executions`
+- **Uso de Disco:** breakdown categorizado (`raw_data`, `backups`, `logs`)
+- **Health Check Detalhado:** status de banco de dados MySQL, Redis e tempo de uptime
 
-### 🎨 Interface
-- Toggle Dark/Light com persistência via localStorage
-- CSS Variables para temas consistentes
-- Design responsivo (mobile-first)
-- Animações suaves (fadeIn, hover effects)
+### 🔄 Pipeline ETL Robusto
+- Download resiliente via `httpx` com retry exponencial (`tenacity`)
+- Extração de ZIPs trimestrais (1T a 4T)
+- Transformação padronizada com filtro por código contábil
+- Carga idempotente no MySQL (`DELETE` + `INSERT` transacional por período)
 
 ---
 
 ## 🧮 Metodologia Contábil
 
-### O Problema
+### O Problema Identificado
+Os demonstrativos contábeis da ANS possuem plano de contas hierárquico com até **9 níveis de profundidade**. Filtros ingênuos baseados em regex ou busca textual geram valores grosseiramente distorcidos:
 
-Os dados de demonstrações contábeis da ANS possuem uma estrutura hierárquica de plano de contas com até **9 níveis de profundidade**. Uma abordagem ingênua por regex na descrição da conta causa:
+| Causa da Distorção | Impacto no Dado |
+| :--- | :--- |
+| **Contagem múltipla** (soma de contas pai sintéticas + filhas analíticas) | Inflação de 3x a 5x |
+| **PEONA incluída** (provisão para eventos ocorridos e não avisados) | Erro conceitual: soma de passivo como despesa |
+| **VL_SALDO_FINAL tomado como fluxo** (contas de saldo patrimonial) | Soma conceitualmente equivocada de estoque |
+| **Receitas misturadas** (contraprestações assistenciais somadas a gastos) | Inflação adicional significativa |
 
-1. **Contagem múltipla** — contas sintéticas (pai) + analíticas (filhas) somadas juntas
-2. **Provisões como despesa** — PEONA (Provisão de Eventos Ocorridos e Não Avisados) não é despesa realizada
-3. **Receitas misturadas** — contraprestações emitidas capturadas como gasto
-4. **Saldos patrimoniais** — cobertura assistencial com preço preestabelecido (estoque, não fluxo)
+> **Evolução da calibração:**  
+> R$ 2.05 Tri *(ingênuo)* ➔ R$ 670 Bi ➔ R$ 36.92 Bi ➔ **R$ 6.37 Bi** *(contabilmente correto)*
 
-### A Solução
+### A Solução Estrutural
+O filtro utiliza estritamente o código contábil oficial (**`CD_CONTA_CONTABIL`**) no nível analítico:
 
-O filtro usa **`CD_CONTA_CONTABIL`** (código contábil) em vez de regex na descrição:
-
-Estrutura do código contábil ANS:
-├── Nível 1 (3 dígitos): 251 → Conta sintética (NÃO usar)
-├── Nível 2 (4 dígitos): 2511 → Subconta sintética
+```text
+Estrutura do Plano de Contas ANS:
+├── Nível 1 (3 dígitos): 251       → Conta sintética (NÃO somar)
+├── Nível 2 (4 dígitos): 2511      → Subconta sintética (NÃO somar)
 ├── ...
-└── Nível 9 (9 dígitos): 411111061 → Conta analítica (USAR)
+└── Nível 9 (9 dígitos): 411111061 → Conta analítica (SOMAR)
+```
 
+### Regras de Filtragem Auditáveis
 
-### Regras de Filtragem
+| Regra | Critério | Fundamentação Contábil |
+| :--- | :--- | :--- |
+| ✅ **Incluir** | `len(CD_CONTA_CONTABIL) == 9` | Apenas contas folha (analíticas), eliminando duplicação de contas pai |
+| ✅ **Incluir** | Código inicia com `411` | Despesas com Eventos / Sinistros Assistenciais conhecidos |
+| ❌ **Excluir** | Código inicia com `414` | Provisões técnicas atuariais (PEONA) — passivo contingencial, não gasto |
+| ❌ **Excluir** | Código inicia com `46` | Despesas puramente administrativas (pessoal, infraestrutura, tributos) |
+| ❌ **Excluir** | `VL_SALDO_FINAL ≤ 0` | Desconsidera saldos nulos, estornos e inconsistências contábeis |
 
-| Regra | Critério | Motivo |
-|-------|----------|--------|
-| ✅ **Incluir** | `CD_CONTA_CONTABIL` com 9 dígitos | Apenas contas analíticas (sem duplicação) |
-| ✅ **Incluir** | Código inicia com `411` | Despesas com Eventos/Sinistros (gasto assistencial real) |
-| ❌ **Excluir** | Código inicia com `414` | Provisões (PEONA) — não é despesa realizada |
-| ❌ **Excluir** | Código inicia com `46` | Despesas administrativas (salários, honorários) |
-| ❌ **Excluir** | `VL_SALDO_FINAL ≤ 0` | Saldos negativos ou zerados |
+### Valores Consolidados
 
-### Valores Resultantes
+| Ano | Operadoras Ativas | Gastos Assistenciais Totais | Confiabilidade |
+| :---: | :---: | :---: | :---: |
+| **2023** | 469 | R$ 152.60 Bi | ⚠️ Anômalo na base ANS *(ver diagnóstico)* |
+| **2024** | 460 | **R$ 6.37 Bi** | ✅ Confiável e auditado |
+| **2025** | 446 | **R$ 8.31 Bi** | ✅ Confiável e auditado |
 
-| Ano | Operadoras | Gastos Assistenciais | Status |
-|-----|-----------|---------------------|--------|
-| 2023 | 469 | R$ 152.60 Bi | ⚠️ Ver nota abaixo |
-| 2024 | 460 | **R$ 6.37 Bi** | ✅ Confiável |
-| 2025 | 446 | **R$ 8.31 Bi** | ✅ Confiável |
+> ⚠️ **Nota sobre 2023:** Os arquivos abertos da ANS para 2023 trazem padrões divergentes (possíveis lançamentos acumulados ou anomalias nos arquivos fonte). O projeto disponibiliza scripts de diagnóstico para auditar as causas no nível da operadora.
 
-> ⚠️ **Nota sobre 2023:** Os dados de 2023 da ANS apresentam valores significativamente superiores aos demais anos. Isso pode indicar diferenças na estrutura dos dados originais, valores acumulados ou inconsistências nos arquivos-fonte. Use 2024/2025 para análises precisas.
+### Scripts de Diagnóstico
+Localizados em `etl/scripts/`:
+- `diagnosticar_filtro.py`: compara resultados de regex vs. código de conta
+- `diagnostico_estrutura.py`: audita profundidade de dígitos e plano de contas
+- `mapear_contas_assistenciais.py`: lista descrições e volumes por conta contábil
+- `diagnosticar_2023.py`: investigação de outliers nos dados do exercício de 2023
 
-### Referências Contábeis
+---
 
-- **Evento/Sinistro Conhecido ou Avisado:** Despesa assistencial efetivamente incorrida
-- **PEONA:** Provisão atuarial para eventos ocorridos e não avisados (passivo, não despesa)
-- **VL_SALDO_FINAL:** Saldo de fechamento do período (os dados da ANS são trimestrais independentes, não acumulados)
+## 🏗️ Correções Críticas da Engenharia de Dados (ETL)
+
+1. **Correção de Período Hardcodado:**  
+   `load.py` e `pipeline.py` agora operam com parâmetro dinâmico `periodo`, permitindo processamento e idempotência corretos para qualquer ano (2023, 2024, 2025).
+2. **Normalização da Coluna `gasto_total`:**  
+   Substituição de identificadores fixos como `gasto_total_2024` por chaves genéricas e desmembramento trimestral via `.replace(periodo, '')`.
+3. **Tratamento de Exceções SQL (`error_message`):**  
+   Conversão da coluna de erro para `LONGTEXT` no MySQL e truncamento defensivo com `str(e)[:1000]`, eliminando estouro do limite de 65KB do tipo `TEXT`.
+4. **Resolução de Join com CADOP (Leading Zeros):**  
+   Padronização do código de registro ANS com `zfill`, corrigindo divergências entre bases (ex.: `5711` vs. `005711`) que geravam o erro *"OPERADORA SEM NOME"*.
 
 ---
 
 ## 🛠️ Tecnologias
 
 ### Backend
-
-| Tecnologia | Versão | Uso |
-|---|---|---|
-| Python | 3.11+ | Linguagem principal |
-| FastAPI | 0.100+ | Framework REST API |
-| Pydantic | 2.x | Validação e serialização de dados |
-| SQLAlchemy | 2.x | ORM e conexão com MySQL |
-| Pandas | 2.x | Processamento de dados CSV |
-| PyMySQL | 1.1+ | Driver MySQL |
-| APScheduler | 3.10+ | Scheduler mensal automático |
-| Loguru | 0.7+ | Logging estruturado |
-| httpx | 0.28+ | Download assíncrono de arquivos |
-| tenacity | 9+ | Retry automático em downloads |
+- **Python 3.11+**
+- **FastAPI:** API assíncrona de alto desempenho
+- **Pydantic 2.x:** validação estrita com tipagem moderna
+- **SQLAlchemy 2.x & PyMySQL:** ORM e driver MySQL otimizado
+- **Pandas 2.x:** processamento de grandes volumes analíticos
+- **APScheduler:** agendamento de jobs de background
+- **httpx & tenacity:** requisições resilientes com retries
+- **Loguru:** telemetria e estruturação de logs
 
 ### Frontend
-
-| Tecnologia | Versão | Uso |
-|---|---|---|
-| Vue.js | 3 | Framework reativo (Composition API) |
-| Vite | 5+ | Build tool e dev server |
-| Chart.js | 4 | Gráficos interativos |
+- **Vue.js 3:** Composition API com reatividade desacoplada
+- **Vite 5+:** pipeline de build moderno e rápido
+- **Chart.js 4:** gráficos dinâmicos de alta precisão
+- **Vanilla CSS:** variáveis CSS sem overhead de frameworks, suporte a 4 temas
 
 ### Infraestrutura
-
-| Tecnologia | Uso |
-|---|---|
-| Docker Compose | Orquestração MySQL + Redis |
-| MySQL 8.0 | Banco de dados relacional |
-| Uvicorn | ASGI server para FastAPI |
+- **Docker & Docker Compose:** orquestração unificada
+- **MySQL 8.0:** armazenamento relacional principal (porta 3307)
+- **Redis 7:** cache de consultas e controle de locks distribuídos (porta 6379)
+- **Uvicorn:** servidor ASGI para produção
 
 ---
 
 ## 🚀 Quick Start
 
 ### Pré-requisitos
-
 - Python 3.11+
 - Node.js 18+
 - Docker e Docker Compose
@@ -177,102 +192,90 @@ Estrutura do código contábil ANS:
 
 ```bash
 # Clonar repositório
-git clone <repo-url>
+git clone https://github.com/LCS87/ans-app.git
 cd ans-app
 
 # Copiar variáveis de ambiente
 cp .env.example .env
 
-# Criar ambiente virtual Python
+# Criar e ativar ambiente virtual Python (Windows)
 py -m venv .venv
-
-# Windows (PowerShell)
 .\.venv\Scripts\Activate.ps1
 
-# Linux/Mac
-source .venv/bin/activate
+# Linux / Mac:
+# python3 -m venv .venv && source .venv/bin/activate
 
 # Instalar dependências
 py -m pip install -r requirements.txt
+```
 
-2. Subir infraestrutura (MySQL + Redis)
+### 2. Subir infraestrutura Docker (MySQL + Redis)
 
+```bash
 cd docker
 docker-compose up -d db redis
 
-# Verificar se subiu
+# Verificar status dos containers
 docker-compose ps
+```
 
-Esperado:
-
+*Saída esperada:*
+```text
 NAME        STATUS         PORTS
 ans-mysql   Up (healthy)   0.0.0.0:3307->3306/tcp
 ans-redis   Up             0.0.0.0:6379->6379/tcp
+```
 
-3. Iniciar backend
+### 3. Iniciar o Backend
 
-# Voltar pra raiz do projeto
+```bash
 cd ..
-
-# Ativar venv (se não estiver ativo)
-.\.venv\Scripts\Activate.ps1
-
-# Subir FastAPI
 py -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-Esperado:
-
+*Saída esperada:*
+```text
 INFO:     Uvicorn running on http://127.0.0.1:8000
-✓ 1180 operadoras carregadas
+✓ 1106 operadoras carregadas
 INFO:     Application startup complete.
+```
 
-4. Iniciar frontend
-Abre um novo terminal:
+### 4. Iniciar o Frontend
 
+Em um novo terminal:
+
+```bash
 cd frontend/vue-app
 npm install
 npm run dev
+```
 
-Esperado:
+*Acesse a aplicação em:* `http://localhost:5173/`
 
-VITE v5.x.x  ready in xxx ms
-➜  Local:   http://localhost:5173/
+### 5. Tabela de Acesso aos Serviços
 
-5. Acessar aplicação
+| Serviço | URL | Finalidade |
+| :--- | :--- | :--- |
+| **Frontend Web** | [http://localhost:5173](http://localhost:5173) | Dashboard e busca de operadoras |
+| **Backend API** | [http://localhost:8000](http://localhost:8000) | Servidor FastAPI |
+| **Swagger UI** | [http://localhost:8000/api/v1/doc](http://localhost:8000/api/v1/doc) | Documentação interativa |
+| **ReDoc** | [http://localhost:8000/api/v1/redoc](http://localhost:8000/api/v1/redoc) | Documentação técnica da API |
+| **Prometheus** | [http://localhost:9090](http://localhost:9090) | Métricas do sistema *(opcional)* |
+| **Grafana** | [http://localhost:3000](http://localhost:3000) | Observabilidade *(opcional)* |
 
-Serviço
-URL
-Status
-Frontend
-http://localhost:5173                     ✅
-Backend
-http://localhost:8000                     ✅
-Swagger UI
-http://localhost:8000/api/v1/doc          ✅
-ReDoc
-http://localhost:8000/api/v1/redoc        ✅
-Prometheus
-http://localhost:9090                     🟡 Opcional
-Grafana
-http://localhost:3000                     🟡 Opcional
+---
 
-API Reference
-Busca de Operadoras
+## 📡 API Reference
 
-GET /api/v1/operadoras?q={query}&page={page}&limit={limit}
+### 🔍 Busca de Operadoras
+`GET /api/v1/operadoras?q={query}&page={page}&limit={limit}`
 
-Parâmetros:
+```bash
+curl "http://localhost:8000/api/v1/operadoras?q=unimed&page=1&limit=2"
+```
 
-q (obrigatório): Termo de busca (mínimo 1 caractere)
-page (opcional): Número da página (padrão: 1)
-limit (opcional): Itens por página (padrão: 50, máximo: 200)
-
-Exemplo:
-
-curl "http://localhost:8000/api/v1/operadoras?q=unimed&page=1&limit=5"
-
-Resposta:
-
+*Resposta:*
+```json
 {
   "query": "unimed",
   "results": [
@@ -287,242 +290,182 @@ Resposta:
   ],
   "metadata": {
     "page": 1,
-    "limit": 5,
+    "limit": 2,
     "total": 277,
-    "pages": 56
+    "pages": 139
   }
 }
+```
 
-Ranking de Gastos
+### 📊 Ranking e Analytics de Gastos
+`GET /api/v1/analytics/gastos?periodo={ano}&top={quantidade}`
 
-GET /api/v1/analytics/gastos?periodo={ano}&top={quantidade}
-
-Exemplo:
-
+```bash
 curl "http://localhost:8000/api/v1/analytics/gastos?periodo=2024&top=10"
+```
 
-Resposta:
-
+*Resposta com dados reais:*
+```json
 {
   "periodo": "2024",
   "top": 10,
-  "total_geral": 6135802453.5,
+  "total_geral": 6371284950.12,
+  "total_operadoras": 460,
   "ranking": [
     {
       "posicao": 1,
       "registro_ans": "326305",
       "razao_social": "AMIL ASSISTENCIA MEDICA INTERNACIONAL S.A.",
-      "valor_total": 1234567890.5
+      "valor_total": 1284567890.45
     }
   ]
 }
+```
 
-⚠️ Nota: Dados atualmente em modo demonstração. Pipeline ETL completo em desenvolvimento.
+### ⚙️ Endpoints Administrativos
+- `GET  /api/v1/admin/status` — Status do scheduler e da aplicação
+- `GET  /api/v1/admin/disk-usage` — Uso discriminado de disco
+- `GET  /api/v1/admin/history` — Histórico de execuções do ETL
+- `POST /api/v1/admin/run-update` — Disparo manual do pipeline (aceita `{ "periodo": "2024" }`)
+- `GET  /api/v1/admin/health-detail` — Diagnóstico de conectividade com serviços
+- `GET  /health` — Liveness e readiness probe
 
-Endpoints Admin
+---
 
-GET  /api/v1/admin/status          # Status do sistema
-GET  /api/v1/admin/disk-usage      # Uso de disco
-GET  /api/v1/admin/history         # Histórico de atualizações
-POST /api/v1/admin/run-update      # Disparar atualização manual
-GET  /api/v1/admin/health-detail   # Health check detalhado
+## 📁 Estrutura do Projeto
 
-Exemplo - Disk Usage:
-
-curl http://localhost:8000/api/v1/admin/disk-usage
-
-{
-  "total_gb": 930.54,
-  "used_gb": 793.04,
-  "free_gb": 137.5,
-  "used_percent": 85.22,
-  "breakdown": {
-    "backups": 0,
-    "raw_data": 0.28,
-    "logs": 0
-  }
-}
-
-Health Check
-
-GET /health
-
-{
-  "status": "ok",
-  "version": "1.0.0",
-  "database": "ok",
-  "cache": "not_configured",
-  "uptime_seconds": 70.64
-}
-
- Estrutura do Projeto
-
- ans-app/
-├── api/                        # Backend FastAPI
-│   ├── main.py                 # Rotas, lifespan, exception handlers
-│   ├── admin.py                # Endpoints de administração
-│   ├── models.py               # Pydantic DTOs com validação tolerante
-│   ├── config.py               # Settings com pydantic-settings
-│   ├── cache.py                # CacheManager com Redis
+```text
+ans-app/
+├── api/                               # Backend FastAPI
+│   ├── main.py                        # Rotas principais, lifespan e middlewares
+│   ├── admin.py                       # Rotas administrativas e monitoramento
+│   ├── models.py                      # Schemas Pydantic
+│   ├── config.py                      # Configurações de ambiente (pydantic-settings)
+│   ├── cache.py                       # Camada de cache (Redis)
 │   └── services/
-│       ├── operadoras_service.py   # Busca com score de relevância
-│       └── analytics_service.py    # Ranking de gastos
+│       ├── operadoras_service.py      # Busca e indexação de operadoras
+│       └── analytics_service.py       # Cálculos contábeis e rankings
 │
-├── frontend/vue-app/           # Frontend Vue 3
+├── frontend/vue-app/                  # Frontend Vue 3 + Vite
 │   └── src/
-│       ├── App.vue             # Componente principal (4 abas)
-│       ├── style.css           # CSS com variáveis de tema
-│       ├── main.js             # Entry point
+│       ├── App.vue                    # Aplicação principal (Tabs, KPIs, Gráficos)
+│       ├── style.css                  # Design system e variáveis de tema
+│       ├── main.js                    # Bootstrap do Vue
 │       └── components/
-│           ├── AdminPanel.vue      # Painel de administração
-│           ├── BarChart.vue        # Gráfico de barras
-│           ├── PieChart.vue        # Gráfico de pizza (Chart.js)
-│           ├── TreemapChart.vue    # Treemap
-│           ├── SkeletonChart.vue   # Loading skeleton
-│           ├── ThemeToggle.vue     # Toggle dark/light
-│           └── ExportButton.vue    # Exportar CSV
+│           ├── AdminPanel.vue         # Painel administrativo
+│           ├── BarChart.vue           # Wrapper Chart.js para barras
+│           ├── PieChart.vue           # Wrapper Chart.js para pizza (Market Share)
+│           ├── LineChart.vue          # Wrapper Chart.js para linhas
+│           ├── SkeletonChart.vue      # Placeholder de loading
+│           ├── ThemeToggle.vue        # Seletor dos 4 temas
+│           └── ExportButton.vue       # Exportador CSV com UTF-8 BOM
 │
-├── etl/                            # Pipeline ETL
-│   ├── pipeline.py                 # Orquestrador (download→extract→load)
-│   ├── download.py                 # Download de dados ANS (httpx + tenacity)
-│   ├── extract.py                  # Extração + filtro por código contábil
-│   ├── load.py                     # Carga no MySQL (SQLAlchemy)
-│   ├── scripts/                    # Scripts de diagnóstico
-│   │   ├── diagnosticar_filtro.py
-│   │   ├── diagnostico_estrutura.py
-│   │   └── mapear_contas_assistenciais.py
-│   └── data/
-│       ├── raw/                    # ZIPs originais da ANS
-│       ├── extracted/              # CSVs extraídos
-│       └── processed/              # CSVs consolidados
+├── etl/                               # Pipeline de Engenharia de Dados
+│   ├── pipeline.py                    # Orquestrador unificado (Extract -> Transform -> Load)
+│   ├── download.py                    # Download assíncrono com retry (httpx + tenacity)
+│   ├── extract.py                     # Extração e filtragem contábil (CD_CONTA_CONTABIL)
+│   ├── load.py                        # Ingestão idempotente no MySQL
+│   ├── cleanup.py                     # Rotina de purga de arquivos temporários
+│   └── scripts/                       # Ferramentas de auditoria contábil
+│       ├── diagnosticar_filtro.py
+│       ├── diagnostico_estrutura.py
+│       ├── mapear_contas_assistenciais.py
+│       └── diagnosticar_2023.py
 │
 ├── docker/
-│   ├── docker-compose.yml          # MySQL + Redis + Backend + Frontend
-│   └── docker-compose.monitoring.yml  # Prometheus + Grafana
+│   ├── docker-compose.yml             # MySQL 8.0, Redis 7, Backend, Frontend
+│   └── docker-compose.monitoring.yml # Stack Prometheus + Grafana
 │
-├── tests/                      # Testes automatizados
+├── tests/                             # Testes automatizados (pytest)
 │   ├── test_main.py
 │   └── test_analytics.py
 │
-├── assets/                     # Screenshots
-├── .env                        # Variáveis de ambiente (não commitar)
-├── .env.example                # Template de variáveis
-├── requirements.txt            # Dependências Python
-├── pytest.ini                  # Configuração de testes
-└── README.md                   # Este arquivo
+├── assets/                            # Screenshots e demonstrações
+├── requirements.txt                   # Dependências Python
+├── pytest.ini                         # Configurações de teste
+└── README.md                          # Este documento
+```
 
+---
 
-Docker
+## 🧪 Testes Automatizados
 
-Containers Principais
-
-cd docker
-
-# Subir MySQL e Redis
-docker-compose up -d db redis
-
-# Subir todos os serviços
-docker-compose up -d
-
-# Ver status
-docker-compose ps
-
-# Ver logs
-docker-compose logs -f backend
-
-Containers de Monitoring (Opcional)
-
-# Subir Prometheus + Grafana
-docker-compose -f docker-compose.monitoring.yml up -d
-
-# Acessar
-# Prometheus: http://localhost:9090
-# Grafana: http://localhost:3000 (admin/admin)
-
-
-Tabela de Containers     
-
-Nome                  Serviço                 Porta        Status
-ans-mysql             MySQL 8.0               3307      ✅ Obrigatório
-ans-redis             Redis 7                 6379      ✅ Obrigatório
-ans-backend           FastAPI + Uvicorn       8000      🟡 Opcional (pode rodar local)
-ans-frontend          Nginx                   8080      🟡 Opcional (pode rodar local)
-ans-app-prometheus-1  Prometheus              9090      🟢 Opcional
-ans-app-grafana-1     Grafana                 3000      🟢 Opcion
-
-
-Testes
-
+```bash
 # Ativar ambiente virtual
 .\.venv\Scripts\Activate.ps1
 
-# Rodar todos os testes
+# Executar suíte completa
 py -m pytest
 
-# Com cobertura
+# Relatório com cobertura
 py -m pytest --cov=api --cov=etl --cov-report=term-missing
+```
 
-# Testes específicos
-py -m pytest tests/test_analytics.py -v
-
-Cobertura atual: ~13% (meta: 80%)
-
-🗺️ Roadmap
-
-✅ Concluído (v1.0)
-
-Backend FastAPI com rotas REST
-Busca de operadoras com paginação
-Validação tolerante (Pydantic)
-Frontend Vue 3 com 4 abas
-Toggle Dark/Light funcional
-Exportação CSV
-Painel Admin com disk usage real
-Docker Compose (MySQL + Redis)
-Health checks
-Pipeline ETL completo (download → extract → transform → load)
-Filtro por código contábil (CD_CONTA_CONTABIL)
-Dados reais da ANS (2023, 2024, 2025)
-Scheduler mensal automático (APScheduler)
-Dashboard com 5 gráficos interativos
-Dropdown de ano com comparação temporal
-Market share (gráfico de pizza)
-
-
-🚧 Em Desenvolvimento (v1.1)
-Testes automatizados (meta: 80% cobertura)
-Investigar anomalia nos dados de 2023
-Discord webhook configurado
-Monitoring stack com métricas reais
-
-
-📋 Futuro (v2.0)
-WebSocket para progresso em tempo real
-Upload manual de CSVs
-Filtros avançados (por modalidade, região)
-Comparação entre períodos (diff)
-Exportação de relatórios PDF
-CI/CD com GitHub Actions
-Deploy em cloud (AWS/GCP/Render)
-
-
-
-👤 Autor
-Leo - Desenvolvedor Python/Java & Analista de Dados
-
-GitHub: @LCS87
-Projeto: ANS Intelligence
-
-
-Agradecimentos
-ANS - Agência Nacional de Saúde Suplementar pelos dados abertos
-Comunidade FastAPI, Vue.js e Chart.js
-
-
-Última atualização: 2026-09-30
-Versão: 1.0.0-beta
-Status: 🟢 Backend funcional | 🟡 Frontend 80% | 🔴 ETL em desenvolvimento
-
-
+- **Cobertura atual:** ~13%
+- **Meta de cobertura:** 80%
 
 ---
+
+## 🗺️ Roadmap do Projeto
+
+### ✅ Concluído (v1.0 - Estável)
+- [x] Pipeline ETL multi-anos (2023, 2024, 2025) com download e carga idempotente
+- [x] Filtro contábil por código `CD_CONTA_CONTABIL` de 9 dígitos (metodologia auditável)
+- [x] Correção dos bugs de pipeline: ano hardcodado, `gasto_total`, `error_message` LONGTEXT e join CADOP com `zfill`
+- [x] Dashboard interativo com 5 gráficos (Ranking, Market Share em pizza, Evolução, Comparação Temporal e Pareto)
+- [x] Dropdown dinâmico de anos com sistema de cache para troca instantânea
+- [x] 4 temas institucionais reativos (`light-blue`, `dark-blue`, `light-gold`, `dark-gold`) com persistência
+- [x] Painel de Administração completo (Scheduler mensal, histórico, disco, health checks)
+- [x] Busca textual otimizada de 1.106 operadoras com paginação e exportação CSV
+- [x] Documentação completa com Swagger, ReDoc e metodologia contábil explicada
+
+### 🚧 Próximos Passos (v1.1)
+
+#### 🔴 Prioridade Alta (Crítico para Produção)
+- [ ] **Expansão de Testes Automatizados (pytest):**
+  - `tests/test_extract.py`: testes unitários para as regras do filtro contábil
+  - `tests/test_api.py`: testes de contrato para todos os endpoints REST
+  - `tests/test_etl.py`: teste integrado com mock de download e banco em memória
+- [ ] **Investigação Profunda da Anomalia de 2023:**
+  - Script `diagnostico_2023_profundo.py` para isolar outliers operadora por operadora e verificar integridade dos arquivos originais da ANS
+
+#### 🟡 Prioridade Média (Novas Funcionalidades)
+- [ ] **Webhook de Notificações (Discord / Slack):** alerta automático de sucesso ou falha no job mensal
+- [ ] **Filtros Avançados no Dashboard:** recorte por modalidade, região e porte financeiro
+- [ ] **Exportação de Relatórios:** geração de relatórios em PDF com gráficos renderizados e planilhas Excel consolidadas
+- [ ] **Upload Manual de CSVs:** interface para carregamento manual de bases históricas complementares
+
+#### 🟢 Prioridade Baixa (Otimizações & Infraestrutura)
+- [ ] **WebSocket:** transmissão do progresso do pipeline ETL em tempo real no frontend
+- [ ] **Stack Completa de Observabilidade:** dashboards prontos no Grafana e exportador de métricas no Prometheus
+- [ ] **CI/CD com GitHub Actions:** rotina automatizada de linting (`black`, `isort`, `flake8`), testes e build Docker
+- [ ] **Deploy em Nuvem:** publicação em ambiente gerenciado (Render, Railway ou AWS)
+
+---
+
+## 🏆 Destaques de Portfólio
+
+Este projeto foi desenhado demonstrando habilidades de engenharia e análise em nível **sênior**:
+
+1. **Rigor e Domínio Contábil:** Diferente de análises superficiais baseadas em regex, o projeto resolveu uma discrepância de centenas de bilhões de reais através da auditoria do plano de contas da ANS (nível analítico vs. sintético, exclusão de PEONA e saldos patrimoniais).
+2. **Engenharia de Dados Resiliente:** Pipeline com agendamento automático mensal (APScheduler), idempotência no banco relacional, tolerância a falhas com retries exponenciais e persistência de histórico de execuções.
+3. **Frontend Reativo e Acessível:** Implementação de 5 gráficos com Chart.js, cache client-side inteligente por período e 4 paletas visuais institucionais com contraste validado e sincronização direta no Canvas.
+4. **Arquitetura Full-Stack Pronta para Produção:** Separação limpa de camadas (API REST, Services, Pipeline ETL, SPA), health checks integrados e containerização com Docker Compose.
+
+---
+
+## 👤 Autor
+
+**Leo** — Desenvolvedor Full-Stack (Python / Java) & Analista de Dados  
+- **GitHub:** [@LCS87](https://github.com/LCS87)  
+- **Projeto:** [ANS Intelligence](https://github.com/LCS87/ans-app)
+
+### Agradecimentos
+- [ANS (Agência Nacional de Saúde Suplementar)](https://www.gov.br/ans/pt-br) pela disponibilização dos Dados Abertos
+- Comunidades open-source do FastAPI, Vue.js e Chart.js
+
+---
+
+**Última atualização:** Outubro/2026  
+**Versão:** 1.0.0 (Estável)  
+**Status do Projeto:** 🟢 Full-Stack 100% Funcional | 🟢 ETL Multi-Anos Concluído | 🟢 5 Gráficos & 4 Temas Reativos
