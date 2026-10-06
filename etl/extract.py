@@ -20,7 +20,16 @@ from typing import List
 import pandas as pd
 from loguru import logger
 
+# Códigos contábeis para despesas assistenciais (ANS)
+# Baseado em mapeamento de 2024
+CODIGOS_DESPESAS_ASSISTENCIAIS = [
+    "411",  # Despesas com Eventos/Sinistros (assistenciais)
+]
 
+CODIGOS_EXCLUIR = [
+    "414",  # Provisão de Eventos/Sinistros (PEONA) - não é despesa realizada
+    "46",  # Despesas administrativas (honorários, salários, etc.)
+]
 # Padrões para identificar GASTOS ASSISTENCIAIS REAIS
 # Estratégia: INCLUIR apenas despesas/sinistros, EXCLUIR receitas e ativos
 
@@ -166,43 +175,51 @@ class ANSExtractor:
     # ------------------------------------------------------------------
     def _filter_gastos_assistenciais(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Filtra APENAS contas de gastos assistenciais reais.
+        Filtra APENAS despesas assistenciais reais usando códigos contábeis.
 
-        Estratégia em duas etapas:
-        1. INCLUIR apenas padrões de despesa/sinistro
-        2. EXCLUIR contas de receita/ativo/investimento
+        Estratégia:
+        1. Apenas contas analíticas (9 dígitos)
+        2. Apenas códigos 411 (Despesas com Eventos/Sinistros)
+        3. Excluir provisões (414) e despesas administrativas (46)
         """
+
         df = df.copy()
         df.columns = [c.upper().strip() for c in df.columns]
 
+        # Converter valores
         df["VL_SALDO_FINAL"] = pd.to_numeric(
             df["VL_SALDO_FINAL"], errors="coerce"
         ).fillna(0)
 
-        descricao = df["DESCRICAO"].fillna("")
+        # 1. Filtrar apenas contas analíticas (9 dígitos)
+        mask_analitica = df["CD_CONTA_CONTABIL"].str.len() == 9
 
-        # ETAPA 1: INCLUSÃO - precisa bater com pelo menos 1 padrão de gasto
-        mask_inclusao = pd.Series([False] * len(df), index=df.index)
-        for pattern in PATTERNS_GASTOS_ASSISTENCIAIS:
-            mask_inclusao |= descricao.str.contains(
-                pattern, case=False, na=False, regex=True
-            )
+        # 2. Filtrar apenas despesas com eventos/sinistros (códigos 411)
+        #    411 = Despesas com Eventos/Sinistros (assistenciais)
+        mask_eventos = df["CD_CONTA_CONTABIL"].str.match(r"^411")
 
-        # ETAPA 2: EXCLUSÃO - não pode bater com NENHUM padrão de exclusão
-        mask_exclusao = pd.Series([False] * len(df), index=df.index)
-        for pattern in PATTERNS_EXCLUSAO:
-            mask_exclusao |= descricao.str.contains(
-                pattern, case=False, na=False, regex=True
-            )
+        # 3. Excluir provisões (414) e variações de provisão
+        #    414 = Provisão de Eventos/Sinistros (PEONA) - NÃO é despesa realizada
+        mask_sem_provisao = ~df["CD_CONTA_CONTABIL"].str.match(r"^414")
 
-        # Filtro final: incluído E NÃO excluído E valor > 0
-        mask_final = mask_inclusao & (~mask_exclusao) & (df["VL_SALDO_FINAL"] > 0)
+        # 4. Excluir despesas administrativas (46)
+        mask_sem_admin = ~df["CD_CONTA_CONTABIL"].str.match(r"^46")
+
+        # 5. Combinar filtros
+        mask_final = (
+            mask_analitica
+            & mask_eventos
+            & mask_sem_provisao
+            & mask_sem_admin
+            & (df["VL_SALDO_FINAL"] > 0)
+        )
 
         df_filtered = df[mask_final].copy()
 
         logger.debug(
-            f"🔍 Filtro: {mask_inclusao.sum()} incluídos | "
-            f"{mask_exclusao.sum()} excluídos | "
+            f"🔍 Filtro por código: {len(df)} total → "
+            f"{mask_analitica.sum()} analíticas → "
+            f"{mask_eventos.sum()} eventos → "
             f"{len(df_filtered)} finais"
         )
 
