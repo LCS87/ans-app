@@ -2,7 +2,7 @@
   <div class="container">
     <h1>ANS - Inteligência de Dados</h1>
 
-    <ThemeToggle />
+    <ThemeToggle @theme-change="handleThemeChange" />
     <div class="tabs">
       <button @click="view = 'search'" :class="{ active: view === 'search' }">
         🔍 Busca de Operadoras
@@ -211,6 +211,85 @@ const filterModalidade = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
 const totalResults = ref(0)
+// ==================== CORES POR TEMA ====================
+// ==================== MAPA DE TEMAS (JS — REATIVO) ====================
+const THEMES = {
+  'light-blue': {
+    chart: ['#2C5282', '#3182CE', '#4299E1', '#4A5568', '#718096',
+            '#2B6CB0', '#63B3ED', '#7C8BA1', '#2D3748', '#5A8FC0'],
+    other: '#94A3B8',
+    text: '#0f172a',
+    textMuted: '#475569',   // mais escuro p/ contraste em fundo claro
+    grid: '#e2e8f0',
+    accent: '#2563eb',
+    danger: '#dc2626',
+  },
+  'dark-blue': {
+    chart: ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA',
+            '#F472B6', '#FB923C', '#38BDF8', '#4ADE80', '#E879F9'],
+    other: '#94A3B8',
+    text: '#e7eefc',
+    textMuted: '#c3d0e8',   // mais claro p/ contraste em fundo escuro
+    grid: '#2a3b63',
+    accent: '#3b82f6',
+    danger: '#f87171',
+  },
+  'light-gold': {
+    chart: ['#1F4D3A', '#B8892B', '#6B4A2E', '#5E8F78', '#8C6A1F',
+            '#A4573B', '#6B7A3A', '#7A6D5A', '#2F5F5A', '#8F7A3F'],
+    other: '#8C8577',       // taupe mais escuro p/ legibilidade
+    text: '#1F2A24',
+    textMuted: '#46503F',   // mais escuro que #5C6659
+    grid: '#E2DACB',
+    accent: '#1F4D3A',
+    danger: '#A8402F',
+  },
+  'dark-gold': {
+    chart: ['#4F9A78', '#D4A94A', '#A67C52', '#7FBFA0', '#B89548',
+            '#D07F5F', '#9AAE5E', '#B5A890', '#5FA39B', '#E3D2A0'],
+    other: '#8a9188',       // taupe mais claro p/ fundo escuro
+    text: '#EDE8DC',
+    textMuted: '#c2c9bd',   // mais claro que #A7B0A3
+    grid: '#2C3A32',
+    accent: '#4F9A78',
+    danger: '#D9715E',
+  },
+}
+
+const currentTheme = ref(localStorage.getItem('theme') || 'light-blue')
+
+function getChartColors() {
+  const t = THEMES[currentTheme.value] || THEMES['light-blue']
+  return {
+    1: t.chart[0], 2: t.chart[1], 3: t.chart[2], 4: t.chart[3], 5: t.chart[4],
+    6: t.chart[5], 7: t.chart[6], 8: t.chart[7], 9: t.chart[8], 10: t.chart[9],
+    other: t.other,
+    text: t.text,
+    textMuted: t.textMuted,
+    border: t.grid,
+    grid: t.grid,
+    accent: t.accent,
+    danger: t.danger,
+    success: t.accent,
+    warning: t.chart[1],
+  }
+}
+
+function getOperadoraColor(index) {
+  const c = getChartColors()
+  const palette = [c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10]]
+  return palette[index % palette.length]
+}
+
+function getYearColor(ano) {
+  const c = getChartColors()
+  const map = { '2023': c[3], '2024': c[1], '2025': c[2] }
+  return map[ano] || c[4]
+}
+
+function handleThemeChange(themeId) {
+  currentTheme.value = themeId   // reatividade cuida do resto — sem setTimeout
+}
 
 // Controle de ano
 const selectedYear = ref('2024')
@@ -262,24 +341,6 @@ const dashboardData = computed(() => {
   }
 })
 
-// Cores
-const getOperadoraColor = (index) => {
-  const colors = [
-    '#2C5282', '#3182CE', '#4299E1', '#4A5568', '#718096',
-    '#2B6CB0', '#63B3ED', '#A0AEC0', '#2D3748', '#90CDF4'
-  ]
-  return colors[index % colors.length]
-}
-
-const getYearColor = (ano) => {
-  const colors = {
-    '2023': '#718096',
-    '2024': '#3182CE',
-    '2025': '#48BB78'
-  }
-  return colors[ano] || '#A0AEC0'
-}
-
 // Curto nome da operadora (para gráficos)
 const getShortName = (name) => {
   if (!name) return 'N/A'
@@ -289,45 +350,67 @@ const getShortName = (name) => {
 }
 
 // ==================== GRÁFICO 1: Ranking do Ano ====================
-const barChartData = computed(() => ({
-  labels: ranking.value.map(item => getShortName(item['Razao Social'])),
-  datasets: [{
-    label: 'Gastos Anuais (R$ Bilhões)',
-    data: ranking.value.map(item => (item.valor_real / 1000000000).toFixed(2)),
-    backgroundColor: ranking.value.map((_, idx) => getOperadoraColor(idx)),
-    borderColor: ranking.value.map((_, idx) => getOperadoraColor(idx)),
-    borderWidth: 2
-  }]
-}))
+const barChartData = computed(() => {
+  const colors = getChartColors()
+  return {
+    labels: ranking.value.map(item => getShortName(item['Razao Social'])),
+    datasets: [{
+      label: 'Gastos Anuais (R$ Bilhões)',
+      data: ranking.value.map(item => (item.valor_real / 1000000000).toFixed(2)),
+      backgroundColor: ranking.value.map((_, idx) => getOperadoraColor(idx)),
+      borderColor: ranking.value.map((_, idx) => getOperadoraColor(idx)),
+      borderWidth: 2
+    }]
+  }
+})
 
-const barChartOptions = {
-  indexAxis: 'y',
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          const billions = context.parsed.x
-          return `R$ ${billions} Bi (R$ ${(billions * 1000000000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`
+const barChartOptions = computed(() => {
+  const colors = getChartColors()
+  return {
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const billions = context.parsed.x
+            return `R$ ${billions} Bi (R$ ${(billions * 1000000000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`
+          }
         }
       }
-    }
-  },
-  scales: {
-    x: {
-      beginAtZero: true,
-      title: { display: true, text: 'Gastos Anuais (R$ Bilhões)', font: { size: 14, weight: 'bold' } },
-      ticks: { callback: (value) => `R$ ${value} Bi` }
     },
-    y: { ticks: { font: { size: 11 }, autoSkip: false } }
-  },
-  layout: { padding: { left: 10, right: 10 } },
-  maintainAspectRatio: true
-}
+    scales: {
+      x: {
+        beginAtZero: true,
+        title: { 
+          display: true, 
+          text: 'Gastos Anuais (R$ Bilhões)', 
+          font: { size: 14, weight: 'bold' },
+          color: colors.text
+        },
+        ticks: { 
+          callback: (value) => `R$ ${value} Bi`,
+          color: colors.textMuted
+        },
+        grid: { color: colors.border }
+      },
+      y: { 
+        ticks: { 
+          font: { size: 11 }, 
+          autoSkip: false,
+          color: colors.text
+        },
+        grid: { color: colors.border }
+      }
+    },
+    maintainAspectRatio: true
+  }
+})
 
 // ==================== GRÁFICO 2: Market Share (Pie) ====================
 const pieChartData = computed(() => {
   if (ranking.value.length === 0) return { labels: [], datasets: [] }
+  const colors = getChartColors()
 
   const total = dashboardExtras.value.totalGeral ||
                 ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
@@ -349,40 +432,40 @@ const pieChartData = computed(() => {
     datasets: [{
       data: values.map(v => (v / total * 100).toFixed(1)),
       backgroundColor: [
-        '#2C5282', '#3182CE', '#4299E1', '#4A5568', '#718096', '#A0AEC0'
+        colors[1], colors[2], colors[3], colors[4], colors[5], colors.other
       ],
-      borderColor: '#ffffff',
+      borderColor: colors.border,
       borderWidth: 2
     }]
   }
 })
 
-const pieChartOptions = {
-  plugins: {
-    legend: {
-      position: 'right',
-      labels: {
-        font: { size: 11 },
-        padding: 12,
-        boxWidth: 15
-      }
-    },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          const percent = context.parsed
-          return `${context.label}: ${percent}%`
+const pieChartOptions = computed(() => {
+  const colors = getChartColors()
+  return {
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          font: { size: 11 },
+          padding: 12,
+          boxWidth: 15,
+          color: colors.text
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${context.parsed}%`
         }
       }
-    }
-  },
-  maintainAspectRatio: true
-}
+    },
+    maintainAspectRatio: true
+  }
+})
 
 // ==================== GRÁFICO 3: Evolução Anual ====================
 const evolucaoAnualData = computed(() => {
   const anos = availableYears.filter(ano => evolucaoAnual.value[ano])
-  
   return {
     labels: anos,
     datasets: [{
@@ -395,37 +478,33 @@ const evolucaoAnualData = computed(() => {
   }
 })
 
-const evolucaoAnualOptions = {
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          const billions = context.parsed.y
-          return `R$ ${billions} Bi`
-        }
-      }
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      title: { display: true, text: 'R$ Bilhões', font: { size: 12, weight: 'bold' } },
-      ticks: { callback: (value) => `R$ ${value} Bi` }
+const evolucaoAnualOptions = computed(() => {
+  const colors = getChartColors()
+  return {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (c) => `R$ ${c.parsed.y} Bi` } }
     },
-    x: {
-      title: { display: true, text: 'Ano', font: { size: 12 } }
-    }
-  },
-  maintainAspectRatio: true
-}
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'R$ Bilhões', font: { size: 12, weight: 'bold' }, color: colors.text },
+        ticks: { callback: (v) => `R$ ${v} Bi`, color: colors.textMuted },
+        grid: { color: colors.border }
+      },
+      x: {
+        title: { display: true, text: 'Ano', font: { size: 12 }, color: colors.text },
+        ticks: { color: colors.text }
+      }
+    },
+    maintainAspectRatio: true
+  }
+})
 
 // ==================== GRÁFICO 4: Comparação Temporal Top 5 ====================
 const comparacaoTemporalData = computed(() => {
-  // Coletar operadoras únicas que aparecem no top 5 de qualquer ano
   const operadorasSet = new Set()
   const dadosPorAno = {}
-
   availableYears.forEach(ano => {
     if (evolucaoAnual.value[ano + '_top5']) {
       dadosPorAno[ano] = evolucaoAnual.value[ano + '_top5']
@@ -434,11 +513,8 @@ const comparacaoTemporalData = computed(() => {
       })
     }
   })
-
   if (operadorasSet.size === 0) return { labels: [], datasets: [] }
-
   const operadoras = Array.from(operadorasSet).slice(0, 5)
-
   return {
     labels: operadoras.map(op => getShortName(op)),
     datasets: availableYears
@@ -456,54 +532,50 @@ const comparacaoTemporalData = computed(() => {
   }
 })
 
-const comparacaoTemporalOptions = {
-  plugins: {
-    legend: {
-      position: 'top',
-      labels: { font: { size: 12 }, padding: 15, boxWidth: 15 }
-    },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          return `${context.dataset.label}: R$ ${context.parsed.y} Bi`
-        }
+const comparacaoTemporalOptions = computed(() => {
+  const colors = getChartColors()
+  return {
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { font: { size: 12 }, padding: 15, boxWidth: 15, color: colors.text }
       }
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      title: { display: true, text: 'R$ Bilhões', font: { size: 12, weight: 'bold' } },
-      ticks: { callback: (value) => `R$ ${value} Bi` }
     },
-    x: {
-      title: { display: true, text: 'Operadora', font: { size: 12 } }
-    }
-  },
-  maintainAspectRatio: true
-}
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'R$ Bilhões', font: { size: 12, weight: 'bold' }, color: colors.text },
+        ticks: { callback: (v) => `R$ ${v} Bi`, color: colors.textMuted },
+        grid: { color: colors.border }
+      },
+      x: {
+        title: { display: true, text: 'Operadora', font: { size: 12 }, color: colors.text },
+        ticks: { color: colors.textMuted }
+      }
+    },
+    maintainAspectRatio: true
+  }
+})
 
 // ==================== GRÁFICO 5: Concentração ====================
 const concentrationChartData = computed(() => {
   if (ranking.value.length === 0) return { labels: [], datasets: [] }
-
+  const colors = getChartColors()
   const total = dashboardExtras.value.totalGeral ||
                 ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
   let accumulated = 0
-
   const accumulatedData = ranking.value.map(item => {
     accumulated += item.valor_real
     return ((accumulated / total) * 100).toFixed(1)
   })
-
   return {
     labels: ranking.value.map((_, idx) => `Top ${idx + 1}`),
     datasets: [
       {
         label: 'Concentração Acumulada (%)',
         data: accumulatedData,
-        backgroundColor: 'rgba(44, 82, 130, 0.7)',
-        borderColor: 'rgba(44, 82, 130, 1)',
+        backgroundColor: colors[1] + 'B3', // 70% opacity
+        borderColor: colors[1],
         borderWidth: 2,
         order: 2
       },
@@ -511,7 +583,7 @@ const concentrationChartData = computed(() => {
         label: 'Linha de Pareto (80%)',
         data: Array(ranking.value.length).fill(80),
         type: 'line',
-        borderColor: 'rgba(239, 68, 68, 0.8)',
+        borderColor: colors.danger,
         borderWidth: 2,
         borderDash: [10, 5],
         pointRadius: 0,
@@ -522,37 +594,31 @@ const concentrationChartData = computed(() => {
   }
 })
 
-const concentrationChartOptions = {
-  plugins: {
-    legend: {
-      display: true,
-      position: 'top',
-      labels: { boxWidth: 12, padding: 10, font: { size: 11 }, usePointStyle: true }
+const concentrationChartOptions = computed(() => {
+  const colors = getChartColors()
+  return {
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: { boxWidth: 12, padding: 10, font: { size: 11 }, usePointStyle: true, color: colors.text }
+      }
     },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          if (context.datasetIndex === 0) {
-            return `${context.parsed.y}% do mercado acumulado`
-          } else {
-            return 'Princípio de Pareto (80/20)'
-          }
-        }
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        title: { display: true, text: 'Percentual Acumulado (%)', font: { size: 14, weight: 'bold' }, color: colors.text },
+        ticks: { callback: (v) => `${v}%`, color: colors.textMuted },
+        grid: { color: colors.border }
+      },
+      x: {
+        title: { display: true, text: 'Posição no Ranking', font: { size: 12 }, color: colors.text },
+        ticks: { color: colors.textMuted }
       }
     }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      max: 100,
-      title: { display: true, text: 'Percentual Acumulado (%)', font: { size: 14, weight: 'bold' } },
-      ticks: { callback: (value) => `${value}%` }
-    },
-    x: {
-      title: { display: true, text: 'Posição no Ranking', font: { size: 12 } }
-    }
   }
-}
+})
 
 // ==================== FUNÇÕES DE DADOS ====================
 

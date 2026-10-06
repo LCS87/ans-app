@@ -1,51 +1,49 @@
 <template>
-  <canvas ref="chartCanvas"></canvas>
+  <canvas ref="chartRef"></canvas>
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
-import { onMounted, ref, watch } from 'vue'
 
 Chart.register(...registerables)
 
 const props = defineProps({
-  data: {
-    type: Object,
-    required: true
-  },
-  options: {
-    type: Object,
-    default: () => ({})
-  }
+  data: { type: Object, required: true },
+  options: { type: Object, default: () => ({}) }
 })
 
-const chartCanvas = ref(null)
+const chartRef = ref(null)
 let chartInstance = null
 
-const createChart = () => {
-  if (chartInstance) {
-    chartInstance.destroy()
-  }
+function renderChart() {
+  if (!chartRef.value) return
+  if (chartInstance) chartInstance.destroy()
   
-  if (chartCanvas.value) {
-    chartInstance = new Chart(chartCanvas.value, {
-      type: 'bar',
-      data: props.data,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 800, easing: 'easeOutQuart' },
-        ...props.options
-      }
-    })
-  }
+  chartInstance = new Chart(chartRef.value, {
+    type: 'bar',
+    data: props.data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      ...props.options
+    }
+  })
 }
 
-onMounted(() => {
-  createChart()
-})
+onMounted(() => renderChart())
 
-watch(() => props.data, () => {
-  createChart()
-}, { deep: true })
+// Re-renderiza quando data OU options mudarem
+watch(
+  () => [props.data, props.options],
+  () => renderChart(),
+  { deep: true }
+)
+
+onBeforeUnmount(() => {
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+})
 </script>
