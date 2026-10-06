@@ -430,7 +430,6 @@ py -m pytest --cov=api --cov=etl --cov-report=term-missing
   - Script `diagnostico_2023_profundo.py` para isolar outliers operadora por operadora e verificar integridade dos arquivos originais da ANS
 
 #### 🟡 Prioridade Média (Novas Funcionalidades)
-- [ ] **Webhook de Notificações (Discord / Slack):** alerta automático de sucesso ou falha no job mensal
 - [ ] **Filtros Avançados no Dashboard:** recorte por modalidade, região e porte financeiro
 - [ ] **Exportação de Relatórios:** geração de relatórios em PDF com gráficos renderizados e planilhas Excel consolidadas
 - [ ] **Upload Manual de CSVs:** interface para carregamento manual de bases históricas complementares
