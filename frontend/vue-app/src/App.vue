@@ -219,7 +219,8 @@ const availableYears = ['2023', '2024', '2025']
 // Dados extras
 const dashboardExtras = ref({
   totalGeral: 0,
-  totalOperadoras: 0
+  totalOperadoras: 0,
+  cachePorAno: {}  // Cache para não perder dados ao trocar de ano
 })
 
 // Dados de comparação temporal
@@ -242,23 +243,20 @@ const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currenc
 // Dados do dashboard
 const dashboardData = computed(() => {
   if (ranking.value.length === 0) {
-    return {
-      totalGastos: 0,
-      totalOperadoras: 0,
-      mediaGastos: 0,
-      concentracao: 0
-    }
+    return { totalGastos: 0, totalOperadoras: 0, mediaGastos: 0, concentracao: 0 }
   }
 
   const total = dashboardExtras.value.totalGeral ||
                 ranking.value.reduce((sum, item) => sum + item.valor_real, 0)
 
   const top3 = ranking.value.slice(0, 3).reduce((sum, item) => sum + item.valor_real, 0)
+  
+  // ✅ CORREÇÃO: usar totalOperadoras da API, não ranking.length
   const totalOperadoras = dashboardExtras.value.totalOperadoras || ranking.value.length
 
   return {
     totalGastos: total,
-    totalOperadoras: totalOperadoras,
+    totalOperadoras: totalOperadoras,  // ← ERA: ranking.value.length
     mediaGastos: total / Math.max(totalOperadoras, 1),
     concentracao: total > 0 ? ((top3 / total) * 100).toFixed(1) : 0
   }
@@ -591,14 +589,25 @@ async function fetchAnalyticsData(ano = null) {
     const res = await fetch(`${API_BASE}/api/v1/analytics/gastos?periodo=${periodo}&top=10`)
     const data = await res.json()
 
-    return {
+    const resultado = {
       ranking: data.ranking ? data.ranking.map(item => ({
         'Razao Social': item.razao_social,
         'valor_real': item.valor_total
       })) : [],
       totalGeral: data.total_geral || 0,
+      totalOperadoras: data.total_operadoras || 0,
       top5: data.ranking ? data.ranking.slice(0, 5) : []
     }
+
+    // Guardar no cache para acesso rápido
+    if (resultado.totalGeral > 0) {
+      dashboardExtras.value.cachePorAno[periodo] = {
+        totalGeral: resultado.totalGeral,
+        totalOperadoras: resultado.totalOperadoras
+      }
+    }
+
+    return resultado
   } catch (e) {
     console.error('Erro ao buscar analytics:', e)
     return null
@@ -628,11 +637,21 @@ async function fetchEvolucaoAnual() {
 }
 
 async function onYearChange() {
-  // Resetar dados
+  const ano = selectedYear.value
+  
+  // Resetar dados visuais
   ranking.value = []
   dashboardExtras.value.totalGeral = 0
+  dashboardExtras.value.totalOperadoras = 0
 
-  // Recarregar dados do ano selecionado
+  // Se tiver em cache, aplicar imediatamente (sem delay)
+  const cached = dashboardExtras.value.cachePorAno[ano]
+  if (cached) {
+    dashboardExtras.value.totalGeral = cached.totalGeral
+    dashboardExtras.value.totalOperadoras = cached.totalOperadoras
+  }
+
+  // Recarregar dados frescos da view atual
   if (view.value === 'ranking') {
     await loadRanking()
   } else if (view.value === 'dashboard') {
@@ -640,16 +659,22 @@ async function onYearChange() {
   }
 }
 
+// ==================== RANKING ====================
 async function loadRanking() {
   view.value = 'ranking'
-
   loadingRank.value = true
+
   try {
     const data = await fetchAnalyticsData(selectedYear.value)
     if (data && data.ranking.length > 0) {
       ranking.value = data.ranking
+      
+      // ✅ CORRIGIDO: Atualizar AMBOS os valores
       if (data.totalGeral > 0) {
         dashboardExtras.value.totalGeral = data.totalGeral
+      }
+      if (data.totalOperadoras > 0) {
+        dashboardExtras.value.totalOperadoras = data.totalOperadoras
       }
     }
   } catch (e) {
@@ -660,6 +685,7 @@ async function loadRanking() {
   }
 }
 
+// ==================== DASHBOARD ====================
 async function loadDashboard() {
   view.value = 'dashboard'
   loadingDashboard.value = true
@@ -669,8 +695,13 @@ async function loadDashboard() {
     const data = await fetchAnalyticsData(selectedYear.value)
     if (data && data.ranking.length > 0) {
       ranking.value = data.ranking
+      
+      // Atualizar AMBOS os valores
       if (data.totalGeral > 0) {
         dashboardExtras.value.totalGeral = data.totalGeral
+      }
+      if (data.totalOperadoras > 0) {
+        dashboardExtras.value.totalOperadoras = data.totalOperadoras
       }
     }
 

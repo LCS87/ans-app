@@ -11,14 +11,8 @@ import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
 
 const props = defineProps({
-  data: {
-    type: Object,
-    required: true
-  },
-  options: {
-    type: Object,
-    default: () => ({})
-  }
+  data: { type: Object, required: true },
+  options: { type: Object, default: () => ({}) }
 })
 
 const chartRef = ref(null)
@@ -41,14 +35,10 @@ const defaultOptions = {
     tooltip: {
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       padding: 12,
-      titleFont: { size: 13, weight: 'bold' },
-      bodyFont: { size: 12 },
       callbacks: {
         label: (context) => {
           const value = context.parsed
-          const total = context.dataset.data.reduce((sum, val) => sum + parseFloat(val), 0)
-          const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0
-          return `${context.label}: ${percent}%`
+          return `${context.label}: ${value}%`
         }
       }
     }
@@ -58,12 +48,10 @@ const defaultOptions = {
 function renderChart() {
   if (!chartRef.value) return
   
-  // Destruir instância anterior
   if (chartInstance) {
     chartInstance.destroy()
   }
   
-  // Mesclar opções
   const mergedOptions = {
     ...defaultOptions,
     ...props.options,
@@ -80,13 +68,9 @@ function renderChart() {
   })
 }
 
-onMounted(() => {
-  renderChart()
-})
+onMounted(() => { renderChart() })
 
-watch(() => props.data, () => {
-  renderChart()
-}, { deep: true })
+watch(() => props.data, () => { renderChart() }, { deep: true })
 
 onBeforeUnmount(() => {
   if (chartInstance) {

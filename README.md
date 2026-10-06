@@ -1,22 +1,33 @@
-# ANS Intelligence
+# 🏥 ANS Intelligence
 
-Aplicação full-stack de Business Intelligence para dados da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras de saúde, analisar gastos assistenciais e visualizar a concentração de mercado através de um dashboard interativo.
+Aplicação full-stack de **Business Intelligence** para dados abertos da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras de saúde, analisar gastos assistenciais por ano e visualizar a concentração de mercado através de um dashboard interativo com dados reais.
 
-> **Status:**  Backend 100% funcional | 🟡 Frontend 80% funcional | 🔴 ETL em desenvolvimento
+> **Status:** 🟢 Backend 100% | 🟢 Frontend 100% | 🟢 ETL Funcional | 🟢 Dados Reais
 
 ---
 
 ## 📸 Screenshots
 
-![Dashboard Analytics](assets/pictures01.png)
+![Dashboard Analytics](assets/img001.png)
 
-![Busca de Operadoras](assets/pictures02.png)
+![Busca de Operadoras](assets/img002.png)
 
-![Busca de Operadoras](assets/pictures03.png)
+![Busca de Operadoras](assets/img003.png)
 
-![Busca de Operadoras](assets/pictures04.png)
+![Busca de Operadoras](assets/img004.png)
 
-![Busca de Operadoras](assets/pictures05.png)
+![Busca de Operadoras](assets/img005.png)
+
+![Busca de Operadoras](assets/img006.png)
+
+![Busca de Operadoras](assets/img007.png)
+
+![Busca de Operadoras](assets/img008.png)
+
+![Busca de Operadoras](assets/img009.png)
+
+![Busca de Operadoras](assets/img010.png)
+---
 
 ---
 
@@ -28,21 +39,38 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 - Paginação completa com metadata (page, limit, total, pages)
 - Filtro por modalidade (Medicina de Grupo, Cooperativa, etc.)
 - Exportação para CSV com encoding UTF-8 BOM
-- Validação tolerante (registros inválidos são pulados silenciosamente)
+- Base de **1.106 operadoras** carregadas em memória
 
-### 📊 Ranking de Gastos
+### 📊 Ranking de Gastos (com Dropdown de Ano)
 - Top 10 operadoras com maiores gastos assistenciais
+- **Dropdown para alternar entre 2023, 2024 e 2025**
 - Barras de progresso relativas ao líder
 - Valores formatados em R$ com separador de milhares
-- *Dados atualmente em modo demonstração (ETL em desenvolvimento)*
+- Total geral do período exibido no cabeçalho
 
-### 📈 Dashboard Analytics
-- Ranking de gastos anuais em R$ Bilhões (barras horizontais)
-- Análise de concentração de mercado com linha de Pareto (80%)
-- Evolução mensal das Top 3 operadoras em R$ Milhões
-- Treemap de participação de mercado com paleta de cores consistente
-- KPI cards: gastos totais, operadoras ativas, média e concentração Top 3
+### 📈 Dashboard Analytics (5 Gráficos Interativos)
+- 📊 **Ranking de Gastos Anuais** — barras horizontais (R$ Bilhões)
+- 🎯 **Market Share** — gráfico de pizza (Top 5 + Outras)
+- 📈 **Evolução Anual** — comparação 2023 vs 2024 vs 2025
+- 🔄 **Comparação Temporal** — Top 5 operadoras por ano (barras agrupadas)
+- 📊 **Concentração de Mercado** — curva de Pareto (80/20)
+- KPI cards dinâmicos: gastos totais, operadoras ativas, média, concentração Top 3
 - Skeleton loaders para estados de carregamento
+
+### ⚙️ Painel de Administração
+- Status do scheduler mensal em tempo real
+- Execução manual do pipeline por ano via UI
+- Histórico de execuções com status, duração e total de gastos
+- Monitoramento de uso de disco com breakdown por categoria
+- Health check detalhado (MySQL, Redis, uptime)
+
+### 🔄 Pipeline ETL (Funcional)
+- Download automático de dados do portal ANS (demonstrações contábeis)
+- Extração de ZIPs trimestrais (1T, 2T, 3T, 4T)
+- Transformação com filtro por **código contábil** (não regex)
+- Carga no MySQL com idempotência (DELETE + INSERT por período)
+- Histórico de execuções registrado em `etl_executions`
+- Scheduler mensal automático (1º domingo às 03:00 — APScheduler)
 
 ### 🎨 Interface
 - Toggle Dark/Light com persistência via localStorage
@@ -50,24 +78,55 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 - Design responsivo (mobile-first)
 - Animações suaves (fadeIn, hover effects)
 
-### ⚙️ Administração
-- Painel Admin com status do sistema em tempo real
-- Execução manual de atualização via UI
-- Monitoramento de uso de disco com breakdown por categoria
-- Histórico de execuções com status e duração
-- Health check detalhado (MySQL, Redis, uptime)
+---
 
-### 🔄 Pipeline ETL
-- Limpeza automática de arquivos antigos (políticas de retenção)
-- Notificações de falha via Discord webhook
-- Scheduler mensal configurado (1º domingo, 03:00)
-- Lock Redis para prevenir execução concorrente
-- *Pipeline completo em desenvolvimento (download/extract/transform/load)*
+## 🧮 Metodologia Contábil
 
-### 📊 Observabilidade
-- Prometheus + Grafana via Docker Compose
-- Health checks endpoints
-- Logs estruturados com rotação automática
+### O Problema
+
+Os dados de demonstrações contábeis da ANS possuem uma estrutura hierárquica de plano de contas com até **9 níveis de profundidade**. Uma abordagem ingênua por regex na descrição da conta causa:
+
+1. **Contagem múltipla** — contas sintéticas (pai) + analíticas (filhas) somadas juntas
+2. **Provisões como despesa** — PEONA (Provisão de Eventos Ocorridos e Não Avisados) não é despesa realizada
+3. **Receitas misturadas** — contraprestações emitidas capturadas como gasto
+4. **Saldos patrimoniais** — cobertura assistencial com preço preestabelecido (estoque, não fluxo)
+
+### A Solução
+
+O filtro usa **`CD_CONTA_CONTABIL`** (código contábil) em vez de regex na descrição:
+
+Estrutura do código contábil ANS:
+├── Nível 1 (3 dígitos): 251 → Conta sintética (NÃO usar)
+├── Nível 2 (4 dígitos): 2511 → Subconta sintética
+├── ...
+└── Nível 9 (9 dígitos): 411111061 → Conta analítica (USAR)
+
+
+### Regras de Filtragem
+
+| Regra | Critério | Motivo |
+|-------|----------|--------|
+| ✅ **Incluir** | `CD_CONTA_CONTABIL` com 9 dígitos | Apenas contas analíticas (sem duplicação) |
+| ✅ **Incluir** | Código inicia com `411` | Despesas com Eventos/Sinistros (gasto assistencial real) |
+| ❌ **Excluir** | Código inicia com `414` | Provisões (PEONA) — não é despesa realizada |
+| ❌ **Excluir** | Código inicia com `46` | Despesas administrativas (salários, honorários) |
+| ❌ **Excluir** | `VL_SALDO_FINAL ≤ 0` | Saldos negativos ou zerados |
+
+### Valores Resultantes
+
+| Ano | Operadoras | Gastos Assistenciais | Status |
+|-----|-----------|---------------------|--------|
+| 2023 | 469 | R$ 152.60 Bi | ⚠️ Ver nota abaixo |
+| 2024 | 460 | **R$ 6.37 Bi** | ✅ Confiável |
+| 2025 | 446 | **R$ 8.31 Bi** | ✅ Confiável |
+
+> ⚠️ **Nota sobre 2023:** Os dados de 2023 da ANS apresentam valores significativamente superiores aos demais anos. Isso pode indicar diferenças na estrutura dos dados originais, valores acumulados ou inconsistências nos arquivos-fonte. Use 2024/2025 para análises precisas.
+
+### Referências Contábeis
+
+- **Evento/Sinistro Conhecido ou Avisado:** Despesa assistencial efetivamente incorrida
+- **PEONA:** Provisão atuarial para eventos ocorridos e não avisados (passivo, não despesa)
+- **VL_SALDO_FINAL:** Saldo de fechamento do período (os dados da ANS são trimestrais independentes, não acumulados)
 
 ---
 
@@ -80,11 +139,13 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 | Python | 3.11+ | Linguagem principal |
 | FastAPI | 0.100+ | Framework REST API |
 | Pydantic | 2.x | Validação e serialização de dados |
+| SQLAlchemy | 2.x | ORM e conexão com MySQL |
 | Pandas | 2.x | Processamento de dados CSV |
 | PyMySQL | 1.1+ | Driver MySQL |
-| Redis | 7 | Cache em memória |
-| MySQL | 8.0 | Banco de dados relacional |
-| APScheduler | 3.10+ | Agendamento de tarefas |
+| APScheduler | 3.10+ | Scheduler mensal automático |
+| Loguru | 0.7+ | Logging estruturado |
+| httpx | 0.28+ | Download assíncrono de arquivos |
+| tenacity | 9+ | Retry automático em downloads |
 
 ### Frontend
 
@@ -93,25 +154,14 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 | Vue.js | 3 | Framework reativo (Composition API) |
 | Vite | 5+ | Build tool e dev server |
 | Chart.js | 4 | Gráficos interativos |
-| vue-chartjs | 5 | Wrapper Vue para Chart.js |
-
-### ETL
-
-| Tecnologia | Uso |
-|---|---|
-| BeautifulSoup4 | Web scraping do portal ANS |
-| Tabula-py | Extração de tabelas de PDFs |
-| Requests/httpx | Download de arquivos |
-| Loguru | Logging estruturado |
 
 ### Infraestrutura
 
 | Tecnologia | Uso |
 |---|---|
-| Docker Compose | Orquestração de containers |
+| Docker Compose | Orquestração MySQL + Redis |
+| MySQL 8.0 | Banco de dados relacional |
 | Uvicorn | ASGI server para FastAPI |
-| Prometheus | Coleta de métricas |
-| Grafana | Dashboards de monitoramento |
 
 ---
 
@@ -122,7 +172,6 @@ Aplicação full-stack de Business Intelligence para dados da Agência Nacional 
 - Python 3.11+
 - Node.js 18+
 - Docker e Docker Compose
-- PowerShell (Windows) ou Bash (Linux/Mac)
 
 ### 1. Clonar e configurar ambiente
 
@@ -327,21 +376,25 @@ GET /health
 │       └── components/
 │           ├── AdminPanel.vue      # Painel de administração
 │           ├── BarChart.vue        # Gráfico de barras
-│           ├── LineChart.vue       # Gráfico de linha
+│           ├── PieChart.vue        # Gráfico de pizza (Chart.js)
 │           ├── TreemapChart.vue    # Treemap
 │           ├── SkeletonChart.vue   # Loading skeleton
 │           ├── ThemeToggle.vue     # Toggle dark/light
 │           └── ExportButton.vue    # Exportar CSV
 │
-├── etl/                        # Pipeline de dados
-│   ├── pipeline.py             # Orquestrador (em desenvolvimento)
-│   ├── cleanup.py              # Limpeza de arquivos antigos
-│   ├── notifications.py        # Webhook Discord
-│   ├── scraping/               # Web scraping ANS
-│   ├── transform/              # Transformação de dados
-│   └── data/                   # Dados brutos e processados
-│       ├── raw/                # CSVs originais
-│       └── interim/            # Dados processados
+├── etl/                            # Pipeline ETL
+│   ├── pipeline.py                 # Orquestrador (download→extract→load)
+│   ├── download.py                 # Download de dados ANS (httpx + tenacity)
+│   ├── extract.py                  # Extração + filtro por código contábil
+│   ├── load.py                     # Carga no MySQL (SQLAlchemy)
+│   ├── scripts/                    # Scripts de diagnóstico
+│   │   ├── diagnosticar_filtro.py
+│   │   ├── diagnostico_estrutura.py
+│   │   └── mapear_contas_assistenciais.py
+│   └── data/
+│       ├── raw/                    # ZIPs originais da ANS
+│       ├── extracted/              # CSVs extraídos
+│       └── processed/              # CSVs consolidados
 │
 ├── docker/
 │   ├── docker-compose.yml          # MySQL + Redis + Backend + Frontend
@@ -414,9 +467,10 @@ py -m pytest tests/test_analytics.py -v
 
 Cobertura atual: ~13% (meta: 80%)
 
-Roadmap
+🗺️ Roadmap
 
 ✅ Concluído (v1.0)
+
 Backend FastAPI com rotas REST
 Busca de operadoras com paginação
 Validação tolerante (Pydantic)
@@ -426,13 +480,18 @@ Exportação CSV
 Painel Admin com disk usage real
 Docker Compose (MySQL + Redis)
 Health checks
+Pipeline ETL completo (download → extract → transform → load)
+Filtro por código contábil (CD_CONTA_CONTABIL)
+Dados reais da ANS (2023, 2024, 2025)
+Scheduler mensal automático (APScheduler)
+Dashboard com 5 gráficos interativos
+Dropdown de ano com comparação temporal
+Market share (gráfico de pizza)
 
 
 🚧 Em Desenvolvimento (v1.1)
-Pipeline ETL completo (download → extract → transform → load)
-Dados reais de demonstrações contábeis da ANS
-Scheduler mensal funcionando end-to-end
 Testes automatizados (meta: 80% cobertura)
+Investigar anomalia nos dados de 2023
 Discord webhook configurado
 Monitoring stack com métricas reais
 
@@ -440,6 +499,7 @@ Monitoring stack com métricas reais
 📋 Futuro (v2.0)
 WebSocket para progresso em tempo real
 Upload manual de CSVs
+Filtros avançados (por modalidade, região)
 Comparação entre períodos (diff)
 Exportação de relatórios PDF
 CI/CD com GitHub Actions
@@ -463,3 +523,6 @@ Comunidade FastAPI, Vue.js e Chart.js
 Versão: 1.0.0-beta
 Status: 🟢 Backend funcional | 🟡 Frontend 80% | 🔴 ETL em desenvolvimento
 
+
+
+---
