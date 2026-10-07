@@ -1,0 +1,73 @@
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2024]
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     | 
+======================================================================
+2026-10-02 22:04:53 | INFO     | 📅 Processando ano 2024
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     | 📥 [2024] ETAPA 1/3: Download de dados...
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-02 22:04:53 | INFO     | ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-02 22:04:53 | INFO     | ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-02 22:04:53 | INFO     | ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-02 22:04:53 | INFO     | ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-02 22:04:53 | SUCCESS  | ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-02 22:04:53 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | INFO     |   ✅ 1T2024.zip      |     7.85 MB
+2026-10-02 22:04:53 | INFO     |   ✅ 2T2024.zip      |     8.89 MB
+2026-10-02 22:04:53 | INFO     |   ✅ 3T2024.zip      |     9.11 MB
+2026-10-02 22:04:53 | INFO     |   ✅ 4T2024.zip      |    11.16 MB
+2026-10-02 22:04:53 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-02 22:04:53 | INFO     | ======================================================================
+2026-10-02 22:04:53 | SUCCESS  | ✅ [2024] Download completo
+2026-10-02 22:04:53 | INFO     | 🔄 [2024] ETAPA 2/3: Extração e transformação...
+2026-10-02 22:04:53 | INFO     | 🔄 Processando demonstrações contábeis de 2024...
+2026-10-02 22:04:53 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2024...
+2026-10-02 22:04:53 | INFO     | 🔓 Extraindo 1T2024.zip → extracted/1T2024/
+2026-10-02 22:04:54 | SUCCESS  | ✅ 1T2024.zip → 1T2024.csv (57498 KB)
+2026-10-02 22:04:54 | INFO     | 🔓 Extraindo 2T2024.zip → extracted/2T2024/
+2026-10-02 22:04:54 | SUCCESS  | ✅ 2T2024.zip → 2T2024.csv (60940 KB)
+2026-10-02 22:04:54 | INFO     | 🔓 Extraindo 3T2024.zip → extracted/3T2024/
+2026-10-02 22:04:54 | SUCCESS  | ✅ 3T2024.zip → 3T2024.csv (62287 KB)
+2026-10-02 22:04:54 | INFO     | 🔓 Extraindo 4T2024.zip → extracted/4T2024/
+2026-10-02 22:04:55 | SUCCESS  | ✅ 4T2024.zip → 4T2024.csv (79716 KB)
+2026-10-02 22:04:55 | INFO     | 📊 Processando 1T2024...
+2026-10-02 22:04:55 | INFO     |    Total de linhas: 689,695
+2026-10-02 22:04:57 | INFO     |    Gastos assistenciais: 2,543 linhas
+2026-10-02 22:04:57 | INFO     | 📊 Processando 2T2024...
+2026-10-02 22:04:57 | INFO     |    Total de linhas: 708,106
+2026-10-02 22:04:59 | INFO     |    Gastos assistenciais: 2,490 linhas
+2026-10-02 22:04:59 | INFO     | 📊 Processando 3T2024...
+2026-10-02 22:04:59 | INFO     |    Total de linhas: 721,821
+2026-10-02 22:05:01 | INFO     |    Gastos assistenciais: 2,535 linhas
+2026-10-02 22:05:01 | INFO     | 📊 Processando 4T2024...
+2026-10-02 22:05:01 | INFO     |    Total de linhas: 942,370
+2026-10-02 22:05:03 | INFO     |    Gastos assistenciais: 2,819 linhas
+2026-10-02 22:05:03 | INFO     | 🔗 Consolidando 4 trimestres...
+2026-10-02 22:05:03 | INFO     | 🔗 Juntando com CADOP...
+2026-10-02 22:05:03 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-02 22:05:03 | SUCCESS  | ✅ Consolidação completa: 783 operadoras
+2026-10-02 22:05:03 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2024.csv (0.07 MB)
+2026-10-02 22:05:03 | SUCCESS  | ✅ [2024] 783 operadoras consolidadas
+2026-10-02 22:05:03 | INFO     | 💾 [2024] ETAPA 3/3: Carga no MySQL...
+2026-10-02 22:05:03 | INFO     | 🗑️  Removendo dados antigos do período 2024...
+2026-10-02 22:05:04 | SUCCESS  | ✅ 783 linhas carregadas no MySQL
+2026-10-02 22:05:04 | SUCCESS  | ✅ [2024] 783 registros no MySQL
+2026-10-02 22:05:04 | SUCCESS  | 💰 [2024] Total: R$ 105,699,639,190.00
+2026-10-02 22:05:04 | INFO     | 
+======================================================================
+2026-10-02 22:05:04 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-02 22:05:04 | INFO     | ======================================================================
+2026-10-02 22:05:04 | INFO     | ✅ 2024: 783 registros | R$ 105,699,639,190.00 | 10.20s
+2026-10-02 22:05:04 | INFO     | 
+⏱️  Tempo total: 10.21s
+2026-10-02 22:05:04 | INFO     | ✅ Sucessos: 1/1
+2026-10-02 22:05:04 | INFO     | 📊 Total registros: 783
+2026-10-02 22:05:04 | INFO     | 💰 Total gastos: R$ 105,699,639,190.00
+2026-10-02 22:05:04 | INFO     | ======================================================================
