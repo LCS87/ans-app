@@ -48,7 +48,7 @@ onMounted(() => {
 .theme-selector {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -60,16 +60,16 @@ onMounted(() => {
 
 .theme-buttons {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .theme-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--bg-surface);
   color: var(--text-primary);
@@ -91,11 +91,6 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.theme-icon {
-  font-size: 14px;
-}
-
-.theme-name {
-  font-size: 12px;
-}
+.theme-icon { font-size: 14px; }
+.theme-name { font-size: 12px; }
 </style>

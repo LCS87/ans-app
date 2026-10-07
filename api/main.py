@@ -7,8 +7,12 @@ from typing import Optional
 from fastapi import FastAPI, Query, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from api.scheduler import start_scheduler, stop_scheduler
+
+# Imports que estavam faltando
+from sqlalchemy import create_engine, text
 from api.config import get_settings, Settings
+
+from api.scheduler import start_scheduler, stop_scheduler
 from api.models import (
     OperadorasSearchResponse,
     AnalyticsGastosResponse,
@@ -18,6 +22,7 @@ from api.models import (
 )
 from api.services.operadoras_service import OperadorasService
 from api.services.analytics_service import AnalyticsService
+
 
 # Tempo de início para uptime
 START_TIME = time.time()
@@ -200,6 +205,71 @@ async def get_ranking_gastos(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro ao processar dados de analytics: {str(e)}",
         )
+
+
+@app.get("/api/v1/analytics/year-metadata", tags=["analytics"])
+async def year_metadata():
+    """
+    Retorna metadata de cada ano disponível no banco.
+    Usado pelo frontend para mostrar badges (✅ Completo / ⚠️ Parcial / ⚠️ Lacuna ANS).
+    """
+    try:
+        engine = create_engine(settings.database_url, pool_pre_ping=True)
+        with engine.connect() as conn:
+            result = conn.execute(
+                text(
+                    """
+                SELECT
+                    periodo,
+                    COUNT(*) as total_operadoras,
+                    SUM(gasto_total) as total_geral,
+                    SUM(CASE WHEN gasto_1T > 0 THEN 1 ELSE 0 END) as tem_1t,
+                    SUM(CASE WHEN gasto_2T > 0 THEN 1 ELSE 0 END) as tem_2t,
+                    SUM(CASE WHEN gasto_3T > 0 THEN 1 ELSE 0 END) as tem_3t,
+                    SUM(CASE WHEN gasto_4T > 0 THEN 1 ELSE 0 END) as tem_4t
+                FROM gastos_assistenciais
+                GROUP BY periodo
+                ORDER BY periodo
+            """
+                )
+            )
+            rows = result.fetchall()
+
+        # Anos fora do escopo acadêmico (documentado no README)
+        EXCLUDED_YEARS = {"2023"}
+
+        metadata = {}
+        for row in rows:
+            periodo = row[0]
+            if periodo in EXCLUDED_YEARS:
+                continue
+
+            total_ops = row[1]
+            total_geral = float(row[2]) if row[2] else 0
+
+            # Um trimestre é "presente" se >50% das operadoras reportaram
+            trimestres_com_dados = sum(
+                [
+                    1 if (row[3] or 0) > total_ops * 0.5 else 0,
+                    1 if (row[4] or 0) > total_ops * 0.5 else 0,
+                    1 if (row[5] or 0) > total_ops * 0.5 else 0,
+                    1 if (row[6] or 0) > total_ops * 0.5 else 0,
+                ]
+            )
+
+            metadata[periodo] = {
+                "year": periodo,
+                "quarters": trimestres_com_dados,
+                "total_operadoras": total_ops,
+                "total_geral": total_geral,
+                "hasAnsgap": periodo == "2024",
+            }
+
+        return metadata
+
+    except Exception as e:
+        print(f"❌ Erro ao buscar year-metadata: {e}")
+        return {}
 
 
 @app.get(

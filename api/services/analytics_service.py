@@ -84,50 +84,11 @@ class AnalyticsService:
             return self._get_example_data(top, periodo)
 
     def _get_example_data(self, top: int, periodo: str) -> dict:
-        """Fallback: dados de exemplo."""
-        example_data = [
-            {
-                "registro_ans": "326305",
-                "razao_social": "AMIL ASSISTENCIA MEDICA INTERNACIONAL S.A.",
-                "valor": 18693588016.00,
-            },
-            {
-                "registro_ans": "359017",
-                "razao_social": "NOTRE DAME INTERMÉDICA SAÚDE S.A.",
-                "valor": 7847703848.00,
-            },
-            {
-                "registro_ans": "304701",
-                "razao_social": "UNIMED CURITIBA",
-                "valor": 7019162293.00,
-            },
-            {
-                "registro_ans": "339679",
-                "razao_social": "UNIMED CNU",
-                "valor": 4665399310.00,
-            },
-            {
-                "registro_ans": "335614",
-                "razao_social": "SAMEDIL",
-                "valor": 4184185257.00,
-            },
-        ]
-
-        ranking = []
-        for idx, item in enumerate(example_data[:top], 1):
-            ranking.append(
-                {
-                    "posicao": idx,
-                    "registro_ans": item["registro_ans"],
-                    "razao_social": item["razao_social"],
-                    "valor_total": item["valor"],
-                }
-            )
-
+        """Fallback vazio quando não há dados no banco."""
         return {
             "periodo": periodo,
             "top": top,
-            "total_geral": sum(i["valor"] for i in example_data[:top]),
-            "total_operadoras": len(example_data[:top]),
-            "ranking": ranking,
+            "total_geral": 0,
+            "total_operadoras": 0,
+            "ranking": [],
         }

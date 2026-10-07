@@ -4,8 +4,8 @@ Módulo de extração e transformação de demonstrações contábeis da ANS.
 Fluxo:
 1. Extrai ZIPs trimestrais (cada um em seu próprio subdiretório)
 2. Lê CSVs com dados contábeis
-3. Filtra contas de gastos assistenciais
-4. Consolida por operadora (soma trimestres)
+3. Filtra contas-folha (is_leaf) de eventos/sinistros (411)
+4. Consolida por operadora
 5. Junta com CADOP para obter razão social
 6. Salva CSV consolidado
 
@@ -20,8 +20,10 @@ from typing import List
 import pandas as pd
 from loguru import logger
 
-# Códigos contábeis para despesas assistenciais (ANS)
-# Baseado em mapeamento de 2024
+# ----------------------------------------------------------------------
+# CONSTANTES (legado — mantidas para compatibilidade com scripts de
+# diagnóstico antigos; o filtro ativo usa is_leaf + prefixo 411)
+# ----------------------------------------------------------------------
 CODIGOS_DESPESAS_ASSISTENCIAIS = [
     "411",  # Despesas com Eventos/Sinistros (assistenciais)
 ]
@@ -30,8 +32,6 @@ CODIGOS_EXCLUIR = [
     "414",  # Provisão de Eventos/Sinistros (PEONA) - não é despesa realizada
     "46",  # Despesas administrativas (honorários, salários, etc.)
 ]
-# Padrões para identificar GASTOS ASSISTENCIAIS REAIS
-# Estratégia: INCLUIR apenas despesas/sinistros, EXCLUIR receitas e ativos
 
 PATTERNS_GASTOS_ASSISTENCIAIS = [
     r"EVENTOS?\s*/?\s*SINISTROS?\s+CONHECIDOS?\s+OU\s+AVISADOS",
@@ -39,7 +39,6 @@ PATTERNS_GASTOS_ASSISTENCIAIS = [
     r"EVENTOS?\s*/?\s*SINISTROS?\s+INDENIZÁVEIS",
     r"PROVIS[ÃA]O\s+DE\s+EVENTOS?\s*/?\s*SINISTROS?\s+A\s+LIQUIDAR",
     r"PROVIS[ÃA]O\s+PARA\s+EVENTOS?\s*/?\s*SINISTROS?\s+OCORRIDOS",
-    # ❌ REMOVIDO: r'COBERTURA\s+ASSISTENCIAL',
     r"VARIAÇÃO\s+DA\s+PROVIS[ÃA]O\s+DE\s+EVENTOS",
     r"OUTRAS\s+DESPESAS\s+DE\s+OPERAÇÕES\s+DE\s+PLANOS",
     r"DESPESAS\s+COM\s+OPERAÇÕES\s+DE\s+ASSIST",
@@ -59,10 +58,9 @@ PATTERNS_EXCLUSAO = [
     r"CONTRAPRESTA[ÇC][ÃA]O\s+PECUNIÁRIA.*A\s+RECEBER",
     r"PROVIS[ÕO]ES?\s+TÉCNICAS\s+DE\s+OPERA",
     r"VARIAÇÃO\s+DAS?\s+PROVIS[ÕO]ES?\s+TÉCNICAS",
-    r"COBERTURA\s+ASSISTENCIAL",  # ← ADICIONAR ESTA LINHA
+    r"COBERTURA\s+ASSISTENCIAL",
 ]
 
-# Manter compatibilidade com código existente
 KEYWORDS_ASSISTENCIAIS = PATTERNS_GASTOS_ASSISTENCIAIS
 
 
@@ -104,7 +102,6 @@ class ANSExtractor:
             stem = zip_path.stem  # ex: "1T2024"
             sub_dir = extract_base / stem
 
-            # Limpa subdiretório pra evitar arquivos antigos
             if sub_dir.exists():
                 shutil.rmtree(sub_dir)
             sub_dir.mkdir(parents=True)
@@ -113,7 +110,6 @@ class ANSExtractor:
             with zipfile.ZipFile(zip_path, "r") as zf:
                 zf.extractall(sub_dir)
 
-            # Procura CSV APENAS dentro do subdiretório deste ZIP
             csvs = list(sub_dir.rglob("*.csv"))
             if not csvs:
                 logger.warning(f"⚠️  Nenhum CSV encontrado em {zip_path.name}")
@@ -121,7 +117,6 @@ class ANSExtractor:
 
             main_csv = max(csvs, key=lambda p: p.stat().st_size)
 
-            # Normaliza o nome pra <stem>.csv
             csv_final = sub_dir / f"{stem}.csv"
             if main_csv.resolve() != csv_final.resolve():
                 shutil.copy2(main_csv, csv_final)
@@ -171,59 +166,51 @@ class ANSExtractor:
         raise ValueError(f"Não foi possível ler {csv_path}")
 
     # ------------------------------------------------------------------
+    # CONTAS-FOLHA (is_leaf)
+    # ------------------------------------------------------------------
+    def marcar_folhas(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Marca is_leaf: conta que NÃO possui filha no mesmo REG_ANS.
+
+        Estratégia vetorizada: ordenando por (REG_ANS, código), uma conta
+        é PAI se o próximo código do mesmo REG_ANS começa com ela e é
+        mais longo. NaNs são tratados explicitamente.
+        """
+        df = df.copy()
+        df["CD_CONTA_CONTABIL"] = (
+            df["CD_CONTA_CONTABIL"].fillna("").astype(str).str.strip()
+        )
+        df = df.sort_values(["REG_ANS", "CD_CONTA_CONTABIL"], kind="mergesort")
+
+        cur = df["CD_CONTA_CONTABIL"]
+        nxt = cur.shift(-1).fillna("")  # ← preenche NaN com string vazia
+
+        mesmo_reg = df["REG_ANS"].eq(df["REG_ANS"].shift(-1)).fillna(False)
+        eh_prefixo = nxt.ge(cur + "0") & nxt.lt(cur + ":")
+
+        df["is_leaf"] = ~(mesmo_reg & eh_prefixo)
+        return df
+
+    # ------------------------------------------------------------------
     # FILTRAGEM
     # ------------------------------------------------------------------
     def _filter_gastos_assistenciais(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Filtra APENAS despesas assistenciais reais usando códigos contábeis.
-
-        Estratégia:
-        1. Apenas contas analíticas (9 dígitos)
-        2. Apenas códigos 411 (Despesas com Eventos/Sinistros)
-        3. Excluir provisões (414) e despesas administrativas (46)
-        """
-
+        """Somente contas-folha de eventos/sinistros (411), saldo > 0."""
         df = df.copy()
-        df.columns = [c.upper().strip() for c in df.columns]
-
-        # Converter valores
         df["VL_SALDO_FINAL"] = pd.to_numeric(
             df["VL_SALDO_FINAL"], errors="coerce"
         ).fillna(0)
 
-        # 1. Filtrar apenas contas analíticas (9 dígitos)
-        mask_analitica = df["CD_CONTA_CONTABIL"].str.len() == 9
+        df = self.marcar_folhas(df)
 
-        # 2. Filtrar apenas despesas com eventos/sinistros (códigos 411)
-        #    411 = Despesas com Eventos/Sinistros (assistenciais)
-        mask_eventos = df["CD_CONTA_CONTABIL"].str.match(r"^411")
-
-        # 3. Excluir provisões (414) e variações de provisão
-        #    414 = Provisão de Eventos/Sinistros (PEONA) - NÃO é despesa realizada
-        mask_sem_provisao = ~df["CD_CONTA_CONTABIL"].str.match(r"^414")
-
-        # 4. Excluir despesas administrativas (46)
-        mask_sem_admin = ~df["CD_CONTA_CONTABIL"].str.match(r"^46")
-
-        # 5. Combinar filtros
-        mask_final = (
-            mask_analitica
-            & mask_eventos
-            & mask_sem_provisao
-            & mask_sem_admin
+        mask = (
+            df["is_leaf"]
+            & df["CD_CONTA_CONTABIL"].str.startswith("411")
             & (df["VL_SALDO_FINAL"] > 0)
         )
 
-        df_filtered = df[mask_final].copy()
-
-        logger.debug(
-            f"🔍 Filtro por código: {len(df)} total → "
-            f"{mask_analitica.sum()} analíticas → "
-            f"{mask_eventos.sum()} eventos → "
-            f"{len(df_filtered)} finais"
-        )
-
-        return df_filtered
+        logger.debug(f"🍃 Folhas: {df['is_leaf'].sum():,} | 411-folha: {mask.sum():,}")
+        return df[mask]
 
     # ------------------------------------------------------------------
     # CADOP
@@ -234,9 +221,8 @@ class ANSExtractor:
             logger.warning(f"⚠️  CADOP não encontrado em {self.cadop_path}")
             return pd.DataFrame(columns=["REG_ANS", "RAZAO_SOCIAL"])
 
-        # CORREÇÃO: O arquivo usa separator ';'
         configs = [
-            {"encoding": "utf-8", "sep": ";"},  # Formato correto
+            {"encoding": "utf-8", "sep": ";"},
             {"encoding": "latin1", "sep": ";"},
             {"encoding": "utf-8", "sep": ","},
             {"encoding": "latin1", "sep": "\t"},
@@ -267,10 +253,8 @@ class ANSExtractor:
         df.columns = [str(c).strip() for c in df.columns]
         logger.debug(f"📋 Colunas do CADOP: {list(df.columns)[:5]}...")
 
-        # CORREÇÃO: Mapeamento específico para REGISTRO_OPERADORA
         rename_map = {}
 
-        # Procurar coluna de registro (pode ser REGISTRO_OPERADORA ou REG_ANS)
         for col in df.columns:
             col_upper = col.upper()
             if "REGISTRO" in col_upper or col_upper == "REG_ANS":
@@ -278,7 +262,6 @@ class ANSExtractor:
                 logger.debug(f"🔍 Coluna de registro: '{col}' → REG_ANS")
                 break
 
-        # Procurar coluna de razão social
         for col in df.columns:
             col_upper = col.upper()
             if "RAZAO" in col_upper or col_upper == "RAZAO_SOCIAL":
@@ -292,13 +275,11 @@ class ANSExtractor:
             )
             return pd.DataFrame(columns=["REG_ANS", "RAZAO_SOCIAL"])
 
-        # Aplicar rename
         df = df.rename(columns=rename_map)
 
         if "RAZAO_SOCIAL" not in df.columns:
             df["RAZAO_SOCIAL"] = "OPERADORA SEM NOME"
 
-        # Selecionar apenas as colunas necessárias
         df_final = df[["REG_ANS", "RAZAO_SOCIAL"]].drop_duplicates(subset=["REG_ANS"])
 
         logger.success(f"✅ CADOP carregado: {len(df_final)} operadoras")
@@ -308,47 +289,168 @@ class ANSExtractor:
     # PROCESSAMENTO PRINCIPAL
     # ------------------------------------------------------------------
     def processar_ano(self, ano: int = 2024) -> pd.DataFrame:
-        """Processa todos os trimestres e consolida."""
+        """
+        Processa todos os trimestres e consolida usando MÉTODO D (híbrido).
+
+        Metodologia:
+        1. Para cada conta no ramo 41, pega o último valor não-zero
+        2. Identifica raízes (contas sem ancestral com valor)
+        3. Para cada raiz:
+           - Se tem folhas descendentes que cobrem ≥90% do valor → usa folhas
+           - Se folhas > raiz → usa folhas (raiz subdeclarada)
+           - Senão → usa raiz (folhas incompletas ou inexistentes)
+
+        Resultado: sem dupla contagem, sem perder sintéticas, sem descartar negativos.
+        """
         logger.info(f"🔄 Processando demonstrações contábeis de {ano}...")
 
-        # Step 1: Extrair ZIPs
         csv_files = self.extract_zips(ano)
         if not csv_files:
             raise ValueError("Nenhum CSV extraído")
 
-        # Step 2: Ler e processar cada CSV
-        dfs_trimestrais = []
-
+        # Ler todos os trimestres
+        dfs = []
         for csv_path in csv_files:
-            trimestre = csv_path.stem  # ex: "1T2024" (nome correto agora!)
-            logger.info(f"📊 Processando {trimestre}...")
+            trimestre = csv_path.stem
+            logger.info(f"📊 Lendo {trimestre}...")
 
             df = self._read_csv_demonstracao(csv_path)
-            logger.info(f"   Total de linhas: {len(df):,}")
+            df["TRIMESTRE"] = trimestre
+            dfs.append(df)
 
-            df_filtered = self._filter_gastos_assistenciais(df)
-            logger.info(f"   Gastos assistenciais: {len(df_filtered):,} linhas")
+        df_all = pd.concat(dfs, ignore_index=True)
+        logger.info(f"📊 Total de linhas: {len(df_all):,}")
 
-            df_agg = (
-                df_filtered.groupby("REG_ANS")["VL_SALDO_FINAL"].sum().reset_index()
-            )
-            df_agg.columns = ["REG_ANS", f"gasto_{trimestre}"]
+        # Filtrar ramo 41 (EVENTOS INDENIZÁVEIS / SINISTROS)
+        df_all["CD_CONTA_CONTABIL"] = df_all["CD_CONTA_CONTABIL"].fillna("").str.strip()
+        df_all["VL_SALDO_FINAL"] = pd.to_numeric(
+            df_all["VL_SALDO_FINAL"], errors="coerce"
+        ).fillna(0)
 
-            dfs_trimestrais.append(df_agg)
+        df_ramo = df_all[df_all["CD_CONTA_CONTABIL"].str.startswith("41")].copy()
+        logger.info(f"🌳 Ramo 41: {len(df_ramo):,} registros")
 
-        # Step 3: Consolidar todos os trimestres
-        logger.info(f"🔗 Consolidando {len(dfs_trimestrais)} trimestres...")
+        # Passo 1: último valor não-zero por (REG_ANS, conta)
+        df_nz = df_ramo[df_ramo["VL_SALDO_FINAL"] != 0]
+        df_last = (
+            df_nz.sort_values("TRIMESTRE")
+            .groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False)
+            .tail(1)
+        )
+        logger.info(f"📊 Contas com valor: {len(df_last):,}")
 
-        consolidated = dfs_trimestrais[0]
-        for df_tri in dfs_trimestrais[1:]:
-            consolidated = consolidated.merge(df_tri, on="REG_ANS", how="outer")
+        # Passo 2: aplicar Método D por operadora
+        resultados = {}
+        for reg, grupo in df_last.groupby("REG_ANS"):
+            contas = grupo["CD_CONTA_CONTABIL"].tolist()
+            valores = dict(zip(contas, grupo["VL_SALDO_FINAL"]))
+            contas_set = set(contas)
+
+            # Identificar raízes (sem ancestral com valor)
+            raizes = [
+                c
+                for c in contas
+                if not any(c[:L] in contas_set for L in range(1, len(c)))
+            ]
+
+            # Calcular total usando Método D
+            total = 0.0
+            for raiz in raizes:
+                # Encontrar folhas descendentes
+                folhas_desc = [
+                    c
+                    for c in contas
+                    if c != raiz
+                    and c.startswith(raiz)
+                    and not any(
+                        c[:L] in contas_set for L in range(len(raiz) + 1, len(c))
+                    )
+                ]
+
+                if not folhas_desc:
+                    # Raiz sem folhas: usa o próprio valor (±)
+                    total += valores[raiz]
+                else:
+                    soma_folhas = sum(valores[f] for f in folhas_desc)
+                    if (
+                        soma_folhas >= 0.9 * valores[raiz]
+                        or soma_folhas > valores[raiz]
+                    ):
+                        # Folhas cobrem bem ou superam a raiz
+                        total += soma_folhas
+                    else:
+                        # Folhas incompletas: usa raiz
+                        total += valores[raiz]
+
+            resultados[reg] = total
+
+        consolidated = pd.DataFrame(
+            [
+                {"REG_ANS": reg, "gasto_total": valor}
+                for reg, valor in resultados.items()
+            ]
+        )
+        logger.info(f"🌱 Operadoras com valor: {len(consolidated):,}")
+
+        # Também calcular soma por trimestre (para histórico)
+        gasto_cols = []
+        for trimestre in sorted(df_all["TRIMESTRE"].unique()):
+            df_tri = df_all[df_all["TRIMESTRE"] == trimestre]
+            df_tri_ramo = df_tri[df_tri["CD_CONTA_CONTABIL"].str.startswith("41")]
+            df_tri_nz = df_tri_ramo[df_tri_ramo["VL_SALDO_FINAL"] != 0]
+
+            # Aplicar Método D para este trimestre
+            resultados_tri = {}
+            for reg, grupo in df_tri_nz.groupby("REG_ANS"):
+                contas = grupo["CD_CONTA_CONTABIL"].tolist()
+                valores = dict(zip(contas, grupo["VL_SALDO_FINAL"]))
+                contas_set = set(contas)
+
+                raizes = [
+                    c
+                    for c in contas
+                    if not any(c[:L] in contas_set for L in range(1, len(c)))
+                ]
+
+                total = 0.0
+                for raiz in raizes:
+                    folhas_desc = [
+                        c
+                        for c in contas
+                        if c != raiz
+                        and c.startswith(raiz)
+                        and not any(
+                            c[:L] in contas_set for L in range(len(raiz) + 1, len(c))
+                        )
+                    ]
+
+                    if not folhas_desc:
+                        total += valores[raiz]
+                    else:
+                        soma_folhas = sum(valores[f] for f in folhas_desc)
+                        if (
+                            soma_folhas >= 0.9 * valores[raiz]
+                            or soma_folhas > valores[raiz]
+                        ):
+                            total += soma_folhas
+                        else:
+                            total += valores[raiz]
+
+                resultados_tri[reg] = total
+
+            if resultados_tri:
+                df_tri_agg = pd.DataFrame(
+                    [
+                        {"REG_ANS": reg, f"gasto_{trimestre}": valor}
+                        for reg, valor in resultados_tri.items()
+                    ]
+                )
+                consolidated = consolidated.merge(df_tri_agg, on="REG_ANS", how="left")
+                gasto_cols.append(f"gasto_{trimestre}")
 
         consolidated = consolidated.fillna(0)
 
-        gasto_cols = [c for c in consolidated.columns if c.startswith("gasto_")]
-        consolidated["gasto_total"] = consolidated[gasto_cols].sum(axis=1)
-
-        # Step 4: Juntar com CADOP
+        # Juntar com CADOP
         logger.info("🔗 Juntando com CADOP...")
         cadop = self._load_cadop()
 
@@ -356,7 +458,6 @@ class ANSExtractor:
             logger.warning("⚠️  CADOP vazio, usando nome padrão")
             consolidated["RAZAO_SOCIAL"] = "OPERADORA SEM NOME"
         else:
-            # Garante tipos compatíveis pro merge
             consolidated["REG_ANS"] = consolidated["REG_ANS"].astype(str).str.strip()
             cadop = cadop.copy()
             cadop["REG_ANS"] = cadop["REG_ANS"].astype(str).str.strip()
@@ -366,12 +467,16 @@ class ANSExtractor:
                 "OPERADORA SEM NOME"
             )
 
-        # Step 5: Reordenar e ordenar
+        # Reordenar colunas
         colunas_finais = ["REG_ANS", "RAZAO_SOCIAL"] + gasto_cols + ["gasto_total"]
         consolidated = consolidated[colunas_finais]
         consolidated = consolidated.sort_values("gasto_total", ascending=False)
 
-        logger.success(f"✅ Consolidação completa: {len(consolidated)} operadoras")
+        total = consolidated["gasto_total"].sum()
+        logger.success(
+            f"✅ Consolidação completa: {len(consolidated)} operadoras | "
+            f"R$ {total:,.0f} (Método D - híbrido)"
+        )
         return consolidated
 
     # ------------------------------------------------------------------
@@ -397,7 +502,6 @@ async def main():
         df_consolidated = extractor.processar_ano(2024)
         extractor.salvar_csv(df_consolidated, 2024)
 
-        # Top 10
         print("\n" + "=" * 80)
         print("🏆 TOP 10 OPERADORAS POR GASTO ASSISTENCIAL (2024)")
         print("=" * 80)
@@ -407,7 +511,6 @@ async def main():
             print(f"{idx:>2}. {razao:<50} | R$ {gasto:>15,.2f}")
         print("=" * 80)
 
-        # Estatísticas
         total = df_consolidated["gasto_total"].sum()
         print(f"\n📊 ESTATÍSTICAS")
         print(f"   Total de operadoras: {len(df_consolidated):,}")

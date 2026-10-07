@@ -1,4 +1,5 @@
 """Endpoints de administração do sistema."""
+
 import shutil
 import time
 from datetime import datetime
@@ -9,7 +10,8 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, status
 from pydantic import BaseModel
 from sqlalchemy import create_engine, text
 import redis
-
+from fastapi import Response
+from fastapi.responses import JSONResponse
 from api.config import get_settings
 from api.scheduler import (
     get_scheduler_status,
@@ -53,7 +55,7 @@ def _get_real_disk_usage() -> dict:
     def dir_size(path: Path) -> float:
         if not path.exists():
             return 0
-        return sum(f.stat().st_size for f in path.rglob('*') if f.is_file()) / (1024**3)
+        return sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) / (1024**3)
 
     total, used, free = shutil.disk_usage(project_root)
 
@@ -66,7 +68,7 @@ def _get_real_disk_usage() -> dict:
             "backups": round(dir_size(project_root / "backups"), 2),
             "raw_data": round(dir_size(project_root / "etl" / "data" / "raw"), 2),
             "logs": round(dir_size(project_root / "logs"), 2),
-        }
+        },
     }
 
 
@@ -96,7 +98,7 @@ async def get_status():
         is_running=_update_running,
         last_run=last_run,
         next_run="1º domingo do mês às 03:00" if settings.scheduler_enabled else None,
-        uptime_seconds=round(time.time() - START_TIME, 2)
+        uptime_seconds=round(time.time() - START_TIME, 2),
     )
 
 
@@ -109,25 +111,36 @@ async def _run_pipeline_background():
     try:
         # Tentar usar pipeline real
         from etl.pipeline import PipelineOrchestrator
+
         orchestrator = PipelineOrchestrator()
         results = await orchestrator.run([datetime.now().year])
 
-        status_result = "success" if all(r["status"] == "success" for r in results) else "failed"
+        status_result = (
+            "success" if all(r["status"] == "success" for r in results) else "failed"
+        )
 
-        _update_history.append({
-            "started_at": started_at.isoformat(),
-            "completed_at": datetime.now().isoformat(),
-            "status": status_result,
-            "records_processed": sum(r.get("records_processed", 0) for r in results),
-            "duration_seconds": round((datetime.now() - started_at).total_seconds(), 2)
-        })
+        _update_history.append(
+            {
+                "started_at": started_at.isoformat(),
+                "completed_at": datetime.now().isoformat(),
+                "status": status_result,
+                "records_processed": sum(
+                    r.get("records_processed", 0) for r in results
+                ),
+                "duration_seconds": round(
+                    (datetime.now() - started_at).total_seconds(), 2
+                ),
+            }
+        )
     except Exception as e:
-        _update_history.append({
-            "started_at": started_at.isoformat(),
-            "completed_at": datetime.now().isoformat(),
-            "status": "failed",
-            "error": str(e)
-        })
+        _update_history.append(
+            {
+                "started_at": started_at.isoformat(),
+                "completed_at": datetime.now().isoformat(),
+                "status": "failed",
+                "error": str(e),
+            }
+        )
     finally:
         _update_running = False
 
@@ -139,15 +152,13 @@ async def trigger_update(background_tasks: BackgroundTasks):
 
     if _update_running:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Atualização já em execução"
+            status_code=status.HTTP_409_CONFLICT, detail="Atualização já em execução"
         )
 
     background_tasks.add_task(_run_pipeline_background)
 
     return RunUpdateResponse(
-        message="Atualização iniciada",
-        started_at=datetime.now().isoformat()
+        message="Atualização iniciada", started_at=datetime.now().isoformat()
     )
 
 
@@ -163,11 +174,12 @@ async def health_detail():
     return {
         "redis": _check_redis(),
         "uptime_seconds": round(time.time() - START_TIME, 2),
-        "scheduler_enabled": settings.scheduler_enabled
+        "scheduler_enabled": settings.scheduler_enabled,
     }
 
 
 # ===== NOVAS ROTAS DO SCHEDULER =====
+
 
 @router.get("/scheduler-status")
 async def scheduler_status():
@@ -175,19 +187,26 @@ async def scheduler_status():
     return get_scheduler_status()
 
 
-@router.post("/run-pipeline")
-async def run_pipeline_endpoint(ano: int = 2024):
-    """Dispara o pipeline manualmente em background."""
+@router.post("/run-pipeline", status_code=202)
+async def run_pipeline_endpoint(ano: int = 2024, response: Response = None):
+    """
+    Dispara o pipeline em background.
+    Retorna 202 Accepted (operação aceita, ainda não concluída).
+    """
     if is_pipeline_running():
         raise HTTPException(status_code=409, detail="Pipeline já em execução")
 
     import asyncio
+
     asyncio.create_task(run_pipeline_manual(ano))
 
-    return {
-        "message": f"Pipeline iniciado para o ano {ano}",
-        "started_at": datetime.now().isoformat(),
-    }
+    return JSONResponse(
+        status_code=202,
+        content={
+            "message": f"Pipeline iniciado para o ano {ano}",
+            "started_at": datetime.now().isoformat(),
+        },
+    )
 
 
 @router.get("/pipeline-history")
@@ -197,14 +216,16 @@ async def pipeline_history(limit: int = 10):
 
     with engine.connect() as conn:
         rows = conn.execute(
-            text("""
+            text(
+                """
                 SELECT id, periodo, started_at, completed_at, status,
                        records_processed, total_gastos, duration_seconds, error_message
                 FROM etl_executions
                 ORDER BY started_at DESC
                 LIMIT :limit
-            """),
-            {"limit": limit}
+            """
+            ),
+            {"limit": limit},
         ).fetchall()
 
     return {
