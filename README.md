@@ -42,7 +42,7 @@ Aplicação full-stack de **Business Intelligence** para dados abertos da Agênc
 - **Paginação completa:** metadados com `page`, `limit`, `total` e `pages`
 - **Filtro por modalidade:** Medicina de Grupo, Cooperativa Médica, Autogestão, etc.
 - **Exportação CSV:** download instantâneo com codificação UTF-8 BOM
-- **Base indexada:** **1.106 operadoras** ativas mapeadas em memória para resposta sub-milissegundo
+- **Base indexada:** **1.106 operadoras** ativas mapeadas em memória para resposta instantânea
 
 ### 📊 Ranking de Gastos (com Badges de Qualidade)
 - Top 10 operadoras com maiores gastos assistenciais
@@ -475,7 +475,7 @@ Deploy em Nuvem: publicação em ambiente gerenciado (Render, Railway ou AWS)
 
 ### 🏆 Destaques de Portfólio
 
-Este projeto foi desenhado demonstrando habilidades de engenharia e análise em nível sênior:
+Este projeto foi desenhado demonstrando habilidades de engenharia e análise.
 Rigor e Domínio Contábil: Diferente de análises superficiais baseadas em regex ou comprimento fixo, o projeto desenvolveu o Método D (híbrido) após exaustiva análise empírica de 3 anos de dados, resolvendo simultaneamente dupla contagem, granularidade variável e valores negativos.
 Delimitação Acadêmica Justificada: Decisão consciente de excluir 2023 do escopo principal e documentar a lacuna estrutural da ANS em 2024, transformando uma fraqueza (série inconsistente) em ponto forte metodológico.
 
