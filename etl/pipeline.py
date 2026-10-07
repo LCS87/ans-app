@@ -32,6 +32,47 @@ from etl.download import ANSDownloader
 from etl.extract import ANSExtractor
 from etl.load import ANSLoader
 from api.config import get_settings
+from api.accounting_maps import DIMENSIONS, load_prefixes
+
+
+# ----------------------------------------------------------------------
+# JOB MULTI-DIMENSÃO (Fase 5 / F2.4) — orquestra processar_contas por
+# dimensão contábil e mescla tudo em um único DataFrame por operadora,
+# pronto para o loader preservar as colunas entre dimensões (UPSERT).
+# ----------------------------------------------------------------------
+def extrair_dimensoes(ano: int, base_dir=None, extractor=None) -> dict:
+    """
+    Extrai todas as dimensões contábeis de um ano em uma passada cacheada.
+
+    Returns:
+        {nome_da_dimensao: DataFrame(REG_ANS, RAZAO_SOCIAL, <colunas>)}
+    """
+    ex = extractor or ANSExtractor(base_dir=base_dir)
+    results = {}
+    for nome in DIMENSIONS:
+        prefixes = load_prefixes(nome)
+        df = ex.processar_contas(ano, prefixos=prefixes, output_col=list(prefixes)[0])
+        results[nome] = df
+        logger.info(f"🌳 [{ano}] dimensão '{nome}': {len(df)} operadoras")
+    return results
+
+
+def mesclar_dimensoes(results: dict) -> "pd.DataFrame":
+    """Mescla os DataFrames das dimensões em um único wide-frame por REG_ANS."""
+    import pandas as pd
+
+    base_cols = ["REG_ANS", "RAZAO_SOCIAL"]
+    out = None
+    for df in results.values():
+        if df is None or df.empty:
+            continue
+        cols = [c for c in df.columns if c not in base_cols[1:]]
+        piece = df[[c for c in base_cols + list(df.columns[2:]) if c in df.columns]]
+        out = piece if out is None else out.merge(piece, on="REG_ANS", how="outer")
+    if out is None:
+        out = pd.DataFrame(columns=base_cols)
+    out["RAZAO_SOCIAL"] = out["RAZAO_SOCIAL"].fillna("OPERADORA SEM NOME")
+    return out
 
 
 class PipelineOrchestrator:
