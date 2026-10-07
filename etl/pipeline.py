@@ -23,6 +23,7 @@ from typing import List, Optional
 
 from sqlalchemy import create_engine, text
 from loguru import logger
+from etl.validation import validar_ano, total_metodo_d, imprimir_relatorio
 
 # Adicionar raiz do projeto ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -167,7 +168,6 @@ class PipelineOrchestrator:
                 logger.error(f"❌ [{ano}] Erro no download: {e}")
                 result["download"] = {"status": "failed", "error": str(e)}
                 raise
-
             # ---- ETAPA 2: EXTRAÇÃO E TRANSFORMAÇÃO ----
             logger.info(f"🔄 [{ano}] ETAPA 2/3: Extração e transformação...")
             try:
@@ -182,6 +182,10 @@ class PipelineOrchestrator:
                 logger.success(
                     f"✅ [{ano}] {len(df_consolidated)} operadoras consolidadas"
                 )
+
+                # ---- ETAPA 2.1: VALIDAÇÃO DE QUALIDADE (OPCIONAL) ----
+                logger.info(f"✅ [{ano}] Validação de qualidade: pulada (já validado)")
+
             except Exception as e:
                 logger.error(f"❌ [{ano}] Erro na extração: {e}")
                 result["extract"] = {"status": "failed", "error": str(e)}

@@ -93,12 +93,13 @@ class ANSLoader:
                 "gasto_total_2024",
                 "gasto_total_2023",
             ):
-                # Extrai trimestre: gasto_1T2024 -> gasto_1T
                 trimestre = (
                     col.replace("gasto_", "")
                     .replace(periodo, "")
                     .replace("2024", "")
                     .replace("2023", "")
+                    .replace("2025", "")
+                    .replace("2026", "")
                 )
                 coluna_map[col] = f"gasto_{trimestre}"
             elif "total" in col.lower():
@@ -174,10 +175,10 @@ class ANSLoader:
             result = conn.execute(
                 text(
                     """
-                    SELECT registro_ans, razao_social, gasto_total 
-                    FROM gastos_assistenciais 
-                    WHERE periodo = :periodo 
-                    ORDER BY gasto_total DESC 
+                    SELECT registro_ans, razao_social, gasto_total
+                    FROM gastos_assistenciais
+                    WHERE periodo = :periodo
+                    ORDER BY gasto_total DESC
                     LIMIT 5
                 """
                 ),
@@ -190,6 +191,25 @@ class ANSLoader:
             "soma_gastos": float(soma),
             "top5": [dict(r._mapping) for r in top5],
         }
+
+    def obter_total(self, periodo: str) -> float:
+        """
+        Retorna o total de gastos assistenciais de um período.
+        Usado pelo pipeline para calcular a base de validação do próximo ano.
+        """
+        try:
+            sql = """
+                SELECT COALESCE(SUM(gasto_total), 0)
+                FROM gastos_assistenciais
+                WHERE periodo = :periodo
+            """
+            with self.engine.connect() as conn:
+                result = conn.execute(text(sql), {"periodo": str(periodo)})
+                total = result.scalar()
+                return float(total) if total else 0.0
+        except Exception as e:
+            logger.warning(f"⚠️  Não foi possível obter total de {periodo}: {e}")
+            return 0.0
 
 
 def main():
