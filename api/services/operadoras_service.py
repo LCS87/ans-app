@@ -106,32 +106,42 @@ class OperadorasService:
                             return col
                 return None
             
-            col_reg = find_col(df, ['REGISTRO', 'REG_ANS'])
-            col_cnpj = find_col(df, ['CNPJ'])
-            col_razao = find_col(df, ['RAZAO', 'RAZÃO SOCIAL'])
-            col_fantasia = find_col(df, ['FANTASIA', 'NOME FANTASIA'])
-            col_modalidade = find_col(df, ['MODALIDADE'])
-            
+            col_reg = find_col(df, ["REGISTRO", "REG_ANS"])
+            col_cnpj = find_col(df, ["CNPJ"])
+            col_razao = find_col(df, ["RAZAO", "RAZÃO SOCIAL"])
+            col_fantasia = find_col(df, ["FANTASIA", "NOME FANTASIA"])
+            col_modalidade = find_col(df, ["MODALIDADE"])
+            col_uf = find_col(df, ["UF"])
+            col_regiao = find_col(df, ["REGIAO_DE_COMERCIALIZACAO", "REGIAO"])
+
             if not col_reg or not col_razao:
-                raise ValueError(f"Colunas essenciais não encontradas. Disponível: {list(df.columns)}")
-            
+                raise ValueError(
+                    f"Colunas essenciais não encontradas. Disponível: {list(df.columns)}"
+                )
+
             for _, row in df.iterrows():
-                reg_ans = str(row.get(col_reg, "")).strip().replace('"', '')
+                reg_ans = str(row.get(col_reg, "")).strip().replace('"', "")
                 cnpj = str(row.get(col_cnpj, "")).strip() if col_cnpj else ""
-                razao = str(row.get(col_razao, "")).strip().replace('"', '')
+                razao = str(row.get(col_razao, "")).strip().replace('"', "")
                 fantasia = str(row.get(col_fantasia, "")).strip() if col_fantasia else ""
-                modalidade = str(row.get(col_modalidade, "")).strip() if col_modalidade else ""
-                
+                modalidade = (
+                    str(row.get(col_modalidade, "")).strip() if col_modalidade else ""
+                )
+                uf = str(row.get(col_uf, "")).strip().upper() if col_uf else ""
+                regiao = str(row.get(col_regiao, "")).strip() if col_regiao else ""
+
                 # Pular linhas sem registro
                 if not reg_ans:
                     continue
-                
+
                 item_data = {
                     "registro_ans": reg_ans,
                     "cnpj": cnpj,
                     "razao_social": razao,
                     "nome_fantasia": fantasia or None,
-                    "modalidade": modalidade or None
+                    "modalidade": modalidade or None,
+                    "uf": uf or None,
+                    "regiao_comercializacao": regiao or None,
                 }
                 
                 items.append(item_data)
@@ -210,14 +220,23 @@ class OperadorasService:
                     "razao_social": razao,
                     "nome_fantasia": str(hit.get("nome_fantasia", "")).strip() or None,
                     "modalidade": str(hit.get("modalidade", "")).strip() or None,
-                    "score": hit.get("score", 0)
+                    "uf": str(hit.get("uf", "")).strip() or None,
+                    "regiao_comercializacao": str(
+                        hit.get("regiao_comercializacao", "")
+                    ).strip()
+                    or None,
+                    "score": hit.get("score", 0),
                 }
                 results.append(OperadoraResponse(**clean_hit))
-                
+
                 if len(results) >= limit:
                     break
             except Exception as e:
                 print(f"⚠ Registro inválido pulado: {hit.get('registro_ans', '?')} - {e}")
                 continue
-        
+
         return results
+
+    def get_all(self) -> List[dict]:
+        """Retorna todas as operadoras carregadas (metadata p/ filtros F3.4/F3.5)."""
+        return list(self._items)
