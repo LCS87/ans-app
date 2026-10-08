@@ -35,6 +35,10 @@ class OperadoraResponse(OperadoraBase):
     """Resposta de operadora com score de busca."""
 
     score: Optional[int] = Field(None, ge=0, le=100, description="Score 0-100")
+    uf: Optional[str] = Field(None, description="UF da sede (CADOP)")
+    regiao_comercializacao: Optional[str] = Field(
+        None, description="Região de comercialização (CADOP)"
+    )
 
 
 class PaginationMetadata(BaseModel):

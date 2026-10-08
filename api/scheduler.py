@@ -4,23 +4,36 @@ Scheduler mensal do pipeline ETL.
 Dispara automaticamente no 1º domingo de cada mês às 03:00 (America/Sao_Paulo).
 Usa lock Redis para evitar execuções concorrentes.
 """
+import os
 from datetime import datetime
 
-import redis
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
+try:  # dependências opcionais em ambientes de teste/CI minimalistas
+    import redis
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from apscheduler.triggers.cron import CronTrigger
+
+    _APS_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    redis = None
+    AsyncIOScheduler = None
+    CronTrigger = None
+    _APS_AVAILABLE = False
+
 from api.config import get_settings
-from etl.pipeline import PipelineOrchestrator
 
 # Configurações fixas do scheduler
 SCHEDULER_TIMEZONE = "America/Sao_Paulo"
 SCHEDULER_HOUR = 3      # 03:00
 SCHEDULER_MINUTE = 0
-SCHEDULER_ENABLED = True
+# Desativação via env (testes/CI): ETL_SCHEDULER_DISABLED=1
+SCHEDULER_ENABLED = _APS_AVAILABLE and os.getenv("ETL_SCHEDULER_DISABLED") != "1"
 
-scheduler = AsyncIOScheduler(timezone=SCHEDULER_TIMEZONE)
+if _APS_AVAILABLE:
+    scheduler = AsyncIOScheduler(timezone=SCHEDULER_TIMEZONE)
+else:  # pragma: no cover
+    scheduler = None
 
 LOCK_KEY = "etl_pipeline_lock"
 LOCK_TTL = 7200  # 2 horas
@@ -56,6 +69,8 @@ async def scheduled_pipeline():
         r = None
 
     try:
+        from etl.pipeline import PipelineOrchestrator
+
         orchestrator = PipelineOrchestrator()
         results = await orchestrator.run([ano_atual])
 
@@ -91,6 +106,8 @@ async def run_pipeline_manual(ano: int = None):
         r = None
 
     try:
+        from etl.pipeline import PipelineOrchestrator
+
         orchestrator = PipelineOrchestrator()
         results = await orchestrator.run([ano])
         return results
@@ -132,7 +149,7 @@ def start_scheduler():
 
 def stop_scheduler():
     """Para o scheduler no shutdown."""
-    if scheduler.running:
+    if scheduler is not None and scheduler.running:
         scheduler.shutdown()
         logger.info("⏹️ Scheduler parado")
 
