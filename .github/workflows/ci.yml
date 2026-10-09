@@ -7,52 +7,139 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
-    name: Run backend tests
+  # -----------------------------------------------------------------------
+  # Job 1 — Lint (Fase 5.1): black + isort + flake8
+  # -----------------------------------------------------------------------
+  lint:
+    name: Lint (black, isort, flake8)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+          cache: pip
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-jre ghostscript poppler-utils
-
-      - name: Install Python dependencies
+      - name: Install linters
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          pip install black isort flake8
 
-      - name: Download CADOP and required data
-        env:
-          CADOP_CSV_PATH: ${{ github.workspace }}/etl/data/raw/operadoras_ativas/relatorio_cadop.csv
+      - name: black --check
+        run: black --check api etl scripts tests
+
+      - name: isort --check
+        run: isort --check-only api etl scripts tests
+
+      - name: flake8
+        run: flake8 api etl scripts tests
+
+  # -----------------------------------------------------------------------
+  # Job 2 — Testes unitários com gate de cobertura ≥65% (Milestone F1)
+  # -----------------------------------------------------------------------
+  test:
+    name: Tests + coverage gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
         run: |
-          python etl/scraping/download_dados_abertos_ans.py
+          python -m pip install --upgrade pip
+          pip install -r requirements.prod.txt
+          pip install pytest pytest-cov fakeredis
 
-      - name: Start backend (uvicorn)
+      - name: Run unit tests (sem integração de rede/banco)
+        run: >
+          python -m pytest tests/ -q
+          --ignore=tests/test_endpoints.py
+          --ignore=tests/test_pipeline.py
+          --cov=api --cov=etl --cov-report=term-missing
+          --cov-fail-under=0
+
+      - name: Coverage gate >= 65%
+        run: >
+          python -m pytest tests/ -q
+          --ignore=tests/test_endpoints.py
+          --ignore=tests/test_pipeline.py
+          --cov=api --cov=etl --cov-report=term
+          --cov-fail-under=65
+
+  # -----------------------------------------------------------------------
+  # Job 3 — Integração E2E: MySQL+Redis via services, backend real na :8002
+  # (substitui o antigo job monolítico que dependia de download da ANS;
+  #  usa seed sintético para não quebrar CI quando a ANS mudar o layout)
+  # -----------------------------------------------------------------------
+  integration:
+    name: Integration (MySQL + Redis + API live)
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ans_db
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports: ["3307:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=8
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.prod.txt
+          pip install pytest pytest-cov fakeredis
+
+      - name: Apply DDL MySQL
+        run: |
+          sudo apt-get update && sudo apt-get install -y mysql-client
+          mysql -h 127.0.0.1 -P 3307 -uuser -ppassword ans_db < db/mysql/01_ddl.sql
+
+      - name: Seed dados sintéticos v1.2 (todas as dimensões)
+        run: python scripts/seed_ci.py
+
+      - name: Start backend (uvicorn :8002)
+        env:
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_PORT: "3307"
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: ans_db
+          REDIS_HOST: 127.0.0.1
         run: |
           nohup python -m uvicorn api.main:app --host 127.0.0.1 --port 8002 > uvicorn.log 2>&1 &
-          sleep 3
-
-      - name: Wait for backend to become healthy
-        run: |
-          for i in {1..15}; do
-            if curl -s http://127.0.0.1:8002/health | grep -q "ok"; then
-              echo "Backend is healthy"; break
-            fi
-            echo "Waiting for backend... ($i)"; sleep 1
+          for i in {1..30}; do
+            curl -sf http://127.0.0.1:8002/health >/dev/null && echo "backend healthy" && break
+            sleep 2
           done
 
-      - name: Run tests
-        run: |
-          python -m pytest -q
+      - name: Run integration tests
+        env:
+          RUN_INTEGRATION: "1"
+          API_BASE_URL: http://127.0.0.1:8002
+        run: python -m pytest tests/test_endpoints.py -q --no-cov
 
       - name: Upload uvicorn log on failure
         if: failure()
@@ -60,3 +147,17 @@ jobs:
         with:
           name: uvicorn-log
           path: uvicorn.log
+
+  # -----------------------------------------------------------------------
+  # Job 4 — Build da imagem Docker multi-stage (Fase 5.2), sem push
+  # -----------------------------------------------------------------------
+  docker-build:
+    name: Docker build smoke
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production image
+        run: docker build -f docker/backend/Dockerfile --target production -t ans-backend:ci .
+      - name: Report image size
+        run: docker images ans-backend:ci --format "{{.Size}}"

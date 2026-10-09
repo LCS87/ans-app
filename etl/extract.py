@@ -17,6 +17,7 @@ import shutil
 import zipfile
 from pathlib import Path
 from typing import List
+
 import pandas as pd
 from loguru import logger
 
@@ -155,9 +156,7 @@ class ANSExtractor:
                 cols_upper = [c.upper() for c in df.columns]
 
                 if all(col in cols_upper for col in required_cols):
-                    logger.debug(
-                        f"✅ CSV lido com {config['encoding']} + sep '{config['sep']}'"
-                    )
+                    logger.debug(f"✅ CSV lido com {config['encoding']} + sep '{config['sep']}'")
                     return df
 
             except Exception:
@@ -177,9 +176,7 @@ class ANSExtractor:
         mais longo. NaNs são tratados explicitamente.
         """
         df = df.copy()
-        df["CD_CONTA_CONTABIL"] = (
-            df["CD_CONTA_CONTABIL"].fillna("").astype(str).str.strip()
-        )
+        df["CD_CONTA_CONTABIL"] = df["CD_CONTA_CONTABIL"].fillna("").astype(str).str.strip()
         df = df.sort_values(["REG_ANS", "CD_CONTA_CONTABIL"], kind="mergesort")
 
         cur = df["CD_CONTA_CONTABIL"]
@@ -197,9 +194,7 @@ class ANSExtractor:
     def _filter_gastos_assistenciais(self, df: pd.DataFrame) -> pd.DataFrame:
         """Somente contas-folha de eventos/sinistros (411), saldo > 0."""
         df = df.copy()
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
 
         df = self.marcar_folhas(df)
 
@@ -239,9 +234,7 @@ class ANSExtractor:
                     dtype=str,
                 )
                 if len(df.columns) > 1:
-                    logger.debug(
-                        f"✅ CADOP lido com {config['encoding']} + sep '{config['sep']}'"
-                    )
+                    logger.debug(f"✅ CADOP lido com {config['encoding']} + sep '{config['sep']}'")
                     break
             except Exception:
                 continue
@@ -270,9 +263,7 @@ class ANSExtractor:
                 break
 
         if "REG_ANS" not in rename_map.values():
-            logger.error(
-                f"❌ Coluna REG_ANS não encontrada. Colunas: {list(df.columns)}"
-            )
+            logger.error(f"❌ Coluna REG_ANS não encontrada. Colunas: {list(df.columns)}")
             return pd.DataFrame(columns=["REG_ANS", "RAZAO_SOCIAL"])
 
         df = df.rename(columns=rename_map)
@@ -305,9 +296,7 @@ class ANSExtractor:
         contas = list(valores.keys())
         contas_set = set(contas)
 
-        raizes = [
-            c for c in contas if not any(c[:L] in contas_set for L in range(1, len(c)))
-        ]
+        raizes = [c for c in contas if not any(c[:L] in contas_set for L in range(1, len(c)))]
 
         total = 0.0
         for raiz in raizes:
@@ -365,9 +354,9 @@ class ANSExtractor:
 
         df_all = pd.concat(dfs, ignore_index=True)
         df_all["CD_CONTA_CONTABIL"] = df_all["CD_CONTA_CONTABIL"].fillna("").str.strip()
-        df_all["VL_SALDO_FINAL"] = pd.to_numeric(
-            df_all["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df_all["VL_SALDO_FINAL"] = pd.to_numeric(df_all["VL_SALDO_FINAL"], errors="coerce").fillna(
+            0
+        )
         logger.info(f"📊 Total de linhas: {len(df_all):,}")
 
         self._df_all_cache = (ano, df_all)
@@ -411,9 +400,7 @@ class ANSExtractor:
                 res = self._metodo_d_por_operadora(nz)
                 if res:
                     frames.append(
-                        pd.DataFrame(
-                            [{"REG_ANS": r, nome + suffix: v} for r, v in res.items()]
-                        )
+                        pd.DataFrame([{"REG_ANS": r, nome + suffix: v} for r, v in res.items()])
                     )
             if not frames:
                 cols = ["REG_ANS"] + [p + suffix for p in prefixos]
@@ -457,9 +444,7 @@ class ANSExtractor:
             cadop = cadop.copy()
             cadop["REG_ANS"] = cadop["REG_ANS"].astype(str).str.strip()
             consolidated = consolidated.merge(cadop, on="REG_ANS", how="left")
-            consolidated["RAZAO_SOCIAL"] = consolidated["RAZAO_SOCIAL"].fillna(
-                "OPERADORA SEM NOME"
-            )
+            consolidated["RAZAO_SOCIAL"] = consolidated["RAZAO_SOCIAL"].fillna("OPERADORA SEM NOME")
 
         ordered = ["REG_ANS", "RAZAO_SOCIAL"] + list(prefixos.keys()) + quarter_cols
         # output_col pode não ser um prefixo nomeado (ex.: chamada com apenas
@@ -493,9 +478,7 @@ class ANSExtractor:
         Genérico (F2.4): ``processar_ano(2024, prefixo="31")`` processa
         qualquer outra dimensão contábil (receita, despesas adm, ativo etc.).
         """
-        logger.info(
-            f"🔄 Processando demonstrações contábeis de {ano} (ramo {prefixo})..."
-        )
+        logger.info(f"🔄 Processando demonstrações contábeis de {ano} (ramo {prefixo})...")
         df = self.processar_contas(
             ano,
             prefixos={"gasto_total": prefixo},
@@ -549,9 +532,7 @@ async def main():
         print(f"\n📊 ESTATÍSTICAS")
         print(f"   Total de operadoras: {len(df_consolidated):,}")
         print(f"   Gasto total 2024: R$ {total:,.2f}")
-        print(
-            f"   Média por operadora: R$ {df_consolidated['gasto_total'].mean():,.2f}"
-        )
+        print(f"   Média por operadora: R$ {df_consolidated['gasto_total'].mean():,.2f}")
         print(f"   Mediana: R$ {df_consolidated['gasto_total'].median():,.2f}")
         print("=" * 80)
 

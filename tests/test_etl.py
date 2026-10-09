@@ -6,13 +6,10 @@ orquestrador de dimensões (processar_contas por dimensão → load).
 """
 
 import zipfile
-from pathlib import Path
 
 import pandas as pd
-import pytest
 from sqlalchemy import text
 
-from etl.load import ANSLoader
 
 
 def loader_for_test(engine):
@@ -39,8 +36,14 @@ class TestNormalizacao:
         )
         out = loader.normalizar_colunas(df, periodo="2024", dimensao="gastos")
         assert list(out.columns) == [
-            "periodo", "registro_ans", "razao_social",
-            "gasto_1T", "gasto_2T", "gasto_3T", "gasto_4T", "gasto_total",
+            "periodo",
+            "registro_ans",
+            "razao_social",
+            "gasto_1T",
+            "gasto_2T",
+            "gasto_3T",
+            "gasto_4T",
+            "gasto_total",
         ]
         assert out["gasto_total"].iloc[0] == 900.0
 
@@ -102,8 +105,10 @@ class TestCarga:
                 "periodo": ["2024"],
                 "registro_ans": ["999999"],
                 "razao_social": ["NOVA"],
-                "gasto_1T": [1.0], "gasto_2T": [1.0],
-                "gasto_3T": [1.0], "gasto_4T": [1.0],
+                "gasto_1T": [1.0],
+                "gasto_2T": [1.0],
+                "gasto_3T": [1.0],
+                "gasto_4T": [1.0],
                 "gasto_total": [4.0],
             }
         )
@@ -132,9 +137,9 @@ class TestJobMultiDimensao:
         (base / "processed").mkdir(parents=True)
         cadop = base / "raw" / "operadoras_ativas"
         cadop.mkdir(parents=True)
-        pd.DataFrame(
-            {"REGISTRO_ANS": ["111111"], "RAZAO_SOCIAL": ["ALPHA"]}
-        ).to_csv(cadop / "relatorio_cadop.csv", sep=";", index=False)
+        pd.DataFrame({"REGISTRO_ANS": ["111111"], "RAZAO_SOCIAL": ["ALPHA"]}).to_csv(
+            cadop / "relatorio_cadop.csv", sep=";", index=False
+        )
 
         rows = [
             ("111111", "31", "RECEITA", "1000"),

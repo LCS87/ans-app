@@ -19,16 +19,24 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 os.environ.setdefault("ETL_SCHEDULER_DISABLED", "1")
 
 from sqlalchemy import create_engine, text  # noqa: E402
+from sqlalchemy.pool import StaticPool  # noqa: E402
 
 
 @pytest.fixture()
 def sqlite_engine():
-    """Banco em memória compartilhado entre conexões (URI de arquivo :memory:)."""
-    engine = create_engine("sqlite+pysqlite:///:memory:", connect_args={"check_same_thread": False})
+    """Banco em memória compartilhado entre conexões.
+
+    ``StaticPool`` garante que todas as ``engine.connect()`` reutilizem a
+    MESMA conexão SQLite — com o pool default, cada conexão nova abre um
+    banco :memory: vazio (schema e dados 'desapareciam' entre requests).
+    """
+    engine = create_engine(
+        "sqlite+pysqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     with engine.begin() as conn:
-        conn.execute(
-            text(
-                """
+        conn.execute(text("""
                 CREATE TABLE gastos_assistenciais (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     periodo TEXT NOT NULL,
@@ -58,9 +66,7 @@ def sqlite_engine():
                     it_softwares REAL DEFAULT 0,
                     UNIQUE (periodo, registro_ans)
                 )
-                """
-            )
-        )
+                """))
     yield engine
     engine.dispose()
 
@@ -71,26 +77,114 @@ def seeded_db(sqlite_engine):
     # Cada linha é um dicionário chave→coluna — imune a desalinhamento de
     # posição (bug anterior: 24 valores × 25 chaves via zip).
     rows = [
-        dict(p="2024", r="111111", n="OPERADORA ALPHA", gt=900.0,
-             q1=200, q2=250, q3=200, q4=250, rec=3000.0, sin=900.0, luc=100.0,
-             pat=5000.0, cx=400.0, ot=50.0, forn=30.0, dadm=600.0, pes=200.0,
-             jud=100.0, prov=10.0, glos=800.0, inv=500.0, imob=300.0,
-             intang=50.0, gw=20.0, itsoft=20.0),
-        dict(p="2024", r="222222", n="OPERADORA BETA", gt=700.0,
-             q1=150, q2=150, q3=200, q4=200, rec=2000.0, sin=700.0, luc=-50.0,
-             pat=3000.0, cx=200.0, ot=40.0, forn=20.0, dadm=400.0, pes=150.0,
-             jud=60.0, prov=5.0, glos=600.0, inv=400.0, imob=200.0,
-             intang=30.0, gw=10.0, itsoft=10.0),
-        dict(p="2024", r="333333", n="OPERADORA GAMMA", gt=9000.0,
-             q1=2000, q2=2200, q3=2300, q4=2500, rec=20000.0, sin=9000.0, luc=800.0,
-             pat=15000.0, cx=1200.0, ot=300.0, forn=120.0, dadm=2500.0, pes=900.0,
-             jud=400.0, prov=50.0, glos=5000.0, inv=3000.0, imob=1500.0,
-             intang=400.0, gw=150.0, itsoft=150.0),
-        dict(p="2023", r="111111", n="OPERADORA ALPHA", gt=800.0,
-             q1=200, q2=200, q3=200, q4=200, rec=2800.0, sin=800.0, luc=90.0,
-             pat=4500.0, cx=350.0, ot=45.0, forn=25.0, dadm=550.0, pes=180.0,
-             jud=90.0, prov=9.0, glos=700.0, inv=450.0, imob=250.0,
-             intang=40.0, gw=15.0, itsoft=15.0),
+        dict(
+            p="2024",
+            r="111111",
+            n="OPERADORA ALPHA",
+            gt=900.0,
+            q1=200,
+            q2=250,
+            q3=200,
+            q4=250,
+            rec=3000.0,
+            sin=900.0,
+            luc=100.0,
+            pat=5000.0,
+            cx=400.0,
+            ot=50.0,
+            forn=30.0,
+            dadm=600.0,
+            pes=200.0,
+            jud=100.0,
+            prov=10.0,
+            glos=800.0,
+            inv=500.0,
+            imob=300.0,
+            intang=50.0,
+            gw=20.0,
+            itsoft=20.0,
+        ),
+        dict(
+            p="2024",
+            r="222222",
+            n="OPERADORA BETA",
+            gt=700.0,
+            q1=150,
+            q2=150,
+            q3=200,
+            q4=200,
+            rec=2000.0,
+            sin=700.0,
+            luc=-50.0,
+            pat=3000.0,
+            cx=200.0,
+            ot=40.0,
+            forn=20.0,
+            dadm=400.0,
+            pes=150.0,
+            jud=60.0,
+            prov=5.0,
+            glos=600.0,
+            inv=400.0,
+            imob=200.0,
+            intang=30.0,
+            gw=10.0,
+            itsoft=10.0,
+        ),
+        dict(
+            p="2024",
+            r="333333",
+            n="OPERADORA GAMMA",
+            gt=9000.0,
+            q1=2000,
+            q2=2200,
+            q3=2300,
+            q4=2500,
+            rec=20000.0,
+            sin=9000.0,
+            luc=800.0,
+            pat=15000.0,
+            cx=1200.0,
+            ot=300.0,
+            forn=120.0,
+            dadm=2500.0,
+            pes=900.0,
+            jud=400.0,
+            prov=50.0,
+            glos=5000.0,
+            inv=3000.0,
+            imob=1500.0,
+            intang=400.0,
+            gw=150.0,
+            itsoft=150.0,
+        ),
+        dict(
+            p="2023",
+            r="111111",
+            n="OPERADORA ALPHA",
+            gt=800.0,
+            q1=200,
+            q2=200,
+            q3=200,
+            q4=200,
+            rec=2800.0,
+            sin=800.0,
+            luc=90.0,
+            pat=4500.0,
+            cx=350.0,
+            ot=45.0,
+            forn=25.0,
+            dadm=550.0,
+            pes=180.0,
+            jud=90.0,
+            prov=9.0,
+            glos=700.0,
+            inv=450.0,
+            imob=250.0,
+            intang=40.0,
+            gw=15.0,
+            itsoft=15.0,
+        ),
     ]
     sql = """
         INSERT INTO gastos_assistenciais (
@@ -136,9 +230,24 @@ def client(seeded_db):
 
         def get_all(self):
             return [
-                {"registro_ans": "111111", "uf": "SP", "regiao_comercializacao": "Sudeste", "modalidade": "Cooperativa Médica"},
-                {"registro_ans": "222222", "uf": "RJ", "regiao_comercializacao": "Sudeste", "modalidade": "Autogestão"},
-                {"registro_ans": "333333", "uf": "SP", "regiao_comercializacao": "Sudeste", "modalidade": "Cooperativa Médica"},
+                {
+                    "registro_ans": "111111",
+                    "u": "SP",
+                    "regiao_comercializacao": "Sudeste",
+                    "modalidade": "Cooperativa Médica",
+                },
+                {
+                    "registro_ans": "222222",
+                    "u": "RJ",
+                    "regiao_comercializacao": "Sudeste",
+                    "modalidade": "Autogestão",
+                },
+                {
+                    "registro_ans": "333333",
+                    "u": "SP",
+                    "regiao_comercializacao": "Sudeste",
+                    "modalidade": "Cooperativa Médica",
+                },
             ]
 
     test_app = create_app()
@@ -151,8 +260,11 @@ def client(seeded_db):
     fake = _FakeOperadoras()
     analytics.configure_cadop(fake)
 
-    test_app.state.operadoras_service = fake
-    test_app.state.analytics_service = analytics
+    # Factory por nome: o handler resolve via dependency ``_resolve`` na
+    # primeira request (o state do TestClient é recriado pelo lifespan,
+    # então atributos setados aqui podem ser sobrescritos — a factory não).
+    services = {"analytics_service": analytics, "operadoras_service": fake}
+    test_app.state._service_factory = lambda name: services.get(name)
 
     with TestClient(test_app) as c:
         yield c
@@ -167,8 +279,8 @@ def seeded_analytics(seeded_db):
     svc.engine = seeded_db
     svc.settings = None
     svc.cadop_meta = {
-        "111111": {"uf": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
-        "222222": {"uf": "RJ", "regiao": "SUDESTE", "modalidade": "Autogestão"},
-        "333333": {"uf": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
+        "111111": {"u": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
+        "222222": {"u": "RJ", "regiao": "SUDESTE", "modalidade": "Autogestão"},
+        "333333": {"u": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
     }
     return svc

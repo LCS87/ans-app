@@ -1,10 +1,14 @@
-# Python bytecode and cache
+# Python bytecode and caches
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Coverage data
+# Testing and coverage
 .coverage
+.pytest_cache/
+htmlcov/
+coverage/
 
-# CSV data files (if considered generated/temp, but usually kept; however, .coverage is definitely ignored)
-# Note: The prompt says "If the change list contains ONLY source or config files... output EMPTY". 
-# Here we have __pycache__/*.pyc and .coverage which are artifacts. So we must generate content.
+# Environment and config files
+.env
+.env.local

@@ -1,11 +1,11 @@
 """Serviço de analytics e relatórios - Versão com MySQL (v1.2 multi-dimensão)."""
 
-from typing import List, Optional
+from typing import Optional
 
 import pandas as pd
 from sqlalchemy import create_engine, text
 
-from api.accounting_maps import DIMENSIONS, get_dimension
+from api.accounting_maps import get_dimension
 from api.config import Settings
 
 
@@ -32,7 +32,7 @@ class AnalyticsService:
             reg = str(op.get("registro_ans", "")).strip()
             if reg:
                 meta[reg] = {
-                    "uf": op.get("uf") or "",
+                    "u": op.get("u") or "",
                     "regiao": op.get("regiao_comercializacao") or "",
                     "modalidade": op.get("modalidade") or "",
                 }
@@ -59,22 +59,29 @@ class AnalyticsService:
         if uf:
             df = df[df["registro_ans"].map(lambda r: _get(r, "uf")) == uf.upper()]
         if regiao:
-            df = df[
-                df["registro_ans"].map(lambda r: _get(r, "regiao").upper())
-                == regiao.upper()
-            ]
+            df = df[df["registro_ans"].map(lambda r: _get(r, "regiao").upper()) == regiao.upper()]
         return df.reset_index(drop=True)
 
     @staticmethod
     def _detect_outliers(df: pd.DataFrame, col: str) -> list:
-        """Badge ⚠️ Outlier (F3.3): IQR por porte (quartis da própria coluna)."""
-        if len(df) < 8 or col not in df.columns:
+        """Badge ⚠️ Outlier (F3.3): IQR com cerca de 1,5×IQR acima do Q3.
+
+        Para amostras pequenas (<8), o guardrail 'porte' usa mediana × 4 —
+        operadora 4x acima da mediana do recorte é estatisticamente fora
+        da curva mesmo sem quartis estáveis.
+        """
+        if df.empty or col not in df.columns:
             return [False] * len(df)
         s = df[col].astype(float)
-        q1, q3 = s.quantile(0.25), s.quantile(0.75)
-        iqr = q3 - q1
-        lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-        return [(v < lo) or (v > hi) for v in s]
+        if len(df) >= 8:
+            q1, q3 = s.quantile(0.25), s.quantile(0.75)
+            iqr = q3 - q1
+            lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+            return [(v < lo) or (v > hi) for v in s]
+        # Amostra pequena: regra robusta por mediana (guardrail de porte)
+        med = s.median()
+        hi = med * 4 if med > 0 else s.max() + 1
+        return [bool(v > hi) for v in s]
 
     def get_top_gastos(self, periodo: str, top: int = 10) -> dict:
         """
@@ -86,28 +93,24 @@ class AnalyticsService:
             with self.engine.connect() as conn:
                 # Buscar ranking
                 result = conn.execute(
-                    text(
-                        """
+                    text("""
                         SELECT registro_ans, razao_social, gasto_total
                         FROM gastos_assistenciais
                         WHERE periodo = :periodo
                         ORDER BY gasto_total DESC
                         LIMIT :limit
-                    """
-                    ),
+                    """),
                     {"periodo": periodo, "limit": top},
                 )
                 rows = result.fetchall()
 
                 # Contar total de operadoras no período
                 result_count = conn.execute(
-                    text(
-                        """
+                    text("""
                         SELECT COUNT(*) as total, SUM(gasto_total) as soma
                         FROM gastos_assistenciais
                         WHERE periodo = :periodo
-                    """
-                    ),
+                    """),
                     {"periodo": periodo},
                 )
                 stats = result_count.fetchone()
@@ -167,7 +170,7 @@ class AnalyticsService:
         dim = get_dimension(dimension)
         db_cols = sorted(set(dim["columns"].keys()))
         select_cols = ["registro_ans", "razao_social"] + db_cols
-        sql = f"""
+        sql = """
             SELECT {", ".join(select_cols)}
             FROM gastos_assistenciais
             WHERE periodo = :periodo
@@ -201,13 +204,11 @@ class AnalyticsService:
                 "registro_ans": str(r["registro_ans"]),
                 "razao_social": str(r["razao_social"]),
                 "valores": {c: round(float(r[c]), 2) for c in db_cols},
-                "agregados": {
-                    a: round(float(r[a]), 4) for a in dim.get("aggregates", {})
-                },
+                "agregados": {a: round(float(r[a]), 4) for a in dim.get("aggregates", {})},
                 "outlier": bool(outliers[i]),
             }
             meta = self.cadop_meta.get(row["registro_ans"], {})
-            row["uf"] = meta.get("uf") or None
+            row["u"] = meta.get("uf") or None
             row["regiao"] = meta.get("regiao") or None
             row["modalidade"] = meta.get("modalidade") or None
             rows.append(row)
@@ -218,9 +219,7 @@ class AnalyticsService:
             "icon": dim["icon"],
             "periodo": periodo,
             "total_operadoras": int(len(df)),
-            "totais": {
-                c: round(float(self._safe_sum(c, periodo)), 2) for c in db_cols
-            },
+            "totais": {c: round(float(self._safe_sum(c, periodo)), 2) for c in db_cols},
             "ranking": rows,
         }
 
@@ -228,10 +227,7 @@ class AnalyticsService:
         try:
             with self.engine.connect() as conn:
                 v = conn.execute(
-                    text(
-                        f'SELECT SUM("{col}") FROM gastos_assistenciais '
-                        "WHERE periodo = :p"
-                    ),
+                    text(f'SELECT SUM("{col}") FROM gastos_assistenciais ' "WHERE periodo = :p"),
                     {"p": periodo},
                 ).fetchone()[0]
             return float(v or 0)
@@ -253,7 +249,7 @@ class AnalyticsService:
         """5 sub-rankings (receita, sinistro, patrimônio, caixa, lucro)."""
         out = {}
         for name, col in self.TOP_METRICS.items():
-            sql = f"""
+            sql = """
                 SELECT registro_ans, razao_social, "{col}" AS valor
                 FROM gastos_assistenciais
                 WHERE periodo = :periodo AND "{col}" > 0
@@ -287,7 +283,7 @@ class AnalyticsService:
             """
             df = self._query_df(sql, {"periodo": periodo, "reg": registro_ans})
         else:
-            sql = f"""
+            sql = """
                 SELECT 'TOTAL' AS registro_ans, 'Consolidado' AS razao_social,
                        {', '.join(f'SUM("{q}") AS "{q}"' for q in quarters)},
                        SUM(gasto_total) AS gasto_total
@@ -302,8 +298,7 @@ class AnalyticsService:
                     "registro_ans": str(r["registro_ans"]),
                     "razao_social": str(r["razao_social"]),
                     "trimestres": {
-                        q.replace("gasto_", ""): round(float(r[q] or 0), 2)
-                        for q in quarters
+                        q.replace("gasto_", ""): round(float(r[q] or 0), 2) for q in quarters
                     },
                     "total": round(float(r["gasto_total"] or 0), 2),
                 }
@@ -315,20 +310,35 @@ class AnalyticsService:
     # ------------------------------------------------------------------
     def get_regional(self, periodo: str, metric: str = "gasto_total") -> dict:
         """Agrega métrica por UF usando metadata CADOP (heat map Brasil)."""
-        safe_metric = metric if metric in {
-            "gasto_total", "receita", "lucro", "caixa", "patrimonio",
-            "despesas_administrativas",
-        } else "gasto_total"
-        sql = f"""
+        safe_metric = (
+            metric
+            if metric
+            in {
+                "gasto_total",
+                "receita",
+                "lucro",
+                "caixa",
+                "patrimonio",
+                "despesas_administrativas",
+            }
+            else "gasto_total"
+        )
+        sql = """
             SELECT registro_ans, razao_social, "{safe_metric}" AS valor
             FROM gastos_assistenciais WHERE periodo = :periodo
         """
         df = self._query_df(sql, {"periodo": periodo})
         agg: dict = {}
         for _, r in df.iterrows():
-            uf = self.cadop_meta.get(str(r["registro_ans"]), {}).get("uf", "") or "--"
+            uf = self.cadop_meta.get(str(r["registro_ans"]), {}).get("u", "") or "--"
             e = agg.setdefault(
-                uf, {"uf": uf, "regiao": self.cadop_meta.get(str(r["registro_ans"]), {}).get("regiao", ""), "operadoras": 0, "valor": 0.0}
+                uf,
+                {
+                    "uf": uf,
+                    "regiao": self.cadop_meta.get(str(r["registro_ans"]), {}).get("regiao", ""),
+                    "operadoras": 0,
+                    "valor": 0.0,
+                },
             )
             e["operadoras"] += 1
             e["valor"] += float(r["valor"] or 0)
@@ -372,16 +382,14 @@ class AnalyticsService:
                 "lucro": round(float(r["lucro"] or 0), 2),
                 "patrimonio": round(float(r["patrimonio"] or 0), 2),
                 "caixa": round(float(r["caixa"] or 0), 2),
-                "despesas_administrativas": round(
-                    float(r["despesas_administrativas"] or 0), 2
-                ),
+                "despesas_administrativas": round(float(r["despesas_administrativas"] or 0), 2),
             }
             for _, r in df.iterrows()
         ]
         meta = self.cadop_meta.get(registro_ans, {})
         return {
             "registro_ans": registro_ans,
-            "uf": meta.get("uf") or None,
+            "u": meta.get("uf") or None,
             "modalidade": meta.get("modalidade") or None,
             "history": history,
         }

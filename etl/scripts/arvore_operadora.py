@@ -12,6 +12,7 @@ Saída: tabela com código | descrição | 1T | 2T | 3T | 4T | is_leaf
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 project_root = Path(__file__).parent.parent.parent
@@ -28,9 +29,7 @@ def reconstruir_arvore(ano: int, reg_ans: str):
     for f in csv_files:
         df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         df["TRIM"] = f.stem  # 1T2025, 2T2025...
         dfs.append(df)
 
@@ -74,7 +73,7 @@ def reconstruir_arvore(ano: int, reg_ans: str):
                 return False
         return True
 
-    pivot["is_leaf"] = pivot["CD_CONTA_CONTABIL"].apply(eh_folha)
+    pivot["is_lea"] = pivot["CD_CONTA_CONTABIL"].apply(eh_folha)
 
     # ====================================================================
     # Impressão tabular
@@ -92,16 +91,13 @@ def reconstruir_arvore(ano: int, reg_ans: str):
 
     sep = "─"
     print(f"\n{sep*110}")
-    print(
-        f"{'CÓDIGO':<12} {'DESCRIÇÃO':<55} "
-        f"{'1T':>11} {'2T':>11} {'3T':>11} {'4T':>11} leaf"
-    )
+    print(f"{'CÓDIGO':<12} {'DESCRIÇÃO':<55} " f"{'1T':>11} {'2T':>11} {'3T':>11} {'4T':>11} leaf")
     print(sep * 110)
 
     for _, row in pivot.iterrows():
         cod = row["CD_CONTA_CONTABIL"]
         desc = str(row["DESCRICAO"])[:55]
-        marker = "🍃" if row["is_leaf"] else "  "
+        marker = "🍃" if row["is_lea"] else "  "
         v1 = fmt(row.get(f"1T{ano}"))
         v2 = fmt(row.get(f"2T{ano}"))
         v3 = fmt(row.get(f"3T{ano}"))
@@ -111,9 +107,7 @@ def reconstruir_arvore(ano: int, reg_ans: str):
     print(sep * 110)
 
     # Totais
-    print(
-        "\n📊 TOTAIS POR TRIMESTRE (soma de TODOS os registros 411, incl. sintéticas):"
-    )
+    print("\n📊 TOTAIS POR TRIMESTRE (soma de TODOS os registros 411, incl. sintéticas):")
     for t in trims:
         total = pivot[t].sum()
         print(f"   {t}: R$ {total:>18,.0f}")
@@ -133,23 +127,22 @@ def reconstruir_arvore(ano: int, reg_ans: str):
         print("   ⚠️  Nenhum valor em nenhum trimestre")
     elif len(presentes) == 1:
         print(
-            f"   ⚠️  Valor em apenas 1 trimestre ({presentes[0][0]}): "
-            f"R$ {presentes[0][1]:,.0f}"
+            f"   ⚠️  Valor em apenas 1 trimestre ({presentes[0][0]}): " f"R$ {presentes[0][1]:,.0f}"
         )
         print("   → lacuna nos outros trimestres ou reporte único")
     else:
         vs = [v for _, v in presentes]
         diffs = [vs[i + 1] - vs[i] for i in range(len(vs) - 1)]
         if all(d > 0 for d in diffs):
-            print(f"   ✅ ACUMULADO (crescimento monotônico)")
+            print("   ✅ ACUMULADO (crescimento monotônico)")
             print(f"   → anual correto = último valor disponível = R$ {vs[-1]:,.0f}")
         elif all(abs(d) < max(vs) * 0.3 for d in diffs):
-            print(f"   ✅ TRIMESTRAL (valores estáveis)")
+            print("   ✅ TRIMESTRAL (valores estáveis)")
             print(f"   → anual correto = soma = R$ {sum(vs):,.0f}")
         else:
-            print(f"   ⚠️  MISTO/IRREGULAR")
+            print("   ⚠️  MISTO/IRREGULAR")
             print(f"   → diffs: {[f'R$ {d:,.0f}' for d in diffs]}")
-            print(f"   → precisa análise manual da conta específica")
+            print("   → precisa análise manual da conta específica")
 
 
 if __name__ == "__main__":

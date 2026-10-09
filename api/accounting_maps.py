@@ -50,13 +50,13 @@ DIMENSIONS: Dict[str, dict] = {
         "sort_by": "receita",
         "prefix": "31",
         "columns": {
-            "receita": "31",          # Receita com operações de planos
-            "lucro": "25",            # Lucro líquido do exercício
-            "patrimonio": "256",      # Resultado/lucros acumulados (proxy de PL)
-            "caixa": "12",            # Caixa e equivalentes
+            "receita": "31",  # Receita com operações de planos
+            "lucro": "25",  # Lucro líquido do exercício
+            "patrimonio": "256",  # Resultado/lucros acumulados (proxy de PL)
+            "caixa": "12",  # Caixa e equivalentes
             "obrigacoes_trabalhistas": "21",
             "fornecedores": "23",
-            "sinistros": "41",        # base para sinistralidade
+            "sinistros": "41",  # base para sinistralidade
         },
         "aggregates": {
             # Sinistralidade = Eventos/Sinistros (41) / Receita (31)
@@ -105,9 +105,7 @@ DIMENSIONS: Dict[str, dict] = {
 def get_dimension(name: str) -> dict:
     """Retorna o mapa da dimensão ou levanta KeyError amigável."""
     if name not in DIMENSIONS:
-        raise KeyError(
-            f"Dimensão '{name}' inválida. Válidas: {sorted(DIMENSIONS)}"
-        )
+        raise KeyError(f"Dimensão '{name}' inválida. Válidas: {sorted(DIMENSIONS)}")
     return DIMENSIONS[name]
 
 
@@ -152,7 +150,6 @@ def load_prefixes(dimension: str) -> Dict[str, str]:
     """Prefixos de extração para o job multi-dimensão do pipeline."""
     if dimension not in DIMENSION_LOAD_PREFIXES:
         raise KeyError(
-            f"Dimensão '{dimension}' inválida. "
-            f"Válidas: {sorted(DIMENSION_LOAD_PREFIXES)}"
+            f"Dimensão '{dimension}' inválida. " f"Válidas: {sorted(DIMENSION_LOAD_PREFIXES)}"
         )
     return DIMENSION_LOAD_PREFIXES[dimension]

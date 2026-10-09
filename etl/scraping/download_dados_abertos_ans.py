@@ -1,15 +1,15 @@
-import os
-import re
-import urllib3
-import requests
-from datetime import date
 from pathlib import Path
 from urllib.parse import urljoin
+
+import requests
+import urllib3
 from bs4 import BeautifulSoup
+
 
 # Configuração de Logs Simples
 def log(msg):
     print(f"[*] {msg}")
+
 
 # --- CONFIGURAÇÃO DE DIRETÓRIOS ---
 # Define a raiz baseada na localização deste script (sobe 2 níveis)
@@ -23,15 +23,17 @@ CADOP_URL = "https://www.gov.br/ans/pt-br/arquivos/acesso-a-informacao/perfil-do
 # Suprime avisos de conexões HTTPS não seguras (comum em servidores governamentais)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+
 def _safe_mkdir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
+
 
 def _download(url: str, dest: Path, timeout: int = 180) -> Path:
     """Realiza o download de arquivos grandes em chunks."""
     _safe_mkdir(dest.parent)
-    
+
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
 
     # verify=False é necessário para o servidor PDA da ANS devido a certificados instáveis
@@ -44,18 +46,19 @@ def _download(url: str, dest: Path, timeout: int = 180) -> Path:
                     f.write(chunk)
     return dest
 
+
 def download_demonstracoes_contabeis_last_2_years() -> list[Path]:
     """Baixa os ZIPs trimestrais de 2023 e 2024 (dados estáveis no servidor)."""
-    
+
     # Definimos anos fixos pois o servidor da ANS demora a subir o ano corrente
     years = [2023, 2024]
     downloaded: list[Path] = []
-    
+
     session = requests.Session()
-    session.verify = False 
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'
-    })
+    session.verify = False
+    session.headers.update(
+        {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0"}
+    )
 
     for y in years:
         year_url = f"{DEMONSTRACOES_BASE_URL}{y}/"
@@ -69,7 +72,7 @@ def download_demonstracoes_contabeis_last_2_years() -> list[Path]:
 
             soup = BeautifulSoup(resp.text, "html.parser")
             zips = []
-            
+
             # Busca todos os links que terminam em .zip
             for a in soup.find_all("a", href=True):
                 href = a["href"]
@@ -83,7 +86,7 @@ def download_demonstracoes_contabeis_last_2_years() -> list[Path]:
             for zip_url in zips:
                 name = zip_url.split("/")[-1]
                 out = RAW_DIR / "demonstracoes_contabeis" / str(y) / name
-                
+
                 if out.exists():
                     log(f"Arquivo ignorado (já existe): {name}")
                     downloaded.append(out)
@@ -91,11 +94,12 @@ def download_demonstracoes_contabeis_last_2_years() -> list[Path]:
 
                 log(f"Baixando demonstração: {name}...")
                 downloaded.append(_download(zip_url, out))
-                
+
         except Exception as e:
             log(f"Erro ao processar ano {y}: {e}")
 
     return downloaded
+
 
 def download_operadoras_ativas_cadop() -> Path | None:
     """Baixa o CSV de operadoras ativas (Relatório CADOP)."""
@@ -111,23 +115,25 @@ def download_operadoras_ativas_cadop() -> Path | None:
         log(f"Falha no download do CADOP: {e}")
         return None
 
+
 def main():
     log("=== Início do Requisito 3: Coleta de Dados Abertos ===\n")
-    
+
     # Garante que a pasta raw exista antes de tudo
     _safe_mkdir(RAW_DIR)
 
     # 1. Download das Demonstrações Contábeis
     downloaded_zips = download_demonstracoes_contabeis_last_2_years()
-    
+
     # 2. Download do Cadastro de Operadoras (CADOP)
     cadop = download_operadoras_ativas_cadop()
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("RESUMO DA OPERAÇÃO:")
     print(f"-> Total de ZIPs processados: {len(downloaded_zips)}")
     print(f"-> Local do CADOP: {cadop if cadop else 'FALHA'}")
-    print("="*50)
+    print("=" * 50)
+
 
 if __name__ == "__main__":
     main()

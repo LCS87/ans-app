@@ -5,6 +5,7 @@ Compara totais anuais sem dupla contagem e sem perder sintéticas.
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 project_root = Path(__file__).parent.parent.parent
@@ -20,9 +21,7 @@ def load_year(ano):
     for f in ext.extract_zips(ano):
         df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         df["TRIM"] = f.stem
         df["CD_CONTA_CONTABIL"] = df["CD_CONTA_CONTABIL"].fillna("").str.strip()
         dfs.append(df)
@@ -33,11 +32,7 @@ def load_year(ano):
 def root_totals(df):
     """Último valor não-zero por conta; soma só raízes de valor."""
     nz = df[df["VL_SALDO_FINAL"] != 0]
-    last = (
-        nz.sort_values("TRIM")
-        .groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False)
-        .tail(1)
-    )
+    last = nz.sort_values("TRIM").groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False).tail(1)
     out = {}
     for reg, grp in last.groupby("REG_ANS"):
         contas = set(grp["CD_CONTA_CONTABIL"])
