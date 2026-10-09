@@ -1,0 +1,20 @@
+# ANS Intelligence — artefatos excluídos do contexto de build Docker
+.git
+.github
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+.venv/
+node_modules/
+frontend/
+data/raw/
+data/processed/
+etl/data/raw/
+etl/data/processed/
+*.zip
+*.log
+assets/
+tests/__pycache__/

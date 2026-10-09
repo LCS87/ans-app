@@ -4,25 +4,24 @@ import time
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, Query, HTTPException, status, Depends, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # Imports que estavam faltando
 from sqlalchemy import create_engine, text
-from api.config import get_settings, Settings
 
-from api.scheduler import start_scheduler, stop_scheduler
+from api.config import get_settings
 from api.models import (
-    OperadorasSearchResponse,
     AnalyticsGastosResponse,
-    HealthCheckResponse,
     ErrorResponse,
+    HealthCheckResponse,
+    OperadorasSearchResponse,
     PaginationMetadata,
 )
-from api.services.operadoras_service import OperadorasService
+from api.scheduler import start_scheduler, stop_scheduler
 from api.services.analytics_service import AnalyticsService
-
+from api.services.operadoras_service import OperadorasService
 
 # Tempo de início para uptime
 START_TIME = time.time()
@@ -85,16 +84,39 @@ def _analytics() -> AnalyticsService:
     return _LAZY["analytics"]
 
 
+#: Apps que já passaram pelo lifespan e podem ter serviços reais no state.
+#: Instâncias criadas por ``create_app()`` nos testes nunca estiveram aqui,
+#: então caem direto na factory de teste — nunca no lazy MySQL (bug anterior:
+#: o lifespan do app global populava ``_LAZY`` e contaminava as requisições).
+_SEEN_APPS: set = set()
+
+
+def _resolve(request: Request, attr: str, factory):
+    """Resolve um serviço: fixture de teste > state injetado > lazy produção."""
+    app = request.app
+    if app not in _SEEN_APPS:  # instância nova (TestClient) → usa fixture
+        mk = getattr(app.state, "_service_factory", None)
+        if mk:
+            svc = mk(attr)
+            if svc is not None:
+                setattr(app.state, attr, svc)
+                return svc
+    st = getattr(app.state, attr, None)
+    if st is not None:
+        return st
+    if attr == "analytics_service":
+        return _analytics()
+    return _operadoras()
+
+
 def get_operadoras_service(request: Request) -> OperadorasService:
     """Dependência FastAPI: serviço de operadoras (CADOP)."""
-    st = getattr(request.app.state, "operadoras_service", None)
-    return st if st is not None else _operadoras()
+    return _resolve(request, "operadoras_service", _operadoras)
 
 
 def get_analytics_service(request: Request) -> AnalyticsService:
     """Dependência FastAPI: serviço de analytics."""
-    st = getattr(request.app.state, "analytics_service", None)
-    return st if st is not None else _analytics()
+    return _resolve(request, "analytics_service", _analytics)
 
 
 def create_app() -> FastAPI:
@@ -202,11 +224,9 @@ async def health_check():
 )
 async def get_ranking_gastos(
     periodo: str = Query("2024", description="Período da análise (ano)"),
-    top: int = Query(
-        10, ge=1, le=100, description="Quantidade de operadoras no ranking"
-    ),
-
-    svc: AnalyticsService = Depends(get_analytics_service)):
+    top: int = Query(10, ge=1, le=100, description="Quantidade de operadoras no ranking"),
+    svc: AnalyticsService = Depends(get_analytics_service),
+):
     """
     Retorna ranking das operadoras com maiores gastos assistenciais.
 
@@ -263,9 +283,7 @@ async def year_metadata():
     try:
         engine = create_engine(settings.database_url, pool_pre_ping=True)
         with engine.connect() as conn:
-            result = conn.execute(
-                text(
-                    """
+            result = conn.execute(text("""
                 SELECT
                     periodo,
                     COUNT(*) as total_operadoras,
@@ -277,9 +295,7 @@ async def year_metadata():
                 FROM gastos_assistenciais
                 GROUP BY periodo
                 ORDER BY periodo
-            """
-                )
-            )
+            """))
             rows = result.fetchall()
 
         # Anos fora do escopo acadêmico (documentado no README)
@@ -329,8 +345,9 @@ async def year_metadata():
         404: {"model": ErrorResponse, "description": "Operadora não encontrada"},
     },
 )
-async def get_operadora_by_registro(registro_ans: str,
-    service: OperadorasService = Depends(get_operadoras_service)):
+async def get_operadora_by_registro(
+    registro_ans: str, service: OperadorasService = Depends(get_operadoras_service)
+):
     """
     Retorna detalhes de uma operadora específica pelo registro ANS.
 
@@ -356,8 +373,11 @@ async def get_operadora_by_registro(registro_ans: str,
     tags=["Legacy"],
     summary="[DEPRECATED] Use /api/v1/operadoras",
 )
-async def legacy_search(query: str, limit: int = 50,
-    service: OperadorasService = Depends(get_operadoras_service)):
+async def legacy_search(
+    query: str,
+    limit: int = 50,
+    service: OperadorasService = Depends(get_operadoras_service),
+):
     """Endpoint legado. Use /api/v1/operadoras?q={query}"""
     results = service.search(query=query, limit=limit)
     return {
@@ -377,8 +397,8 @@ async def search_operadoras(
     q: str = Query(..., min_length=1, max_length=100),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=200),
-
-    service: OperadorasService = Depends(get_operadoras_service)):
+    service: OperadorasService = Depends(get_operadoras_service),
+):
     """Busca operadoras por termo."""
     all_results = service.search(query=q, limit=1000)
     total = len(all_results)
@@ -390,9 +410,7 @@ async def search_operadoras(
     return OperadorasSearchResponse(
         query=q,
         results=paginated,
-        metadata=PaginationMetadata(
-            page=page, limit=limit, total=total, pages=total_pages
-        ),
+        metadata=PaginationMetadata(page=page, limit=limit, total=total, pages=total_pages),
     )
 
 
@@ -420,8 +438,8 @@ async def get_dimension(
     modalidade: Optional[str] = Query(None, description="Filtro CADOP (F3.4)"),
     uf: Optional[str] = Query(None, description="Filtro UF (F3.4)"),
     regiao: Optional[str] = Query(None, description="Filtro região (F3.4)"),
-
-    svc: AnalyticsService = Depends(get_analytics_service)):
+    svc: AnalyticsService = Depends(get_analytics_service),
+):
     """Abas Financeira / Operacional / Estrutura com métricas derivadas e badge de outlier."""
     if dim not in _DIMENSIONS:
         raise HTTPException(
@@ -429,9 +447,7 @@ async def get_dimension(
             detail=f"Dimensão '{dim}' inválida. Válidas: {sorted(_DIMENSIONS)}",
         )
     try:
-        return svc.get_dimension(
-            dim, periodo, top=top, modalidade=modalidade, uf=uf, regiao=regiao
-        )
+        return svc.get_dimension(dim, periodo, top=top, modalidade=modalidade, uf=uf, regiao=regiao)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -442,9 +458,10 @@ async def get_dimension(
     summary="Top 20 por receita/sinistro/patrimônio/caixa/lucro (F3.1)",
 )
 async def get_top_rankings(
-    periodo: str = Query("2024"), top: int = Query(20, ge=1, le=50)
-,
-    svc: AnalyticsService = Depends(get_analytics_service)):
+    periodo: str = Query("2024"),
+    top: int = Query(20, ge=1, le=50),
+    svc: AnalyticsService = Depends(get_analytics_service),
+):
     return svc.get_top_rankings(periodo=periodo, top=top)
 
 
@@ -456,8 +473,8 @@ async def get_top_rankings(
 async def get_quarterly(
     periodo: str = Query("2024"),
     registro_ans: Optional[str] = Query(None, description="Drill-down por operadora"),
-
-    svc: AnalyticsService = Depends(get_analytics_service)):
+    svc: AnalyticsService = Depends(get_analytics_service),
+):
     return svc.get_quarterly(periodo=periodo, registro_ans=registro_ans)
 
 
@@ -467,9 +484,10 @@ async def get_quarterly(
     summary="Heat map por UF (F3.5)",
 )
 async def get_regional(
-    periodo: str = Query("2024"), metric: str = Query("gasto_total")
-,
-    svc: AnalyticsService = Depends(get_analytics_service)):
+    periodo: str = Query("2024"),
+    metric: str = Query("gasto_total"),
+    svc: AnalyticsService = Depends(get_analytics_service),
+):
     return svc.get_regional(periodo=periodo, metric=metric)
 
 
@@ -478,8 +496,9 @@ async def get_regional(
     tags=["Analytics v1.2"],
     summary="Resumo consolidado do período (dashboard/export)",
 )
-async def get_summary(periodo: str = Query("2024"),
-    svc: AnalyticsService = Depends(get_analytics_service)):
+async def get_summary(
+    periodo: str = Query("2024"), svc: AnalyticsService = Depends(get_analytics_service)
+):
     return svc.get_summary(periodo=periodo)
 
 
@@ -488,8 +507,9 @@ async def get_summary(periodo: str = Query("2024"),
     tags=["Analytics v1.2"],
     summary="Timeline histórica da operadora (F4.4)",
 )
-async def get_operadora_history(registro_ans: str,
-    svc: AnalyticsService = Depends(get_analytics_service)):
+async def get_operadora_history(
+    registro_ans: str, svc: AnalyticsService = Depends(get_analytics_service)
+):
     data = svc.get_operadora_history(registro_ans)
     if not data["history"]:
         raise HTTPException(
@@ -517,8 +537,9 @@ def _build_report(svc: AnalyticsService, periodo: str) -> dict:
     tags=["Export (F4)"],
     summary="📥 Exporta relatório PDF institucional (F4.1)",
 )
-async def export_pdf(periodo: str = Query("2024"),
-    svc: AnalyticsService = Depends(get_analytics_service)):
+async def export_pdf(
+    periodo: str = Query("2024"), svc: AnalyticsService = Depends(get_analytics_service)
+):
     from api.services.export.pdf_export import export_pdf as build_pdf
 
     d = _build_report(svc, periodo)
@@ -536,9 +557,7 @@ async def export_pdf(periodo: str = Query("2024"),
     return StreamingResponse(
         BytesIO(content),
         media_type="application/pdf",
-        headers={
-            "Content-Disposition": f'attachment; filename="ans_intelligence_{periodo}.pdf"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="ans_intelligence_{periodo}.pdf"'},
     )
 
 
@@ -547,8 +566,9 @@ async def export_pdf(periodo: str = Query("2024"),
     tags=["Export (F4)"],
     summary="📥 Exporta .xlsx multi-abas consolidado (F4.2)",
 )
-async def export_excel(periodo: str = Query("2024"),
-    svc: AnalyticsService = Depends(get_analytics_service)):
+async def export_excel(
+    periodo: str = Query("2024"), svc: AnalyticsService = Depends(get_analytics_service)
+):
     from api.services.export.excel_export import export_excel as build_excel
 
     d = _build_report(svc, periodo)
@@ -567,9 +587,7 @@ async def export_excel(periodo: str = Query("2024"),
     return StreamingResponse(
         BytesIO(content),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={
-            "Content-Disposition": f'attachment; filename="ans_intelligence_{periodo}.xlsx"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="ans_intelligence_{periodo}.xlsx"'},
     )
 
 
@@ -602,11 +620,13 @@ async def upload_csv(
 
     import pandas as pd
 
-    from etl.load import ANSLoader
+    import etl.load as load_mod
 
     try:
-        df = pd.read_csv(dest, encoding="utf-8")
-        loader = ANSLoader()
+        df = pd.read_csv(dest, encoding="utf-8", sep=None, engine="python")
+        # Resolve a classe pelo MÓDULO em runtime — permite monkeypatch em
+        # testes (``etl.load.ANSLoader``) sem quebrar a produção.
+        loader = load_mod.ANSLoader()
         df = loader.normalizar_colunas(df, periodo=periodo, dimensao=dimensao)
         n = loader.carregar(df, periodo=periodo, truncate=False)
         return {"status": "ok", "linhas": n, "periodo": periodo, "dimensao": dimensao}
@@ -620,14 +640,49 @@ async def upload_csv(
 # instância criada por `create_app()` (usada pelo TestClient dos testes),
 # garantindo paridade exata entre o app de produção e o de teste.
 # ----------------------------------------------------------------------
-_MODULE_ROUTES = list(app.routes)
+#: Rotas de negócio registradas no app global após o import do módulo.
+#: Tudo que não for infraestrutura padrão do FastAPI (docs/openapi).
+_STANDARD_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
+_MODULE_ROUTES = [r for r in app.routes if getattr(r, "path", "") not in _STANDARD_PATHS]
 
 
 def _copy_module_routes(application: FastAPI) -> None:
-    existing = {id(r) for r in application.routes}
+    """Re-registra as rotas de negócio em uma nova instância de app.
+
+    Copiar objetos APIRoute diretamente para ``app.routes`` não funciona:
+    o roteador só enxerga as rotas da sua própria lista interna e a
+    resolução de dependências/serialization precisa ser refeita por app.
+    Por isso usamos ``add_api_route`` reaproveitando a função de handler,
+    os metadata e a signature original de cada rota.
+    """
+    existing = {getattr(r, "path", None) for r in application.routes}
     for route in _MODULE_ROUTES:
-        if id(route) not in existing:
-            application.routes.append(route)
+        path = getattr(route, "path", None)
+        if path in existing:
+            continue
+        methods = set(getattr(route, "methods", {"GET"}) or {"GET"})
+        kwargs = dict(
+            path=path,
+            endpoint=route.endpoint,
+            response_model=getattr(route, "response_model", None),
+            status_code=getattr(route, "status_code", 200),
+            tags=getattr(route, "tags", None),
+            summary=getattr(route, "summary", None),
+            description=getattr(route, "description", None),
+            responses=getattr(route, "responses", None),
+            name=getattr(route, "name", None),
+            include_in_schema=getattr(route, "include_in_schema", True),
+        )
+        for m in methods:
+            if m in {"HEAD", "OPTIONS", "TRACE"}:
+                continue
+            try:
+                application.add_api_route(
+                    path, route.endpoint, methods=[m], **{**kwargs, "path": None}
+                )
+            except (TypeError, ValueError):
+                # Fallback: registra sem metadata opcional problemático
+                application.add_api_route(path, route.endpoint, methods=[m])
 
 
 _create_app_base = create_app

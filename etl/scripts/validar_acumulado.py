@@ -4,6 +4,7 @@ Validação CORRETA: as contas 411 FOLHA são acumuladas ou movimento trimestral
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 # Ajustar path para encontrar os módulos do projeto
@@ -26,9 +27,7 @@ dfs = []
 for f in csv_files:
     df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
     df.columns = [c.upper().strip() for c in df.columns]
-    df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(
-        0
-    )
+    df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
     df["TRIM"] = f.stem
     dfs.append(df)
 
@@ -94,22 +93,19 @@ for reg in top_ops:
 
         # Se valores crescem monotonicamente → ACUMULADO
         if all(d > 0 for d in diffs):
-            print(f"   ✅ ACUMULADO (valores crescem)")
+            print("   ✅ ACUMULADO (valores crescem)")
             print(f"   → CORRETO: usar ÚLTIMO trimestre = R$ {v_list[-1]:,.2f}")
         # Se valores estáveis (variação < 30%) → TRIMESTRAL
-        elif all(abs(d) < v_list[0] * 0.3 for d in diffs) and all(
-            v > 0 for v in v_list
-        ):
-            print(f"   ✅ TRIMESTRAL (valores estáveis)")
+        elif all(abs(d) < v_list[0] * 0.3 for d in diffs) and all(v > 0 for v in v_list):
+            print("   ✅ TRIMESTRAL (valores estáveis)")
             print(f"   → CORRETO: SOMAR todos = R$ {sum(v_list):,.2f}")
         else:
-            print(f"   ⚠️  IRREGULAR → usar último trim disponível")
+            print("   ⚠️  IRREGULAR → usar último trim disponível")
 
 print("\n" + "=" * 80)
 print("CONCLUSÃO E RECOMENDAÇÃO")
 print("=" * 80)
-print(
-    """
+print("""
 Se as contas 411 FOLHA forem:
 
 1. ACUMULADAS (100 → 200 → 300 → 400)
@@ -122,5 +118,4 @@ Se as contas 411 FOLHA forem:
 
 3. IRREGULARES
    → Usar último trimestre disponível (conservador)
-"""
-)
+""")

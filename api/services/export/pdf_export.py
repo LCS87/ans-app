@@ -8,6 +8,7 @@ dispensando dependências de sistema (WeasyPrint/gtk) — ideal p/ CI e deploy.
 import io
 from typing import Optional
 
+import matplotlib
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -22,8 +23,6 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -36,16 +35,14 @@ def _bar_chart_png(title: str, labels: list, values: list, color="#1f77b4") -> b
     fig, ax = plt.subplots(figsize=(8, 3.2))
     ax.barh(range(len(labels)), values, color=color)
     ax.set_yticks(range(len(labels)))
-    ax.set_yticklabels([l[:35] for l in labels], fontsize=7)
+    ax.set_yticklabels([name[:35] for name in labels], fontsize=7)
     ax.invert_yaxis()
     ax.set_title(title, fontsize=10)
     ax.tick_params(axis="x", labelsize=7)
     try:
         import matplotlib.ticker as mticker
 
-        ax.xaxis.set_major_formatter(
-            mticker.FuncFormatter(lambda t, _: f"{t/1e9:.1f}B")
-        )
+        ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda t, _: f"{t/1e9:.1f}B"))
     except Exception:
         pass
     fig.tight_layout()
@@ -70,8 +67,12 @@ def _section_ranking(story, styles, data: Optional[dict], chart_color: str):
     story.append(Spacer(1, 0.4 * cm))
 
     table_data = [["#", "Registro", "Operadora", "Valor"]] + [
-        [str(r["posicao"]), r["registro_ans"], r["razao_social"][:40],
-         _fmt_brl((r.get("valores") or {}).get(primary, r.get("valor_total", 0)))]
+        [
+            str(r["posicao"]),
+            r["registro_ans"],
+            r["razao_social"][:40],
+            _fmt_brl((r.get("valores") or {}).get(primary, r.get("valor_total", 0))),
+        ]
         for r in top
     ]
     t = Table(table_data, colWidths=[1 * cm, 2.2 * cm, 8.3 * cm, 5.5 * cm])

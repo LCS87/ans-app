@@ -9,19 +9,27 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from etl.validation import validar_ano, total_metodo_d, _ultimo_valor
+from etl.validation import _ultimo_valor, total_metodo_d, validar_ano
 
 
-def _df_base(n_ops=150, trim=("1T", "2T")):
-    """DataFrame sintético que passa em todos os checks críticos."""
+def _df_base(n_ops=350, trim=("1T", "2T")):
+    """DataFrame sintético no layout ANS (DOC 275): contas de até 9 dígitos.
+
+    Hierarquia por operadora:
+      41              (raiz, 2d)          = 1000
+      411             (sub-ramo, 3d)      = 700
+      411010000       (folha 9d)          = 300
+      411020000       (folha 9d)          = 400
+    n_ops >= 350 satisfaz o threshold PASS do check `ramo_411_presente` (>=300).
+    """
     rows = []
     for t in trim:
         for i in range(n_ops):
             reg = f"{100000 + i}"
             rows.append((reg, "41", "EVENTOS/SINISTROS", 1000.0, t))
             rows.append((reg, "411", "EVENTOS CONHECIDOS", 700.0, t))
-            rows.append((reg, "4111", "INTERNADOS", 300.0, t))
-            rows.append((reg, "4112", "AMBULATORIAIS", 400.0, t))
+            rows.append((reg, "411010000", "INTERNADOS", 300.0, t))
+            rows.append((reg, "411020000", "AMBULATORIAIS", 400.0, t))
     df = pd.DataFrame(
         rows, columns=["REG_ANS", "CD_CONTA_CONTABIL", "DESCRICAO", "VL_SALDO_FINAL", "TRIM"]
     )

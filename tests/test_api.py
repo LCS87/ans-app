@@ -10,16 +10,18 @@ import io
 
 
 def loader_for_test(engine):
-    """Fábrica de ANSLoader que usa o engine SQLite de teste (sem MySQL)."""
+    """Classe-substituta de ANSLoader que usa o engine SQLite de teste.
 
-    def _factory():
-        from etl.load import ANSLoader
+    Precisa ser uma CLASSE (não função), pois o endpoint faz
+    ``load_mod.ANSLoader()`` em runtime.
+    """
+    from etl.load import ANSLoader
 
-        loader = ANSLoader.__new__(ANSLoader)
-        loader.engine = engine
-        return loader
+    class _TestLoader(ANSLoader):
+        def __init__(self, *a, **k):  # ignora config MySQL real
+            self.engine = engine
 
-    return _factory
+    return _TestLoader
 
 
 class TestEndpointsLegados:
@@ -78,9 +80,7 @@ class TestDimension:
         assert data["ranking"][0]["registro_ans"] == "222222"
 
     def test_filtro_modalidade(self, client):
-        r = client.get(
-            "/api/v1/dimension/gastos?periodo=2024&modalidade=Autogest%C3%A3o"
-        )
+        r = client.get("/api/v1/dimension/gastos?periodo=2024&modalidade=Autogest%C3%A3o")
         assert r.json()["total_operadoras"] == 1
 
     def test_dimensao_invalida_400(self, client):
@@ -119,7 +119,7 @@ class TestRegional:
     def test_heat_map_por_uf(self, client):
         r = client.get("/api/v1/regional?periodo=2024")
         data = r.json()
-        ufs = {u["uf"]: u for u in data["ufs"]}
+        ufs = {u["u"]: u for u in data["ufs"]}
         assert ufs["SP"]["operadoras"] == 2
         assert ufs["SP"]["valor"] == 9900.0
         assert ufs["RJ"]["valor"] == 700.0
@@ -148,7 +148,7 @@ class TestSummaryHistory:
         data = r.json()
         periods = [h["periodo"] for h in data["history"]]
         assert periods == ["2023", "2024"]
-        assert data["uf"] == "SP"
+        assert data["u"] == "SP"
 
     def test_history_desconhecido_404(self, client):
         r = client.get("/api/v1/operadoras/999999/history")

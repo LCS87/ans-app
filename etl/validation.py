@@ -8,17 +8,12 @@ Um ano só entra no banco se passar em todos os checks críticos (FAIL bloqueia)
 """
 
 import pandas as pd
-from loguru import logger
 
 
 def _ultimo_valor(df: pd.DataFrame) -> pd.DataFrame:
     """Último valor não-zero por (REG_ANS, conta)."""
     nz = df[df["VL_SALDO_FINAL"] != 0]
-    return (
-        nz.sort_values("TRIM")
-        .groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False)
-        .tail(1)
-    )
+    return nz.sort_values("TRIM").groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False).tail(1)
 
 
 def total_metodo_d(df_ramo: pd.DataFrame) -> float:
@@ -42,9 +37,7 @@ def total_metodo_d(df_ramo: pd.DataFrame) -> float:
                 total += valores[r]
             else:
                 sf = sum(valores[f] for f in folhas)
-                total += (
-                    sf if (sf >= 0.9 * valores[r] or sf > valores[r]) else valores[r]
-                )
+                total += sf if (sf >= 0.9 * valores[r] or sf > valores[r]) else valores[r]
     return total
 
 
@@ -77,9 +70,7 @@ def validar_ano(ano: int, df_all: pd.DataFrame, total_base: float = None):
     )
 
     # 2) REG_ANS válido
-    pct_reg = (
-        df["REG_ANS"].notna() & df["REG_ANS"].str.strip().str.isdigit()
-    ).mean() * 100
+    pct_reg = (df["REG_ANS"].notna() & df["REG_ANS"].str.strip().str.isdigit()).mean() * 100
     add(
         "reg_ans_valido",
         "FAIL" if pct_reg < 90 else ("WARN" if pct_reg < 99 else "PASS"),

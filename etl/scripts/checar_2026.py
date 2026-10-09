@@ -5,11 +5,12 @@ Hoje é 07/10/2026 → esperamos 1T2026 e 2T2026 (talvez 3T2026).
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from etl.extract import ANSExtractor
-from etl.validation import validar_ano, total_metodo_d, imprimir_relatorio
+from etl.validation import imprimir_relatorio, total_metodo_d, validar_ano
 
 ANO, BASE = 2026, 2025
 ext = ANSExtractor()

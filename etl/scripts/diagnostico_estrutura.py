@@ -5,6 +5,7 @@ Objetivo: entender hierarquia de contas, saldos, e acumulação trimestral.
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -70,9 +71,7 @@ def diagnosticar_estrutura(ano: int = 2024):
     # Pegar operadora com mais registros
     reg_counts = df["REG_ANS"].value_counts()
     operadora_exemplo = reg_counts.index[0]
-    print(
-        f"Operadora com mais registros: {operadora_exemplo} ({reg_counts.iloc[0]} registros)"
-    )
+    print(f"Operadora com mais registros: {operadora_exemplo} ({reg_counts.iloc[0]} registros)")
 
     df_op = df[df["REG_ANS"] == operadora_exemplo].copy()
 
@@ -80,9 +79,7 @@ def diagnosticar_estrutura(ano: int = 2024):
     if col_final:
         df_op[col_final] = pd.to_numeric(df_op[col_final], errors="coerce").fillna(0)
     if col_inicial:
-        df_op[col_inicial] = pd.to_numeric(df_op[col_inicial], errors="coerce").fillna(
-            0
-        )
+        df_op[col_inicial] = pd.to_numeric(df_op[col_inicial], errors="coerce").fillna(0)
 
     # Mostrar colunas relevantes
     cols_mostrar = ["DESCRICAO"]
@@ -96,9 +93,7 @@ def diagnosticar_estrutura(ano: int = 2024):
     print(f"\n📊 Top 50 contas da operadora {operadora_exemplo}:")
     print("=" * 80)
 
-    df_sorted = df_op.sort_values(
-        col_final if col_final else "DESCRICAO", ascending=False
-    )
+    df_sorted = df_op.sort_values(col_final if col_final else "DESCRICAO", ascending=False)
     for idx, row in df_sorted.head(50).iterrows():
         desc = row["DESCRICAO"][:60]
         valor_final = row.get(col_final, 0) if col_final else 0
@@ -115,31 +110,21 @@ def diagnosticar_estrutura(ano: int = 2024):
     print("=" * 80)
 
     csv_2t = [f for f in csv_files if "2T" in f.stem][0]
-    df_2t = pd.read_csv(
-        csv_2t, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str
-    )
+    df_2t = pd.read_csv(csv_2t, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
     df_2t.columns = [c.upper().strip() for c in df_2t.columns]
 
     # Filtrar mesma operadora no 2T
     df_op_2t = df_2t[df_2t["REG_ANS"] == operadora_exemplo].copy()
     if col_final:
-        df_op_2t[col_final] = pd.to_numeric(
-            df_op_2t[col_final], errors="coerce"
-        ).fillna(0)
+        df_op_2t[col_final] = pd.to_numeric(df_op_2t[col_final], errors="coerce").fillna(0)
 
     # Comparar uma conta específica que existe em ambos
     conta_exemplo = df_op["DESCRICAO"].iloc[0] if len(df_op) > 0 else None
 
     if conta_exemplo:
-        valor_1t = (
-            df_op[df_op["DESCRICAO"] == conta_exemplo][col_final].sum()
-            if col_final
-            else 0
-        )
+        valor_1t = df_op[df_op["DESCRICAO"] == conta_exemplo][col_final].sum() if col_final else 0
         valor_2t = (
-            df_op_2t[df_op_2t["DESCRICAO"] == conta_exemplo][col_final].sum()
-            if col_final
-            else 0
+            df_op_2t[df_op_2t["DESCRICAO"] == conta_exemplo][col_final].sum() if col_final else 0
         )
 
         print(f"\nConta exemplo: {conta_exemplo[:70]}")
@@ -147,9 +132,9 @@ def diagnosticar_estrutura(ano: int = 2024):
         print(f"  • Valor no 2T: R$ {valor_2t:,.0f}")
 
         if valor_2t > valor_1t:
-            print(f"  ⚠️  2T > 1T → Possível ACUMULAÇÃO (não trimestral)")
+            print("  ⚠️  2T > 1T → Possível ACUMULAÇÃO (não trimestral)")
         else:
-            print(f"  ✅ 2T ≤ 1T → Trimestral independente")
+            print("  ✅ 2T ≤ 1T → Trimestral independente")
 
     # 6. Contar contas sintéticas vs analíticas
     print("\n" + "=" * 80)

@@ -4,11 +4,11 @@ Diagnóstico específico de 2023 para identificar contas anômalas.
 
 import sys
 from pathlib import Path
-from collections import Counter
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from etl.extract import ANSExtractor, PATTERNS_GASTOS_ASSISTENCIAIS, PATTERNS_EXCLUSAO
+from etl.extract import PATTERNS_EXCLUSAO, PATTERNS_GASTOS_ASSISTENCIAIS, ANSExtractor
 
 
 def diagnosticar_2023():
@@ -25,24 +25,18 @@ def diagnosticar_2023():
     for csv_path in csv_files:
         df = extractor._read_csv_demonstracao(csv_path)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
 
         descricao = df["DESCRICAO"].fillna("")
 
         # Aplicar filtros atuais
         mask_inclusao = pd.Series([False] * len(df), index=df.index)
         for pattern in PATTERNS_GASTOS_ASSISTENCIAIS:
-            mask_inclusao |= descricao.str.contains(
-                pattern, case=False, na=False, regex=True
-            )
+            mask_inclusao |= descricao.str.contains(pattern, case=False, na=False, regex=True)
 
         mask_exclusao = pd.Series([False] * len(df), index=df.index)
         for pattern in PATTERNS_EXCLUSAO:
-            mask_exclusao |= descricao.str.contains(
-                pattern, case=False, na=False, regex=True
-            )
+            mask_exclusao |= descricao.str.contains(pattern, case=False, na=False, regex=True)
 
         mask_final = mask_inclusao & (~mask_exclusao) & (df["VL_SALDO_FINAL"] > 0)
         df_filtered = df[mask_final].copy()
@@ -77,22 +71,16 @@ def diagnosticar_2023():
     for csv_path in csv_files_2024:
         df = extractor._read_csv_demonstracao(csv_path)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         descricao = df["DESCRICAO"].fillna("")
 
         mask_inclusao = pd.Series([False] * len(df), index=df.index)
         for pattern in PATTERNS_GASTOS_ASSISTENCIAIS:
-            mask_inclusao |= descricao.str.contains(
-                pattern, case=False, na=False, regex=True
-            )
+            mask_inclusao |= descricao.str.contains(pattern, case=False, na=False, regex=True)
 
         mask_exclusao = pd.Series([False] * len(df), index=df.index)
         for pattern in PATTERNS_EXCLUSAO:
-            mask_exclusao |= descricao.str.contains(
-                pattern, case=False, na=False, regex=True
-            )
+            mask_exclusao |= descricao.str.contains(pattern, case=False, na=False, regex=True)
 
         mask_final = mask_inclusao & (~mask_exclusao) & (df["VL_SALDO_FINAL"] > 0)
         df_filtered = df[mask_final].copy()
@@ -118,9 +106,7 @@ def diagnosticar_2023():
             print(f"  • {conta[:100]} → R$ {valor:,.0f}")
 
     # Salvar relatório
-    output_path = (
-        Path(__file__).parent.parent / "data" / "processed" / "diagnostico_2023.csv"
-    )
+    output_path = Path(__file__).parent.parent / "data" / "processed" / "diagnostico_2023.csv"
     agrupado.to_csv(output_path)
     print(f"\n💾 Relatório salvo: {output_path}")
 
