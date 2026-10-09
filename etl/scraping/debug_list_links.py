@@ -4,12 +4,13 @@ BASE_URL = "https://www.gov.br/ans/pt-br/assuntos/consumidor/o-que-o-seu-plano-d
 html = fetch_page(BASE_URL)
 
 from bs4 import BeautifulSoup
-soup = BeautifulSoup(html, 'html.parser')
 
-with open('etl/scraping/debug_links.txt', 'w', encoding='utf-8') as f:
-    for a in soup.find_all('a', href=True):
-        href = a['href']
-        text = (a.get_text(strip=True) or '')
+soup = BeautifulSoup(html, "html.parser")
+
+with open("etl/scraping/debug_links.txt", "w", encoding="utf-8") as f:
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        text = a.get_text(strip=True) or ""
         f.write(f"TEXT: {text}\nHREF: {href}\n---\n")
 
-print('Dump de links salvo em etl/scraping/debug_links.txt')
+print("Dump de links salvo em etl/scraping/debug_links.txt")

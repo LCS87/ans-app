@@ -4,6 +4,7 @@ Scheduler mensal do pipeline ETL.
 Dispara automaticamente no 1º domingo de cada mês às 03:00 (America/Sao_Paulo).
 Usa lock Redis para evitar execuções concorrentes.
 """
+
 import os
 from datetime import datetime
 
@@ -25,7 +26,7 @@ from api.config import get_settings
 
 # Configurações fixas do scheduler
 SCHEDULER_TIMEZONE = "America/Sao_Paulo"
-SCHEDULER_HOUR = 3      # 03:00
+SCHEDULER_HOUR = 3  # 03:00
 SCHEDULER_MINUTE = 0
 # Desativação via env (testes/CI): ETL_SCHEDULER_DISABLED=1
 SCHEDULER_ENABLED = _APS_AVAILABLE and os.getenv("ETL_SCHEDULER_DISABLED") != "1"

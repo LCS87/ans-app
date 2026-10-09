@@ -9,6 +9,7 @@ D = folha com fallback: raiz usa folhas se elas cobrem >=90% do valor da raiz
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 project_root = Path(__file__).parent.parent.parent
@@ -24,9 +25,7 @@ def load_year(ano):
     for f in ext.extract_zips(ano):
         df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         df["TRIM"] = f.stem
         df["CD_CONTA_CONTABIL"] = df["CD_CONTA_CONTABIL"].fillna("").str.strip()
         dfs.append(df)
@@ -37,11 +36,7 @@ def load_year(ano):
 def last_values(df):
     """Último valor não-zero por (operadora, conta)."""
     nz = df[df["VL_SALDO_FINAL"] != 0]
-    return (
-        nz.sort_values("TRIM")
-        .groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False)
-        .tail(1)
-    )
+    return nz.sort_values("TRIM").groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False).tail(1)
 
 
 def compute_all(df):
@@ -50,7 +45,7 @@ def compute_all(df):
 
     # ---- A: folhas sobre o CONSOLIDADO (não o df completo) ----
     df_leaf = ext.marcar_folhas(last)
-    A = df_leaf[df_leaf["is_leaf"]].groupby("REG_ANS")["VL_SALDO_FINAL"].sum()
+    A = df_leaf[df_leaf["is_lea"]].groupby("REG_ANS")["VL_SALDO_FINAL"].sum()
 
     result_B, result_C, result_D = {}, {}, {}
 
@@ -61,9 +56,7 @@ def compute_all(df):
 
         result_C[reg] = sum(valores.values())
 
-        raizes = [
-            c for c in contas if not any(c[:L] in contas_set for L in range(1, len(c)))
-        ]
+        raizes = [c for c in contas if not any(c[:L] in contas_set for L in range(1, len(c)))]
         result_B[reg] = sum(valores[r] for r in raizes)
 
         # ---- D corrigido ----
@@ -104,9 +97,7 @@ def compare(ano):
     df = load_year(ano)
     A, B, C, D = compute_all(df)
 
-    comp = pd.DataFrame(
-        {"A_folhas": A, "B_raiz": B, "C_tudo": C, "D_hibrido": D}
-    ).fillna(0)
+    comp = pd.DataFrame({"A_folhas": A, "B_raiz": B, "C_tudo": C, "D_hibrido": D}).fillna(0)
     comp = comp.sort_values("D_hibrido", ascending=False)
 
     print(f"\n📊 TOTAIS:")

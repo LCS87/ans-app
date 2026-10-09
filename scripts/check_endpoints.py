@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import time
+
 import requests
 
 BASE = "http://127.0.0.1:8002"

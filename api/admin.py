@@ -6,17 +6,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, status
+import redis
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Response, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import create_engine, text
-import redis
-from fastapi import Response
-from fastapi.responses import JSONResponse
+
 from api.config import get_settings
 from api.scheduler import (
     get_scheduler_status,
-    run_pipeline_manual,
     is_pipeline_running,
+    run_pipeline_manual,
 )
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
@@ -115,21 +115,15 @@ async def _run_pipeline_background():
         orchestrator = PipelineOrchestrator()
         results = await orchestrator.run([datetime.now().year])
 
-        status_result = (
-            "success" if all(r["status"] == "success" for r in results) else "failed"
-        )
+        status_result = "success" if all(r["status"] == "success" for r in results) else "failed"
 
         _update_history.append(
             {
                 "started_at": started_at.isoformat(),
                 "completed_at": datetime.now().isoformat(),
                 "status": status_result,
-                "records_processed": sum(
-                    r.get("records_processed", 0) for r in results
-                ),
-                "duration_seconds": round(
-                    (datetime.now() - started_at).total_seconds(), 2
-                ),
+                "records_processed": sum(r.get("records_processed", 0) for r in results),
+                "duration_seconds": round((datetime.now() - started_at).total_seconds(), 2),
             }
         )
     except Exception as e:
@@ -157,9 +151,7 @@ async def trigger_update(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(_run_pipeline_background)
 
-    return RunUpdateResponse(
-        message="Atualização iniciada", started_at=datetime.now().isoformat()
-    )
+    return RunUpdateResponse(message="Atualização iniciada", started_at=datetime.now().isoformat())
 
 
 @router.get("/history")
@@ -216,15 +208,13 @@ async def pipeline_history(limit: int = 10):
 
     with engine.connect() as conn:
         rows = conn.execute(
-            text(
-                """
+            text("""
                 SELECT id, periodo, started_at, completed_at, status,
                        records_processed, total_gastos, duration_seconds, error_message
                 FROM etl_executions
                 ORDER BY started_at DESC
                 LIMIT :limit
-            """
-            ),
+            """),
             {"limit": limit},
         ).fetchall()
 

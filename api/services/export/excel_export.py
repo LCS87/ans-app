@@ -48,9 +48,7 @@ def export_excel(
 
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         resumo_df.to_excel(writer, sheet_name="Resumo", index=False)
-        _ranking_to_df(gastos.get("ranking", [])).to_excel(
-            writer, sheet_name="Gastos", index=False
-        )
+        _ranking_to_df(gastos.get("ranking", [])).to_excel(writer, sheet_name="Gastos", index=False)
         if financeira:
             _ranking_to_df(financeira.get("ranking", [])).to_excel(
                 writer, sheet_name="Financeiro", index=False

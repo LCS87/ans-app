@@ -8,8 +8,13 @@ import pandas as pd
 
 DEFAULT_CADOP_CSV_PATH = (
     Path(__file__).resolve().parent.parent
-    / "etl" / "data" / "raw" / "operadoras_ativas" / "relatorio_cadop.csv"
+    / "etl"
+    / "data"
+    / "raw"
+    / "operadoras_ativas"
+    / "relatorio_cadop.csv"
 )
+
 
 def _normalize_text(value: Optional[str]) -> str:
     if value is None:
@@ -20,10 +25,12 @@ def _normalize_text(value: Optional[str]) -> str:
     s = " ".join(s.split())
     return s
 
+
 @dataclass
 class SearchHit:
     score: int
     item: Dict[str, Any]
+
 
 class OperadorasSearchService:
     def __init__(self, csv_path: Optional[str] = None):
@@ -39,17 +46,19 @@ class OperadorasSearchService:
         try:
             # Pula o título e tenta ler como TAB (conforme sua amostra)
             df = pd.read_csv(
-                self.csv_path, 
-                skiprows=1, 
-                sep='\t', 
-                dtype=str, 
-                encoding="latin1",
-                quoting=3 
+                self.csv_path, skiprows=1, sep="\t", dtype=str, encoding="latin1", quoting=3
             )
-            
+
             # Fallback se o TAB não separar as colunas
             if len(df.columns) < 2:
-                df = pd.read_csv(self.csv_path, skiprows=1, sep=None, engine='python', encoding="latin1", quoting=3)
+                df = pd.read_csv(
+                    self.csv_path,
+                    skiprows=1,
+                    sep=None,
+                    engine="python",
+                    encoding="latin1",
+                    quoting=3,
+                )
 
             # Limpeza de cabeçalhos
             df.columns = [str(c).strip().upper() for c in df.columns]
@@ -60,9 +69,13 @@ class OperadorasSearchService:
 
             for _, row in df.iterrows():
                 # Mapeamento robusto: busca a coluna mesmo com nomes ligeiramente diferentes
-                reg_ans = str(row.get("REGISTRO ANS", "")).strip().replace('"', '')
+                reg_ans = str(row.get("REGISTRO ANS", "")).strip().replace('"', "")
                 cnpj = str(row.get("CNPJ", "")).strip()
-                razao = str(row.get("RAZÃO SOCIAL", row.get("RAZAO SOCIAL", ""))).strip().replace('"', '')
+                razao = (
+                    str(row.get("RAZÃO SOCIAL", row.get("RAZAO SOCIAL", "")))
+                    .strip()
+                    .replace('"', "")
+                )
                 fantasia = row.get("NOME FANTASIA", "").strip()
                 modalidade = row.get("MODALIDADE", "").strip()
 
@@ -71,16 +84,18 @@ class OperadorasSearchService:
                     "cnpj": cnpj,
                     "razao_social": razao,
                     "nome_fantasia": fantasia,
-                    "modalidade": modalidade
+                    "modalidade": modalidade,
                 }
 
                 items.append(item_data)
-                index.append({
-                    "registro_ans": _normalize_text(reg_ans),
-                    "cnpj": _normalize_text(cnpj),
-                    "razao_social": _normalize_text(razao),
-                    "nome_fantasia": _normalize_text(fantasia),
-                })
+                index.append(
+                    {
+                        "registro_ans": _normalize_text(reg_ans),
+                        "cnpj": _normalize_text(cnpj),
+                        "razao_social": _normalize_text(razao),
+                        "nome_fantasia": _normalize_text(fantasia),
+                    }
+                )
 
             self._items = items
             self._index = index
@@ -97,16 +112,21 @@ class OperadorasSearchService:
         hits: List[SearchHit] = []
         for item, idx in zip(self._items, self._index):
             score = 0
-            if q in idx.get("registro_ans", ""): score += 10
-            if q in idx.get("cnpj", ""): score += 9
-            if q in idx.get("nome_fantasia", ""): score += 5
-            if q in idx.get("razao_social", ""): score += 4
+            if q in idx.get("registro_ans", ""):
+                score += 10
+            if q in idx.get("cnpj", ""):
+                score += 9
+            if q in idx.get("nome_fantasia", ""):
+                score += 5
+            if q in idx.get("razao_social", ""):
+                score += 4
 
             if score > 0:
                 hits.append(SearchHit(score=score, item=item))
 
         hits.sort(key=lambda h: h.score, reverse=True)
         return [{"score": h.score, **h.item} for h in hits[:limit]]
+
 
 def build_service_from_env() -> OperadorasSearchService:
     csv_path = os.getenv("CADOP_CSV_PATH")

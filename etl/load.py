@@ -10,9 +10,10 @@ Uso:
 import sys
 from pathlib import Path
 from typing import Optional
+
 import pandas as pd
-from sqlalchemy import create_engine, text
 from loguru import logger
+from sqlalchemy import create_engine, text
 
 # Adicionar raiz do projeto ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -145,9 +146,7 @@ class ANSLoader:
         for col, tipo in self.EXTRA_COLUMNS.items():
             if col not in existing:
                 logger.info(f"🛠️  Migração: ALTER TABLE ADD COLUMN {col}")
-                conn.execute(
-                    text(f"ALTER TABLE gastos_assistenciais ADD COLUMN {col} {tipo}")
-                )
+                conn.execute(text(f"ALTER TABLE gastos_assistenciais ADD COLUMN {col} {tipo}"))
 
     def normalizar_colunas(
         self, df: pd.DataFrame, periodo: str, dimensao: str = "gastos"
@@ -184,7 +183,7 @@ class ANSLoader:
                 coluna_map[col] = "razao_social"
             elif col == "total":
                 coluna_map[col] = "gasto_total"
-            elif col.startswith("gasto_total_") and col[len("gasto_total_"):].isdigit():
+            elif col.startswith("gasto_total_") and col[len("gasto_total_") :].isdigit():
                 # variante com sufixo de ano (ex.: gasto_total_2024 → gasto_total)
                 coluna_map[col] = "gasto_total"
 
@@ -193,7 +192,9 @@ class ANSLoader:
 
         if dimensao == "gastos" and "gasto_total" not in df.columns:
             # fallback: soma dos trimestres disponíveis
-            tri_cols = [c for c in ("gasto_1T", "gasto_2T", "gasto_3T", "gasto_4T") if c in df.columns]
+            tri_cols = [
+                c for c in ("gasto_1T", "gasto_2T", "gasto_3T", "gasto_4T") if c in df.columns
+            ]
             if tri_cols:
                 df["gasto_total"] = df[tri_cols].sum(axis=1)
 
@@ -260,31 +261,25 @@ class ANSLoader:
         """Valida os dados carregados."""
         with self.engine.connect() as conn:
             result = conn.execute(
-                text(
-                    "SELECT COUNT(*) FROM gastos_assistenciais WHERE periodo = :periodo"
-                ),
+                text("SELECT COUNT(*) FROM gastos_assistenciais WHERE periodo = :periodo"),
                 {"periodo": periodo},
             )
             total = result.scalar()
 
             result = conn.execute(
-                text(
-                    "SELECT SUM(gasto_total) FROM gastos_assistenciais WHERE periodo = :periodo"
-                ),
+                text("SELECT SUM(gasto_total) FROM gastos_assistenciais WHERE periodo = :periodo"),
                 {"periodo": periodo},
             )
             soma = result.scalar() or 0
 
             result = conn.execute(
-                text(
-                    """
+                text("""
                     SELECT registro_ans, razao_social, gasto_total
                     FROM gastos_assistenciais
                     WHERE periodo = :periodo
                     ORDER BY gasto_total DESC
                     LIMIT 5
-                """
-                ),
+                """),
                 {"periodo": periodo},
             )
             top5 = result.fetchall()
@@ -351,9 +346,7 @@ def main():
     print(f"💰 Soma de gastos: R$ {validacao['soma_gastos']:,.2f}")
     print("\n🏆 TOP 5 NO BANCO:")
     for i, row in enumerate(validacao["top5"], 1):
-        print(
-            f"   {i}. {row['razao_social'][:50]:<50} | R$ {row['gasto_total']:>15,.2f}"
-        )
+        print(f"   {i}. {row['razao_social'][:50]:<50} | R$ {row['gasto_total']:>15,.2f}")
     print("=" * 80)
 
 

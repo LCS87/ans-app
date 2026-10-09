@@ -4,6 +4,7 @@ Comparação 2024 × 2025 × 2026 (parcial) usando Método D.
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -15,9 +16,9 @@ anos = [2024, 2025, 2026]
 dfs = {}
 for ano in anos:
     try:
-        dfs[ano] = ext.processar_ano(ano)[
-            ["REG_ANS", "RAZAO_SOCIAL", "gasto_total"]
-        ].rename(columns={"gasto_total": f"g{ano}"})
+        dfs[ano] = ext.processar_ano(ano)[["REG_ANS", "RAZAO_SOCIAL", "gasto_total"]].rename(
+            columns={"gasto_total": f"g{ano}"}
+        )
     except Exception as e:
         print(f"⚠️  Ano {ano} indisponível: {e}")
 
@@ -48,9 +49,7 @@ for _, r in top.iterrows():
     g26 = f"{r['g2026']/1e9:.2f}Bi" if "g2026" in r else "—"
     d25 = f"{r['d25-24']:.1f}%" if pd.notna(r.get("d25-24")) else "novo"
     d26 = f"{r['d26-25']:.1f}%" if pd.notna(r.get("d26-25")) else "—"
-    print(
-        f"{r['REG_ANS']:<8} {nome:<35} {g24:>10} {g25:>10} {g26:>10} {d25:>8} {d26:>8}"
-    )
+    print(f"{r['REG_ANS']:<8} {nome:<35} {g24:>10} {g25:>10} {g26:>10} {d25:>8} {d26:>8}")
 
 print(f"\n* 2026 é parcial (apenas 1T + 2T disponíveis)")
 print(f"\nTotais:")

@@ -21,18 +21,18 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-from sqlalchemy import create_engine, text
 from loguru import logger
-from etl.validation import validar_ano, total_metodo_d, imprimir_relatorio
+from sqlalchemy import create_engine, text
+
 
 # Adicionar raiz do projeto ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from api.accounting_maps import DIMENSIONS, load_prefixes
+from api.config import get_settings
 from etl.download import ANSDownloader
 from etl.extract import ANSExtractor
 from etl.load import ANSLoader
-from api.config import get_settings
-from api.accounting_maps import DIMENSIONS, load_prefixes
 
 
 # ----------------------------------------------------------------------
@@ -123,12 +123,10 @@ class PipelineOrchestrator:
         try:
             with self.engine.begin() as conn:
                 result = conn.execute(
-                    text(
-                        """
+                    text("""
                         INSERT INTO etl_executions (periodo, started_at, status)
                         VALUES (:periodo, :started_at, 'running')
-                    """
-                    ),
+                    """),
                     {"periodo": periodo, "started_at": datetime.now()},
                 )
                 return result.lastrowid
@@ -151,8 +149,7 @@ class PipelineOrchestrator:
         try:
             with self.engine.begin() as conn:
                 conn.execute(
-                    text(
-                        """
+                    text("""
                         UPDATE etl_executions SET
                             completed_at = :completed_at,
                             status = :status,
@@ -161,8 +158,7 @@ class PipelineOrchestrator:
                             duration_seconds = :duration,
                             error_message = :error
                         WHERE id = :id
-                    """
-                    ),
+                    """),
                     {
                         "id": execution_id,
                         "completed_at": datetime.now(),
@@ -220,9 +216,7 @@ class PipelineOrchestrator:
                     "records": len(df_consolidated),
                     "output": str(output_path),
                 }
-                logger.success(
-                    f"✅ [{ano}] {len(df_consolidated)} operadoras consolidadas"
-                )
+                logger.success(f"✅ [{ano}] {len(df_consolidated)} operadoras consolidadas")
 
                 # ---- ETAPA 2.1: VALIDAÇÃO DE QUALIDADE (OPCIONAL) ----
                 logger.info(f"✅ [{ano}] Validação de qualidade: pulada (já validado)")
@@ -235,9 +229,7 @@ class PipelineOrchestrator:
             # ---- ETAPA 3: CARGA NO MYSQL ----
             logger.info(f"💾 [{ano}] ETAPA 3/3: Carga no MySQL...")
             try:
-                df_normalizado = self.loader.normalizar_colunas(
-                    df_consolidated, periodo=str(ano)
-                )
+                df_normalizado = self.loader.normalizar_colunas(df_consolidated, periodo=str(ano))
                 total_carregado = self.loader.carregar(df_normalizado, periodo=str(ano))
 
                 validacao = self.loader.validar(str(ano))
@@ -321,8 +313,7 @@ class PipelineOrchestrator:
             gastos = r.get("total_gastos", 0)
             duration = r.get("duration_seconds", 0)
             logger.info(
-                f"{icon} {r['ano']}: {records:,} registros | "
-                f"R$ {gastos:,.2f} | {duration:.2f}s"
+                f"{icon} {r['ano']}: {records:,} registros | " f"R$ {gastos:,.2f} | {duration:.2f}s"
             )
 
         logger.info(f"\n⏱️  Tempo total: {duration_total:.2f}s")
@@ -337,9 +328,7 @@ class PipelineOrchestrator:
 async def main():
     """Entry point para execução via CLI."""
     parser = argparse.ArgumentParser(description="Pipeline ETL ANS Intelligence")
-    parser.add_argument(
-        "--ano", type=int, default=2024, help="Ano a processar (padrão: 2024)"
-    )
+    parser.add_argument("--ano", type=int, default=2024, help="Ano a processar (padrão: 2024)")
     parser.add_argument(
         "--anos",
         type=str,

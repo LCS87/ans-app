@@ -1,6 +1,7 @@
+from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 
 
 def fetch_page(url: str) -> str:
@@ -20,17 +21,17 @@ def find_pdf_links(html: str, base_url: str) -> dict:
         href = a["href"]
         text = (a.get_text() or "").strip().upper()
         if "ANEXO I" in text or "ANEXO 1" in text or "ANEXOI" in text:
-            if href.lower().endswith('.pdf'):
+            if href.lower().endswith(".pdf"):
                 links["anexo_i"] = urljoin(base_url, href)
         if "ANEXO II" in text or "ANEXO 2" in text or "ANEXOII" in text:
-            if href.lower().endswith('.pdf'):
+            if href.lower().endswith(".pdf"):
                 links["anexo_ii"] = urljoin(base_url, href)
 
     # fallback: procurar por PDFs mencionando 'ANEXO' nas proximidades (texto pai)
     if not links["anexo_i"] or not links["anexo_ii"]:
         for a in soup.find_all("a", href=True):
             href = a["href"]
-            if not href.lower().endswith('.pdf'):
+            if not href.lower().endswith(".pdf"):
                 continue
             parent_text = (a.parent.get_text() or "").upper()
             if "ANEXO I" in parent_text or "ANEXO 1" in parent_text:

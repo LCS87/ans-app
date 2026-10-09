@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -14,9 +15,7 @@ for ano in [2023, 2024, 2025]:
     for f in ext.extract_zips(ano):
         df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         df["TRIM"] = f.stem
         dfs.append(df)
     df = pd.concat(dfs, ignore_index=True)
@@ -30,26 +29,20 @@ for ano in [2023, 2024, 2025]:
     )
 
     m411 = df["CD_CONTA_CONTABIL"].str.startswith("411") & (df["VL_SALDO_FINAL"] > 0)
-    soma_len9 = df[m411 & (df["CD_CONTA_CONTABIL"].str.len() == 9)][
-        "VL_SALDO_FINAL"
-    ].sum()
-    soma_folha = df[m411 & df["is_leaf"]]["VL_SALDO_FINAL"].sum()
+    soma_len9 = df[m411 & (df["CD_CONTA_CONTABIL"].str.len() == 9)]["VL_SALDO_FINAL"].sum()
+    soma_folha = df[m411 & df["is_lea"]]["VL_SALDO_FINAL"].sum()
     soma_tudo = df[m411]["VL_SALDO_FINAL"].sum()
 
     print(f"Soma 411 (len==9, filtro antigo)      : R$ {soma_len9:>20,.0f}")
     print(f"Soma 411 (is_leaf, filtro novo)       : R$ {soma_folha:>20,.0f}")
-    print(
-        f"Soma 411 (tudo, c/ pais+filhos)       : R$ {soma_tudo:>20,.0f}  ← dupla contagem"
-    )
+    print(f"Soma 411 (tudo, c/ pais+filhos)       : R$ {soma_tudo:>20,.0f}  ← dupla contagem")
 
     # ================================================================
     # EIXO TEMPORAL: DRE é acumulada no ano
     # O valor anual correto = último trimestre reportado de cada conta
     # ================================================================
     folhas411 = df[
-        df["is_leaf"]
-        & df["CD_CONTA_CONTABIL"].str.startswith("411")
-        & (df["VL_SALDO_FINAL"] > 0)
+        df["is_lea"] & df["CD_CONTA_CONTABIL"].str.startswith("411") & (df["VL_SALDO_FINAL"] > 0)
     ].copy()
 
     ultimo_trim = (
@@ -62,6 +55,4 @@ for ano in [2023, 2024, 2025]:
     print(
         f"Soma 411 folhas (últ. trim. por conta): R$ {ultimo_trim['VL_SALDO_FINAL'].sum():>20,.0f}  ← CORRETO (anual)"
     )
-    print(
-        f"Soma 411 folhas (somente 4T)          : R$ {so_4t['VL_SALDO_FINAL'].sum():>20,.0f}"
-    )
+    print(f"Soma 411 folhas (somente 4T)          : R$ {so_4t['VL_SALDO_FINAL'].sum():>20,.0f}")
