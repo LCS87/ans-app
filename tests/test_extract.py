@@ -50,11 +50,11 @@ class TestMetodoDCore:
     def test_multiplas_arvores_independentes(self):
         # Cada raiz é resolvida independentemente
         valores = {
-            "41": 100.0,      # raiz com folhas completas → 100
+            "41": 100.0,  # raiz com folhas completas → 100
             "411": 70.0,
             "412": 30.0,
-            "31": 500.0,      # raiz sem folhas → 500
-            "46": 200.0,      # raiz com folhas parciais → 200 (usa raiz)
+            "31": 500.0,  # raiz sem folhas → 500
+            "46": 200.0,  # raiz com folhas parciais → 200 (usa raiz)
             "461": 50.0,
         }
         assert ANSExtractor.metodo_d_total(valores) == 800.0
@@ -147,9 +147,7 @@ class TestProcessarContas:
             ("111111", "412", "OUTRAS", "100"),
         ]
         _make_zip(extractor.raw_dir.parent.parent, 2024, "1T2024", rows)
-        df = extractor.processar_contas(
-            2024, prefixos={"receita": "31", "sinistros": "41"}
-        )
+        df = extractor.processar_contas(2024, prefixos={"receita": "31", "sinistros": "41"})
         assert df.loc[df.REG_ANS == "111111", "receita"].iloc[0] == 1000.0
         assert df.loc[df.REG_ANS == "111111", "sinistros"].iloc[0] == 400.0
 

@@ -1,16 +1,15 @@
 """Pydantic models para validação e serialização."""
 
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
 import re
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class OperadoraBase(BaseModel):
     """Modelo base de operadora."""
 
-    registro_ans: str = Field(
-        ..., min_length=6, max_length=6, description="Registro ANS"
-    )
+    registro_ans: str = Field(..., min_length=6, max_length=6, description="Registro ANS")
     cnpj: str = Field(..., min_length=14, max_length=14, description="CNPJ")
     razao_social: str = Field(..., min_length=1, description="Razão social")
     nome_fantasia: Optional[str] = Field(None, description="Nome fantasia")
@@ -78,9 +77,7 @@ class AnalyticsGastosResponse(BaseModel):
     periodo: str = Field(..., description="Período da análise (ano)")
     top: int = Field(..., description="Quantidade de operadoras no ranking")
     total_geral: float = Field(..., description="Total geral de gastos do período")
-    total_operadoras: int = Field(
-        ..., description="Total de operadoras com gastos no período"
-    )
+    total_operadoras: int = Field(..., description="Total de operadoras com gastos no período")
     ranking: List[GastoOperadora] = Field(..., description="Ranking de operadoras")
 
 

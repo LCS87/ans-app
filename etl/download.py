@@ -14,20 +14,21 @@ Uso:
     # ou
     py etl/download.py
 """
+
 import asyncio
 from pathlib import Path
 from typing import List
-import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from loguru import logger
 
+import httpx
+from loguru import logger
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 # Configurações
 ANS_BASE_URL = "https://dadosabertos.ans.gov.br/FTP/PDA"
 DEMONSTRACOES_URL = f"{ANS_BASE_URL}/demonstracoes_contabeis"
 CADOP_URL = f"{ANS_BASE_URL}/operadoras_de_plano_de_saude_ativas/Relatorio_cadop.csv"
 
-MIN_ZIP_SIZE_MB = 5      # ZIPs trimestrais são 7-11 MB
+MIN_ZIP_SIZE_MB = 5  # ZIPs trimestrais são 7-11 MB
 MIN_CADOP_SIZE_KB = 100  # CADOP é ~339 KB
 
 
@@ -92,7 +93,9 @@ class ANSDownloader:
                             mb = downloaded_size / (1024 * 1024)
                             if total_size > 0:
                                 pct = (downloaded_size / total_size) * 100
-                                logger.debug(f"📊 Progresso: {mb:.2f} MB / {total_size / (1024 * 1024):.2f} MB ({pct:.1f}%)")
+                                logger.debug(
+                                    f"📊 Progresso: {mb:.2f} MB / {total_size / (1024 * 1024):.2f} MB ({pct:.1f}%)"
+                                )
                             else:
                                 logger.debug(f"📊 Baixado: {mb:.2f} MB")
 
@@ -135,7 +138,9 @@ class ANSDownloader:
         file_size_mb = path.stat().st_size / (1024 * 1024)
         if file_size_mb < MIN_ZIP_SIZE_MB:
             path.unlink()
-            raise ValueError(f"Arquivo muito pequeno: {file_size_mb:.2f} MB (esperado > {MIN_ZIP_SIZE_MB} MB)")
+            raise ValueError(
+                f"Arquivo muito pequeno: {file_size_mb:.2f} MB (esperado > {MIN_ZIP_SIZE_MB} MB)"
+            )
 
         return path
 
@@ -162,7 +167,9 @@ class ANSDownloader:
                 logger.error(f"❌ Erro ao baixar {tri}{ano}: {e}")
                 # Continua com os próximos trimestres
 
-        logger.success(f"✅ Demonstrações de {ano}: {len(files)}/{len(trimestres)} trimestres baixados")
+        logger.success(
+            f"✅ Demonstrações de {ano}: {len(files)}/{len(trimestres)} trimestres baixados"
+        )
         return files
 
     # ------------------------------------------------------------------
@@ -194,10 +201,13 @@ class ANSDownloader:
         file_size_kb = path.stat().st_size / 1024
         if file_size_kb < MIN_CADOP_SIZE_KB:
             path.unlink()
-            raise ValueError(f"CADOP muito pequeno: {file_size_kb:.1f} KB (esperado > {MIN_CADOP_SIZE_KB} KB)")
+            raise ValueError(
+                f"CADOP muito pequeno: {file_size_kb:.1f} KB (esperado > {MIN_CADOP_SIZE_KB} KB)"
+            )
 
         # Validar que é um CSV legível
         import pandas as pd
+
         try:
             df = pd.read_csv(path, encoding="utf-8", sep=";", on_bad_lines="skip", nrows=5)
             if len(df.columns) < 2:

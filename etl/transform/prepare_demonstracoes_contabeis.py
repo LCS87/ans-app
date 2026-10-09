@@ -1,4 +1,3 @@
-import os
 import re
 import zipfile
 from dataclasses import dataclass
@@ -6,7 +5,6 @@ from pathlib import Path
 from typing import Dict, Iterable, Optional, Tuple
 
 import pandas as pd
-
 
 RAW_DIR = Path(__file__).parent.parent / "data" / "raw"
 INTERIM_DIR = Path(__file__).parent.parent / "data" / "interim"
@@ -126,12 +124,32 @@ def _normalize_demonstracoes_schema(df: pd.DataFrame, periodo: Periodo) -> Optio
 
     cols_norm = {c: _norm_col(c) for c in df.columns}
 
-    reg_ans_col = _pick_col(cols_norm, ["registro ans", "reg ans", "registroans", "cod operadora", "codigo operadora", "operadora", "regans"])  # heurístico
-    cd_conta_col = _pick_col(cols_norm, ["cd conta", "codigo conta", "conta contabil", "cod conta", "cdconta", "cd_conta"])  # heurístico
-    desc_col = _pick_col(cols_norm, ["descricao conta", "descricao", "ds conta", "nome conta", "descricao_conta"])  # heurístico
+    reg_ans_col = _pick_col(
+        cols_norm,
+        [
+            "registro ans",
+            "reg ans",
+            "registroans",
+            "cod operadora",
+            "codigo operadora",
+            "operadora",
+            "regans",
+        ],
+    )  # heurístico
+    cd_conta_col = _pick_col(
+        cols_norm,
+        ["cd conta", "codigo conta", "conta contabil", "cod conta", "cdconta", "cd_conta"],
+    )  # heurístico
+    desc_col = _pick_col(
+        cols_norm, ["descricao conta", "descricao", "ds conta", "nome conta", "descricao_conta"]
+    )  # heurístico
 
-    saldo_ini_col = _pick_col(cols_norm, ["saldo inicial", "vl saldo inicial", "valor saldo inicial", "vlsaldoinicial"])  # heurístico
-    saldo_fim_col = _pick_col(cols_norm, ["saldo final", "vl saldo final", "valor saldo final", "vlsaldofinal"])  # heurístico
+    saldo_ini_col = _pick_col(
+        cols_norm, ["saldo inicial", "vl saldo inicial", "valor saldo inicial", "vlsaldoinicial"]
+    )  # heurístico
+    saldo_fim_col = _pick_col(
+        cols_norm, ["saldo final", "vl saldo final", "valor saldo final", "vlsaldofinal"]
+    )  # heurístico
 
     # Se não achar colunas mínimas, não é um arquivo de demonstrações no formato esperado
     if not cd_conta_col or not desc_col:
@@ -149,7 +167,13 @@ def _normalize_demonstracoes_schema(df: pd.DataFrame, periodo: Periodo) -> Optio
     out["vl_saldo_final"] = df[saldo_fim_col] if saldo_fim_col else None
 
     # Limpezas
-    for c in ["reg_ans", "cd_conta_contabil", "descricao_conta", "vl_saldo_inicial", "vl_saldo_final"]:
+    for c in [
+        "reg_ans",
+        "cd_conta_contabil",
+        "descricao_conta",
+        "vl_saldo_inicial",
+        "vl_saldo_final",
+    ]:
         if c in out.columns:
             out[c] = out[c].astype(str).str.strip()
             out.loc[out[c].isin(["", "nan", "None"]), c] = None
@@ -160,14 +184,33 @@ def _normalize_demonstracoes_schema(df: pd.DataFrame, periodo: Periodo) -> Optio
 def _detect_columns_for_audit(df: pd.DataFrame) -> Dict[str, Optional[str]]:
     """Detecta quais colunas (originais) foram usadas para compor o schema normalizado."""
 
-
     cols_norm = {c: _norm_col(c) for c in df.columns}
 
-    reg_ans_col = _pick_col(cols_norm, ["registro ans", "reg ans", "registroans", "cod operadora", "codigo operadora", "operadora", "regans"])
-    cd_conta_col = _pick_col(cols_norm, ["cd conta", "codigo conta", "conta contabil", "cod conta", "cdconta", "cd_conta"])
-    desc_col = _pick_col(cols_norm, ["descricao conta", "descricao", "ds conta", "nome conta", "descricao_conta"])
-    saldo_ini_col = _pick_col(cols_norm, ["saldo inicial", "vl saldo inicial", "valor saldo inicial", "vlsaldoinicial"])
-    saldo_fim_col = _pick_col(cols_norm, ["saldo final", "vl saldo final", "valor saldo final", "vlsaldofinal"])
+    reg_ans_col = _pick_col(
+        cols_norm,
+        [
+            "registro ans",
+            "reg ans",
+            "registroans",
+            "cod operadora",
+            "codigo operadora",
+            "operadora",
+            "regans",
+        ],
+    )
+    cd_conta_col = _pick_col(
+        cols_norm,
+        ["cd conta", "codigo conta", "conta contabil", "cod conta", "cdconta", "cd_conta"],
+    )
+    desc_col = _pick_col(
+        cols_norm, ["descricao conta", "descricao", "ds conta", "nome conta", "descricao_conta"]
+    )
+    saldo_ini_col = _pick_col(
+        cols_norm, ["saldo inicial", "vl saldo inicial", "valor saldo inicial", "vlsaldoinicial"]
+    )
+    saldo_fim_col = _pick_col(
+        cols_norm, ["saldo final", "vl saldo final", "valor saldo final", "vlsaldofinal"]
+    )
 
     return {
         "det_reg_ans_col": reg_ans_col,
@@ -178,7 +221,9 @@ def _detect_columns_for_audit(df: pd.DataFrame) -> Dict[str, Optional[str]]:
     }
 
 
-def consolidate_demonstracoes(extracted: list[Tuple[Path, Periodo]]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def consolidate_demonstracoes(
+    extracted: list[Tuple[Path, Periodo]],
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Percorre arquivos extraídos e gera um DataFrame consolidado + relatório de validação."""
 
     dfs: list[pd.DataFrame] = []
@@ -194,64 +239,72 @@ def consolidate_demonstracoes(extracted: list[Tuple[Path, Periodo]]) -> Tuple[pd
             df_raw, encoding_used = _try_read_csv(csv_path)
             if df_raw is None:
                 print(f"Falha ao ler CSV (encoding/separador): {csv_path}")
-                audit_rows.append({
-                    "arquivo": str(csv_path),
-                    "ano": periodo.ano,
-                    "trimestre": periodo.trimestre,
-                    "status": "read_error",
-                    "encoding": None,
-                    "linhas_raw": None,
-                    "colunas_raw": None,
-                    "linhas_normalizadas": None,
-                    "det_reg_ans_col": None,
-                    "det_cd_conta_contabil_col": None,
-                    "det_descricao_conta_col": None,
-                    "det_vl_saldo_inicial_col": None,
-                    "det_vl_saldo_final_col": None,
-                })
+                audit_rows.append(
+                    {
+                        "arquivo": str(csv_path),
+                        "ano": periodo.ano,
+                        "trimestre": periodo.trimestre,
+                        "status": "read_error",
+                        "encoding": None,
+                        "linhas_raw": None,
+                        "colunas_raw": None,
+                        "linhas_normalizadas": None,
+                        "det_reg_ans_col": None,
+                        "det_cd_conta_contabil_col": None,
+                        "det_descricao_conta_col": None,
+                        "det_vl_saldo_inicial_col": None,
+                        "det_vl_saldo_final_col": None,
+                    }
+                )
                 continue
 
             detected = _detect_columns_for_audit(df_raw)
             df_norm = _normalize_demonstracoes_schema(df_raw, periodo)
             if df_norm is None:
                 # Provavelmente não é o CSV de demonstrativos (pode ser dicionário, etc.)
-                audit_rows.append({
-                    "arquivo": str(csv_path),
-                    "ano": periodo.ano,
-                    "trimestre": periodo.trimestre,
-                    "status": "skipped_not_matching_schema",
-                    "encoding": encoding_used,
-                    "linhas_raw": int(df_raw.shape[0]),
-                    "colunas_raw": int(df_raw.shape[1]),
-                    "linhas_normalizadas": None,
-                    **detected,
-                })
+                audit_rows.append(
+                    {
+                        "arquivo": str(csv_path),
+                        "ano": periodo.ano,
+                        "trimestre": periodo.trimestre,
+                        "status": "skipped_not_matching_schema",
+                        "encoding": encoding_used,
+                        "linhas_raw": int(df_raw.shape[0]),
+                        "colunas_raw": int(df_raw.shape[1]),
+                        "linhas_normalizadas": None,
+                        **detected,
+                    }
+                )
                 continue
 
             print(f"OK: {csv_path.name} -> {df_norm.shape}")
             dfs.append(df_norm)
-            audit_rows.append({
-                "arquivo": str(csv_path),
-                "ano": periodo.ano,
-                "trimestre": periodo.trimestre,
-                "status": "ok",
-                "encoding": encoding_used,
-                "linhas_raw": int(df_raw.shape[0]),
-                "colunas_raw": int(df_raw.shape[1]),
-                "linhas_normalizadas": int(df_norm.shape[0]),
-                **detected,
-            })
+            audit_rows.append(
+                {
+                    "arquivo": str(csv_path),
+                    "ano": periodo.ano,
+                    "trimestre": periodo.trimestre,
+                    "status": "ok",
+                    "encoding": encoding_used,
+                    "linhas_raw": int(df_raw.shape[0]),
+                    "colunas_raw": int(df_raw.shape[1]),
+                    "linhas_normalizadas": int(df_norm.shape[0]),
+                    **detected,
+                }
+            )
 
     if not dfs:
-        empty_out = pd.DataFrame(columns=[
-            "ano",
-            "trimestre",
-            "reg_ans",
-            "cd_conta_contabil",
-            "descricao_conta",
-            "vl_saldo_inicial",
-            "vl_saldo_final",
-        ])
+        empty_out = pd.DataFrame(
+            columns=[
+                "ano",
+                "trimestre",
+                "reg_ans",
+                "cd_conta_contabil",
+                "descricao_conta",
+                "vl_saldo_inicial",
+                "vl_saldo_final",
+            ]
+        )
         return empty_out, pd.DataFrame(audit_rows)
 
     out = pd.concat(dfs, ignore_index=True)

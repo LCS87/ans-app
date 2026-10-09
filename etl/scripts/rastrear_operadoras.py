@@ -5,6 +5,7 @@ SEM filtro, para revelar em quais códigos o valor vive.
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -22,14 +23,10 @@ def ler_ano(ano):
     extractor = ANSExtractor()
     dfs = []
     for csv_file in extractor.extract_zips(ano):
-        df = pd.read_csv(
-            csv_file, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str
-        )
+        df = pd.read_csv(csv_file, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
         df["TRIM"] = csv_file.stem
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         df["REG_NORM"] = df["REG_ANS"].str.strip().str.zfill(6)
         dfs.append(df)
     return pd.concat(dfs, ignore_index=True)
@@ -45,9 +42,7 @@ for ano in [2023, 2024, 2025]:
     sub = df[(df["REG_NORM"].isin(ALVOS)) & (df["VL_SALDO_FINAL"].abs() > 100_000_000)]
     print(f"\n📌 CONTAS > R$ 100 Mi DAS OPERADORAS-ALVO ({len(sub)} registros):")
     if len(sub) == 0:
-        print(
-            "   ⚠️  NENHUMA! Os bilhões não existem em nenhum código destas operadoras."
-        )
+        print("   ⚠️  NENHUMA! Os bilhões não existem em nenhum código destas operadoras.")
     for _, r in sub.sort_values(
         ["REG_NORM", "TRIM", "VL_SALDO_FINAL"], ascending=[True, True, False]
     ).iterrows():

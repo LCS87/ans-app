@@ -1,6 +1,6 @@
+import zipfile
 from pathlib import Path
 from typing import Optional
-import zipfile
 
 import pandas as pd
 

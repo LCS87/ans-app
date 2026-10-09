@@ -14,6 +14,7 @@ Uso:
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 project_root = Path(__file__).parent.parent.parent
@@ -29,9 +30,7 @@ def load_year(ano):
     for f in ext.extract_zips(ano):
         df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         df["TRIM"] = f.stem
         df["CD_CONTA_CONTABIL"] = df["CD_CONTA_CONTABIL"].fillna("").str.strip()
         dfs.append(df)
@@ -45,7 +44,7 @@ def compute_methods(df):
     # Método A: folhas (is_leaf) - último trim não-zero
     ext = ANSExtractor()
     df_leaf = ext.marcar_folhas(df)
-    df_leaf_nz = df_leaf[(df_leaf["is_leaf"]) & (df_leaf["VL_SALDO_FINAL"] != 0)]
+    df_leaf_nz = df_leaf[(df_leaf["is_lea"]) & (df_leaf["VL_SALDO_FINAL"] != 0)]
     last_leaf = (
         df_leaf_nz.sort_values("TRIM")
         .groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False)
@@ -56,9 +55,7 @@ def compute_methods(df):
     # Método B: raiz reportada - último trim não-zero, sem ancestral com valor
     nz = df[df["VL_SALDO_FINAL"] != 0]
     last_all = (
-        nz.sort_values("TRIM")
-        .groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False)
-        .tail(1)
+        nz.sort_values("TRIM").groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False).tail(1)
     )
     B_dict = {}
     for reg, grp in last_all.groupby("REG_ANS"):
@@ -90,12 +87,8 @@ def compare(ano):
     # Calcular diferenças
     comp["B-A"] = comp["B_raiz"] - comp["A_folhas"]
     comp["C-B"] = comp["C_tudo"] - comp["B_raiz"]
-    comp["B/A"] = (comp["B_raiz"] / comp["A_folhas"]).replace(
-        [float("inf")], float("nan")
-    )
-    comp["C/B"] = (comp["C_tudo"] / comp["B_raiz"]).replace(
-        [float("inf")], float("nan")
-    )
+    comp["B/A"] = (comp["B_raiz"] / comp["A_folhas"]).replace([float("in")], float("nan"))
+    comp["C/B"] = (comp["C_tudo"] / comp["B_raiz"]).replace([float("in")], float("nan"))
 
     # Ordenar por B (raiz) decrescente
     comp = comp.sort_values("B_raiz", ascending=False)
@@ -135,11 +128,7 @@ def compare(ano):
             if row["C_tudo"] >= 1e9
             else f"R$ {row['C_tudo']/1e6:.1f}Mi"
         )
-        BA_val = (
-            f"+R$ {row['B-A']/1e6:.1f}Mi"
-            if row["B-A"] > 0
-            else f"R$ {row['B-A']/1e6:.1f}Mi"
-        )
+        BA_val = f"+R$ {row['B-A']/1e6:.1f}Mi" if row["B-A"] > 0 else f"R$ {row['B-A']/1e6:.1f}Mi"
         BA_ratio = (
             f"{row['B/A']:.2f}x"
             if not pd.isna(row["B/A"]) and row["B/A"] < 100
@@ -175,24 +164,18 @@ def compare(ano):
             )
 
     # Onde folhas e raiz são iguais (B ≈ A)
-    equal = comp[
-        (comp["B-A"].abs() < 10_000_000) & (comp["A_folhas"] > 100_000_000)
-    ].head(5)
+    equal = comp[(comp["B-A"].abs() < 10_000_000) & (comp["A_folhas"] > 100_000_000)].head(5)
     if len(equal) > 0:
         print(f"\n   ✅ Folhas e raiz são iguais (B ≈ A, > R$ 100 Mi):")
         for reg, row in equal.iterrows():
-            print(
-                f"      {reg}: A={row['A_folhas']/1e6:.1f}Mi, B={row['B_raiz']/1e6:.1f}Mi"
-            )
+            print(f"      {reg}: A={row['A_folhas']/1e6:.1f}Mi, B={row['B_raiz']/1e6:.1f}Mi")
 
     # Onde folhas é zero mas raiz tem valor
     leaf_zero = comp[(comp["A_folhas"] == 0) & (comp["B_raiz"] > 100_000_000)].head(5)
     if len(leaf_zero) > 0:
         print(f"\n   🚨 Folhas = 0, mas raiz tem > R$ 100 Mi (perda total):")
         for reg, row in leaf_zero.iterrows():
-            print(
-                f"      {reg}: A=0 → B={row['B_raiz']/1e6:.1f}Mi (recuperado pela raiz)"
-            )
+            print(f"      {reg}: A=0 → B={row['B_raiz']/1e6:.1f}Mi (recuperado pela raiz)")
 
 
 if __name__ == "__main__":

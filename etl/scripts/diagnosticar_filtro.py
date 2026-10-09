@@ -5,11 +5,11 @@ pelo filtro de "gastos assistenciais" para analisar se são reais.
 
 import sys
 from pathlib import Path
-from collections import Counter
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from etl.extract import ANSExtractor, KEYWORDS_ASSISTENCIAIS
+from etl.extract import KEYWORDS_ASSISTENCIAIS, ANSExtractor
 
 
 def diagnosticar(ano: int = 2023, top_n: int = 50):
@@ -32,9 +32,7 @@ def diagnosticar(ano: int = 2023, top_n: int = 50):
         df.columns = [c.upper().strip() for c in df.columns]
 
         # Filtrar (mesmo filtro usado no ETL)
-        df["VL_SALDO_FINAL"] = pd.to_numeric(
-            df["VL_SALDO_FINAL"], errors="coerce"
-        ).fillna(0)
+        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
         pattern = "|".join(KEYWORDS_ASSISTENCIAIS)
         mask = df["DESCRICAO"].str.lower().str.contains(pattern, na=False, regex=True)
         df_filtered = df[mask]
@@ -63,9 +61,7 @@ def diagnosticar(ano: int = 2023, top_n: int = 50):
         total = row["sum"]
         total_geral += total
         desc_curta = desc[:77] + "..." if len(desc) > 77 else desc
-        print(
-            f"{desc_curta:<80} {total:>20,.0f} {row['count']:>8,.0f} {row['mean']:>15,.0f}"
-        )
+        print(f"{desc_curta:<80} {total:>20,.0f} {row['count']:>8,.0f} {row['mean']:>15,.0f}")
 
     print(f"\n{'='*80}")
     print(f"💰 Total capturado: R$ {agrupado['sum'].sum():,.2f}")
@@ -74,17 +70,14 @@ def diagnosticar(ano: int = 2023, top_n: int = 50):
 
     # Salvar em CSV para análise
     output_path = (
-        Path(__file__).parent.parent
-        / "data"
-        / "processed"
-        / f"diagnostico_filtro_{ano}.csv"
+        Path(__file__).parent.parent / "data" / "processed" / f"diagnostico_filtro_{ano}.csv"
     )
     agrupado.to_csv(output_path)
     print(f"\n💾 Diagnóstico salvo em: {output_path}")
 
     # Análise de categorias suspeitas
     print(f"\n{'='*80}")
-    print(f"⚠️  CATEGORIAS POTENCIALMENTE PROBLEMÁTICAS")
+    print("⚠️  CATEGORIAS POTENCIALMENTE PROBLEMÁTICAS")
     print(f"{'='*80}")
 
     termos_suspeitos = [

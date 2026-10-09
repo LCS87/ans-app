@@ -1,0 +1,5 @@
+# Configuração do flake8 (Job de Lint do CI — F5.1)
+[flake8]
+max-line-length = 100
+extend-ignore = E203, W503, W293, F841, E402
+exclude = .git,__pycache__,venv,.venv,node_modules,etl/data,build,dist

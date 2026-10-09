@@ -5,6 +5,7 @@ Usa CD_CONTA_CONTABIL em vez de regex em DESCRICAO.
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -25,27 +26,21 @@ def mapear_contas_assistenciais(ano: int = 2024):
     # Consolidar todos os trimestres
     dfs = []
     for csv_file in csv_files:
-        df = pd.read_csv(
-            csv_file, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str
-        )
+        df = pd.read_csv(csv_file, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
         dfs.append(df)
 
     df_all = pd.concat(dfs, ignore_index=True)
 
     # Converter valores
-    df_all["VL_SALDO_FINAL"] = pd.to_numeric(
-        df_all["VL_SALDO_FINAL"], errors="coerce"
-    ).fillna(0)
+    df_all["VL_SALDO_FINAL"] = pd.to_numeric(df_all["VL_SALDO_FINAL"], errors="coerce").fillna(0)
 
     # 1. Filtrar apenas contas analíticas (9 dígitos)
     df_analiticas = df_all[df_all["CD_CONTA_CONTABIL"].str.len() == 9].copy()
     print(f"\n📊 Total de contas analíticas: {len(df_analiticas):,}")
 
     # 2. Filtrar apenas contas de resultado (3xx, 4xx)
-    df_resultado = df_analiticas[
-        df_analiticas["CD_CONTA_CONTABIL"].str.match(r"^[34]")
-    ].copy()
+    df_resultado = df_analiticas[df_analiticas["CD_CONTA_CONTABIL"].str.match(r"^[34]")].copy()
     print(f"📊 Contas de resultado (3xx, 4xx): {len(df_resultado):,}")
 
     # 3. Agrupar por código + descrição
@@ -63,9 +58,7 @@ def mapear_contas_assistenciais(ano: int = 2024):
 
     # Filtrar apenas despesas (não receitas)
     # Tipicamente: 4xxx são despesas, 3xxx são receitas
-    despesas = contas_agrupadas[
-        contas_agrupadas["CD_CONTA_CONTABIL"].str.startswith("4")
-    ]
+    despesas = contas_agrupadas[contas_agrupadas["CD_CONTA_CONTABIL"].str.startswith("4")]
 
     print(f"\nTotal de contas de despesas (4xxx): {len(despesas):,}")
     print(f"Soma total: R$ {despesas['sum'].sum():,.2f}\n")
@@ -110,9 +103,7 @@ def mapear_contas_assistenciais(ano: int = 2024):
         print(f"{codigo} | {desc:<80} | R$ {total:>15,.0f}")
 
     # 6. Salvar mapeamento completo
-    output_path = (
-        Path(__file__).parent.parent / "data" / "processed" / "mapeamento_contas.csv"
-    )
+    output_path = Path(__file__).parent.parent / "data" / "processed" / "mapeamento_contas.csv"
     despesas.to_csv(output_path, index=False)
     print(f"\n💾 Mapeamento salvo: {output_path}")
 
@@ -121,8 +112,7 @@ def mapear_contas_assistenciais(ano: int = 2024):
     print("📋 RESUMO DO MAPEAMENTO")
     print("=" * 80)
 
-    print(
-        f"""
+    print("""
 ✅ Estratégia correta identificada:
 
 1. Filtrar APENAS contas analíticas (CD_CONTA_CONTABIL com 9 dígitos)
@@ -137,8 +127,7 @@ def mapear_contas_assistenciais(ano: int = 2024):
    - Mapear códigos exatos de cada categoria
    - Excluir provisões e variações (não são despesas realizadas)
    - Usar apenas eventos/sinistros conhecidos (despesas reais)
-"""
-    )
+""")
 
 
 if __name__ == "__main__":
