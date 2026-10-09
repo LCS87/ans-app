@@ -1,0 +1,96 @@
+2026-10-02 20:17:28 | INFO     | __main__:download_ano:132 - 🚀 Iniciando download de todos os trimestres de 2024...
+2026-10-02 20:17:28 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/1T2024.zip
+2026-10-02 20:17:30 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 1T2024.zip (7.85 MB)
+2026-10-02 20:17:30 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/2T2024.zip
+2026-10-02 20:17:32 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 2T2024.zip (8.89 MB)
+2026-10-02 20:17:32 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/3T2024.zip
+2026-10-02 20:17:33 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 3T2024.zip (9.11 MB)
+2026-10-02 20:17:33 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/4T2024.zip
+2026-10-02 20:17:35 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 4T2024.zip (11.16 MB)
+2026-10-02 20:17:35 | SUCCESS  | __main__:download_ano:143 - ✅ Download de 2024 completo: 4/4 trimestres baixados
+2026-10-02 20:42:35 | INFO     | __main__:download_ano:132 - 🚀 Iniciando download de todos os trimestres de 2024...
+2026-10-02 20:42:35 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/1T2024.zip
+2026-10-02 20:42:36 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 1T2024.zip (7.85 MB)
+2026-10-02 20:42:36 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/2T2024.zip
+2026-10-02 20:42:39 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 2T2024.zip (8.89 MB)
+2026-10-02 20:42:39 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/3T2024.zip
+2026-10-02 20:42:40 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 3T2024.zip (9.11 MB)
+2026-10-02 20:42:40 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/4T2024.zip
+2026-10-02 20:42:42 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 4T2024.zip (11.16 MB)
+2026-10-02 20:42:42 | SUCCESS  | __main__:download_ano:143 - ✅ Download de 2024 completo: 4/4 trimestres baixados
+2026-10-02 21:09:11 | INFO     | __main__:download_ano:132 - 🚀 Iniciando download de todos os trimestres de 2024...
+2026-10-02 21:09:11 | INFO     | __main__:download_trimestre:111 - ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-02 21:09:11 | INFO     | __main__:download_trimestre:111 - ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-02 21:09:11 | INFO     | __main__:download_trimestre:111 - ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-02 21:09:11 | INFO     | __main__:download_trimestre:111 - ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-02 21:09:11 | SUCCESS  | __main__:download_ano:143 - ✅ Download de 2024 completo: 4/4 trimestres baixados
+2026-10-02 21:10:59 | INFO     | __main__:download_ano:132 - 🚀 Iniciando download de todos os trimestres de 2024...
+2026-10-02 21:10:59 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/1T2024.zip
+2026-10-02 21:11:00 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 1T2024.zip (7.85 MB)
+2026-10-02 21:11:00 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/2T2024.zip
+2026-10-02 21:11:02 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 2T2024.zip (8.89 MB)
+2026-10-02 21:11:02 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/3T2024.zip
+2026-10-02 21:11:04 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 3T2024.zip (9.11 MB)
+2026-10-02 21:11:04 | INFO     | __main__:download_file:56 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2024/4T2024.zip
+2026-10-02 21:11:05 | SUCCESS  | __main__:download_file:89 - ✅ Download completo: 4T2024.zip (11.16 MB)
+2026-10-02 21:11:05 | SUCCESS  | __main__:download_ano:143 - ✅ Download de 2024 completo: 4/4 trimestres baixados
+2026-10-02 21:11:16 | INFO     | __main__:download_all:225 - ======================================================================
+2026-10-02 21:11:16 | INFO     | __main__:download_all:226 - 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-02 21:11:16 | INFO     | __main__:download_all:227 - ======================================================================
+2026-10-02 21:11:16 | INFO     | __main__:download_demonstracoes:154 - 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-02 21:11:16 | INFO     | __main__:download_trimestre:125 - ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-02 21:11:16 | INFO     | __main__:download_trimestre:125 - ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-02 21:11:16 | INFO     | __main__:download_trimestre:125 - ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-02 21:11:16 | INFO     | __main__:download_trimestre:125 - ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-02 21:11:16 | SUCCESS  | __main__:download_demonstracoes:165 - ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-02 21:11:16 | INFO     | __main__:download_cadop:190 - 🚀 Iniciando download do CADOP...
+2026-10-02 21:11:16 | INFO     | __main__:download_file:72 - ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/operadoras_de_plano_de_saude_ativas/Relatorio_cadop.csv
+2026-10-02 21:11:17 | SUCCESS  | __main__:download_file:100 - ✅ Download completo: relatorio_cadop.csv (0.33 MB)
+2026-10-02 21:11:20 | SUCCESS  | __main__:download_cadop:205 - ✅ CADOP validado: 20 colunas
+2026-10-02 21:11:20 | INFO     | __main__:download_all:244 - ======================================================================
+2026-10-02 21:11:20 | INFO     | __main__:download_all:245 - 📊 RESUMO DO DOWNLOAD
+2026-10-02 21:11:20 | INFO     | __main__:download_all:246 - ======================================================================
+2026-10-02 21:11:20 | INFO     | __main__:download_all:249 -   ✅ 1T2024.zip      |     7.85 MB
+2026-10-02 21:11:20 | INFO     | __main__:download_all:249 -   ✅ 2T2024.zip      |     8.89 MB
+2026-10-02 21:11:20 | INFO     | __main__:download_all:249 -   ✅ 3T2024.zip      |     9.11 MB
+2026-10-02 21:11:20 | INFO     | __main__:download_all:249 -   ✅ 4T2024.zip      |    11.16 MB
+2026-10-02 21:11:20 | INFO     | __main__:download_all:252 -   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-02 21:11:20 | INFO     | __main__:download_all:253 - ======================================================================
+2026-10-02 21:12:29 | INFO     | __main__:download_all:225 - ======================================================================
+2026-10-02 21:12:29 | INFO     | __main__:download_all:226 - 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-02 21:12:29 | INFO     | __main__:download_all:227 - ======================================================================
+2026-10-02 21:12:29 | INFO     | __main__:download_demonstracoes:154 - 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-02 21:12:29 | INFO     | __main__:download_trimestre:125 - ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-02 21:12:29 | INFO     | __main__:download_trimestre:125 - ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-02 21:12:29 | INFO     | __main__:download_trimestre:125 - ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-02 21:12:29 | INFO     | __main__:download_trimestre:125 - ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-02 21:12:29 | SUCCESS  | __main__:download_demonstracoes:165 - ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-02 21:12:29 | INFO     | __main__:download_cadop:184 - ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-02 21:12:29 | INFO     | __main__:download_all:244 - ======================================================================
+2026-10-02 21:12:29 | INFO     | __main__:download_all:245 - 📊 RESUMO DO DOWNLOAD
+2026-10-02 21:12:29 | INFO     | __main__:download_all:246 - ======================================================================
+2026-10-02 21:12:29 | INFO     | __main__:download_all:249 -   ✅ 1T2024.zip      |     7.85 MB
+2026-10-02 21:12:29 | INFO     | __main__:download_all:249 -   ✅ 2T2024.zip      |     8.89 MB
+2026-10-02 21:12:29 | INFO     | __main__:download_all:249 -   ✅ 3T2024.zip      |     9.11 MB
+2026-10-02 21:12:29 | INFO     | __main__:download_all:249 -   ✅ 4T2024.zip      |    11.16 MB
+2026-10-02 21:12:29 | INFO     | __main__:download_all:252 -   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-02 21:12:29 | INFO     | __main__:download_all:253 - ======================================================================
+2026-10-02 21:13:13 | INFO     | __main__:download_all:225 - ======================================================================
+2026-10-02 21:13:13 | INFO     | __main__:download_all:226 - 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-02 21:13:13 | INFO     | __main__:download_all:227 - ======================================================================
+2026-10-02 21:13:13 | INFO     | __main__:download_demonstracoes:154 - 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-02 21:13:13 | INFO     | __main__:download_trimestre:125 - ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-02 21:13:13 | INFO     | __main__:download_trimestre:125 - ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-02 21:13:13 | INFO     | __main__:download_trimestre:125 - ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-02 21:13:13 | INFO     | __main__:download_trimestre:125 - ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-02 21:13:13 | SUCCESS  | __main__:download_demonstracoes:165 - ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-02 21:13:13 | INFO     | __main__:download_cadop:184 - ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-02 21:13:13 | INFO     | __main__:download_all:244 - ======================================================================
+2026-10-02 21:13:13 | INFO     | __main__:download_all:245 - 📊 RESUMO DO DOWNLOAD
+2026-10-02 21:13:13 | INFO     | __main__:download_all:246 - ======================================================================
+2026-10-02 21:13:13 | INFO     | __main__:download_all:249 -   ✅ 1T2024.zip      |     7.85 MB
+2026-10-02 21:13:13 | INFO     | __main__:download_all:249 -   ✅ 2T2024.zip      |     8.89 MB
+2026-10-02 21:13:13 | INFO     | __main__:download_all:249 -   ✅ 3T2024.zip      |     9.11 MB
+2026-10-02 21:13:13 | INFO     | __main__:download_all:249 -   ✅ 4T2024.zip      |    11.16 MB
+2026-10-02 21:13:13 | INFO     | __main__:download_all:252 -   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-02 21:13:13 | INFO     | __main__:download_all:253 - ======================================================================
