@@ -227,7 +227,7 @@ class AnalyticsService:
         try:
             with self.engine.connect() as conn:
                 v = conn.execute(
-                    text(f'SELECT SUM("{col}") FROM gastos_assistenciais ' "WHERE periodo = :p"),
+                    text(f"SELECT SUM(`{col}`) FROM gastos_assistenciais WHERE periodo = :p"),
                     {"p": periodo},
                 ).fetchone()[0]
             return float(v or 0)
@@ -250,10 +250,10 @@ class AnalyticsService:
         out = {}
         for name, col in self.TOP_METRICS.items():
             sql = f"""
-                SELECT registro_ans, razao_social, "{col}" AS valor
+                SELECT registro_ans, razao_social, `{col}` AS valor
                 FROM gastos_assistenciais
-                WHERE periodo = :periodo AND "{col}" > 0
-                ORDER BY "{col}" DESC
+                WHERE periodo = :periodo AND `{col}` > 0
+                ORDER BY `{col}` DESC
                 LIMIT :limit
             """
             rows = self._query_df(sql, {"periodo": periodo, "limit": top})
@@ -283,13 +283,25 @@ class AnalyticsService:
             """
             df = self._query_df(sql, {"periodo": periodo, "reg": registro_ans})
         else:
-            sql = f"""
+            # Retorna consolidado + top 20 operadoras individuais
+            sql_total = f"""
                 SELECT 'TOTAL' AS registro_ans, 'Consolidado' AS razao_social,
-                       {', '.join(f'SUM("{q}") AS "{q}"' for q in quarters)},
+                       {', '.join(f'SUM(`{q}`) AS `{q}`' for q in quarters)},
                        SUM(gasto_total) AS gasto_total
                 FROM gastos_assistenciais WHERE periodo = :periodo
             """
-            df = self._query_df(sql, {"periodo": periodo})
+            df_total = self._query_df(sql_total, {"periodo": periodo})
+
+            sql_ops = """
+                SELECT registro_ans, razao_social, gasto_1T, gasto_2T,
+                       gasto_3T, gasto_4T, gasto_total
+                FROM gastos_assistenciais
+                WHERE periodo = :periodo AND gasto_total > 0
+                ORDER BY gasto_total DESC
+                LIMIT 20
+            """
+            df_ops = self._query_df(sql_ops, {"periodo": periodo})
+            df = pd.concat([df_total, df_ops], ignore_index=True)
 
         series = []
         for _, r in df.iterrows():
@@ -308,6 +320,26 @@ class AnalyticsService:
     # ------------------------------------------------------------------
     # F3.5 — Comparação regional (heat map por UF)
     # ------------------------------------------------------------------
+    # Mapeamento de código de região CADOP → nome legível
+    _REGIAO_MAP = {
+        "1": "Norte", "2": "Nordeste", "3": "Centro-Oeste",
+        "4": "Sul", "5": "Sudeste",
+        # Variantes por nome completo (caso o CADOP retorne nome)
+        "Norte": "Norte", "Nordeste": "Nordeste", "Centro-Oeste": "Centro-Oeste",
+        "Sul": "Sul", "Sudeste": "Sudeste",
+    }
+
+    # Mapeamento UF → região (fallback quando CADOP não tem)
+    _UF_REGIAO = {
+        "AC": "Norte", "AP": "Norte", "AM": "Norte", "PA": "Norte",
+        "RO": "Norte", "RR": "Norte", "TO": "Norte",
+        "AL": "Nordeste", "BA": "Nordeste", "CE": "Nordeste", "MA": "Nordeste",
+        "PB": "Nordeste", "PE": "Nordeste", "PI": "Nordeste", "RN": "Nordeste", "SE": "Nordeste",
+        "DF": "Centro-Oeste", "GO": "Centro-Oeste", "MT": "Centro-Oeste", "MS": "Centro-Oeste",
+        "ES": "Sudeste", "MG": "Sudeste", "RJ": "Sudeste", "SP": "Sudeste",
+        "PR": "Sul", "RS": "Sul", "SC": "Sul",
+    }
+
     def get_regional(self, periodo: str, metric: str = "gasto_total") -> dict:
         """Agrega métrica por UF usando metadata CADOP (heat map Brasil)."""
         safe_metric = (
@@ -324,22 +356,29 @@ class AnalyticsService:
             else "gasto_total"
         )
         sql = f"""
-            SELECT registro_ans, razao_social, "{safe_metric}" AS valor
+            SELECT registro_ans, razao_social, `{safe_metric}` AS valor
             FROM gastos_assistenciais WHERE periodo = :periodo
         """
         df = self._query_df(sql, {"periodo": periodo})
         agg: dict = {}
         for _, r in df.iterrows():
             uf = self.cadop_meta.get(str(r["registro_ans"]), {}).get("uf", "") or "--"
+            uf = uf.upper().strip()
+            # Resolve nome da região: CADOP pode retornar código ou nome
+            regiao_raw = self.cadop_meta.get(str(r["registro_ans"]), {}).get("regiao", "") or ""
+            regiao = self._REGIAO_MAP.get(str(regiao_raw).strip(), "") or self._UF_REGIAO.get(uf, "")
             e = agg.setdefault(
                 uf,
                 {
                     "uf": uf,
-                    "regiao": self.cadop_meta.get(str(r["registro_ans"]), {}).get("regiao", ""),
+                    "regiao": regiao,
                     "operadoras": 0,
                     "valor": 0.0,
                 },
             )
+            # Garante que a região fica preenchida caso a primeira entrada estivesse vazia
+            if not e["regiao"] and regiao:
+                e["regiao"] = regiao
             e["operadoras"] += 1
             e["valor"] += float(r["valor"] or 0)
         items = sorted(agg.values(), key=lambda x: -x["valor"])
