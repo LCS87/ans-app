@@ -1,14 +1,10 @@
-# Python bytecode and caches
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+
+# Python cache and coverage
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Testing and coverage
+*.pyc
 .coverage
-.pytest_cache/
-htmlcov/
-coverage/
-
-# Environment and config files
-.env
-.env.local

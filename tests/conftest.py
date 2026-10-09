@@ -279,8 +279,8 @@ def seeded_analytics(seeded_db):
     svc.engine = seeded_db
     svc.settings = None
     svc.cadop_meta = {
-        "111111": {"u": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
-        "222222": {"u": "RJ", "regiao": "SUDESTE", "modalidade": "Autogestão"},
-        "333333": {"u": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
+        "111111": {"uf": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
+        "222222": {"uf": "RJ", "regiao": "SUDESTE", "modalidade": "Autogestão"},
+        "333333": {"uf": "SP", "regiao": "SUDESTE", "modalidade": "Cooperativa Médica"},
     }
     return svc
