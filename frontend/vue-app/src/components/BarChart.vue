@@ -1,5 +1,7 @@
 <template>
-  <canvas ref="chartRef"></canvas>
+  <div class="chart-wrapper">
+    <canvas ref="chartRef"></canvas>
+  </div>
 </template>
 
 <script setup>
@@ -47,3 +49,13 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+
+<style scoped>
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  min-height: 300px;
+  max-height: 450px;
+}
+</style>

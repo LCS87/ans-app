@@ -6,7 +6,7 @@
       <!-- Abas internas por métrica (F3.1) -->
       <div class="metric-tabs">
         <button
-          v-for="(rank, metric) in data"
+          v-for="(rank, metric) in (data.rankings || {})"
           :key="metric"
           :class="{ active: activeMetric === metric }"
           @click="activeMetric = metric"
@@ -16,16 +16,16 @@
       </div>
 
       <div class="chart-card chart-card-wide">
-        <h3>🏆 Top {{ current.length }} — {{ METRIC_LABELS[activeMetric] }}</h3>
+        <h3>🏆 Top {{ current.length }} — {{ METRIC_LABELS[activeMetric] || activeMetric }}</h3>
         <BarChart v-if="current.length" :data="barData" :options="barOptions" />
-        <p v-else class="muted">Sem dados para este período.</p>
+        <p v-else class="muted">Sem dados para esta métrica no período {{ periodo }}.</p>
       </div>
 
       <table class="table" v-if="current.length">
         <thead>
           <tr>
             <th>#</th><th>Registro ANS</th><th>Operadora</th>
-            <th style="text-align:right">{{ METRIC_LABELS[activeMetric] }} (R$)</th>
+            <th style="text-align:right">{{ METRIC_LABELS[activeMetric] || activeMetric }} (R$)</th>
           </tr>
         </thead>
         <tbody>
@@ -53,10 +53,10 @@ defineEmits(['detail'])
 const data = ref(null)
 const loading = ref(false)
 const error = ref('')
-const activeMetric = ref('receita')
+const activeMetric = ref('sinistro')
 
 const METRIC_LABELS = {
-  receita: 'Receita', sinistro: 'Sinistros Assistenciais', patrimonio: 'Patrimônio Líquido',
+  sinistro: 'Sinistros Assistenciais', receita: 'Receita', patrimonio: 'Patrimônio Líquido',
   caixa: 'Caixa', lucro: 'Lucro',
 }
 
@@ -65,6 +65,11 @@ async function load() {
   error.value = ''
   try {
     data.value = await api.topRankings(props.periodo, 20)
+    const r = data.value?.rankings || {}
+    if (!r[activeMetric.value] || !r[activeMetric.value].length) {
+      const firstWithData = Object.keys(r).find(k => r[k]?.length > 0)
+      if (firstWithData) activeMetric.value = firstWithData
+    }
   } catch (e) {
     error.value = `Erro ao carregar Top 20: ${e.message}`
   } finally { loading.value = false }

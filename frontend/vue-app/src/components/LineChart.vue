@@ -1,9 +1,11 @@
 <template>
-  <canvas ref="chartCanvas"></canvas>
+  <div class="chart-wrapper">
+    <canvas ref="chartCanvas"></canvas>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { Chart, registerables } from 'chart.js'
 
 Chart.register(...registerables)
@@ -47,4 +49,21 @@ onMounted(() => {
 watch(() => props.data, () => {
   createChart()
 }, { deep: true })
+
+onBeforeUnmount(() => {
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+})
 </script>
+
+<style scoped>
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  min-height: 300px;
+  max-height: 450px;
+}
+</style>

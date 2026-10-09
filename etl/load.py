@@ -161,30 +161,20 @@ class ANSLoader:
         # nomes de colunas do banco são os mesmos do mapa (receita, lucro...)
         db_cols = set(dim["columns"].keys()) | {"registro_ans", "razao_social"}
 
+        import re
+
         coluna_map = {}
         for col in df.columns:
-            if col.startswith("gasto_") and col not in (
-                "gasto_total",
-                "gasto_total_2024",
-                "gasto_total_2023",
-            ):
-                trimestre = (
-                    col.replace("gasto_", "")
-                    .replace(periodo, "")
-                    .replace("2024", "")
-                    .replace("2023", "")
-                    .replace("2025", "")
-                    .replace("2026", "")
-                )
-                coluna_map[col] = f"gasto_{trimestre}"
+            m = re.search(r"([1-4]T)", col, re.IGNORECASE)
+            if m:
+                coluna_map[col] = f"gasto_{m.group(1).upper()}"
             elif col == "REG_ANS":
                 coluna_map[col] = "registro_ans"
             elif col == "RAZAO_SOCIAL":
                 coluna_map[col] = "razao_social"
-            elif col == "total":
-                coluna_map[col] = "gasto_total"
-            elif col.startswith("gasto_total_") and col[len("gasto_total_") :].isdigit():
-                # variante com sufixo de ano (ex.: gasto_total_2024 → gasto_total)
+            elif col in ("total", "gasto_total") or (
+                col.startswith("gasto_total_") and col[len("gasto_total_") :].isdigit()
+            ):
                 coluna_map[col] = "gasto_total"
 
         df = df.rename(columns=coluna_map)

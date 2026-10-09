@@ -238,41 +238,31 @@
           <div class="chart-card chart-card-wide">
             <h3>📊 Ranking de Gastos Anuais (R$ Bilhões) - {{ selectedYear }}</h3>
             <p class="chart-subtitle">Top 10 operadoras do período</p>
-            <div class="chart-container-wide">
-              <BarChart :data="barChartData" :options="barChartOptions" />
-            </div>
+            <BarChart :data="barChartData" :options="barChartOptions" />
           </div>
 
           <div class="chart-card">
             <h3>🎯 Market Share - {{ selectedYear }}</h3>
             <p class="chart-subtitle">Participação das Top 5 + Outras</p>
-            <div class="chart-container">
-              <PieChart :data="pieChartData" :options="pieChartOptions" />
-            </div>
+            <PieChart :data="pieChartData" :options="pieChartOptions" />
           </div>
 
           <div class="chart-card">
             <h3>📈 Evolução Anual dos Gastos</h3>
             <p class="chart-subtitle">Total de gastos assistenciais (R$ Bi)</p>
-            <div class="chart-container">
-              <BarChart :data="evolucaoAnualData" :options="evolucaoAnualOptions" />
-            </div>
+            <BarChart :data="evolucaoAnualData" :options="evolucaoAnualOptions" />
           </div>
 
           <div class="chart-card chart-card-wide">
             <h3>🔄 Comparação Temporal - Top 5 Operadoras</h3>
             <p class="chart-subtitle">Gastos por ano (R$ Bilhões)</p>
-            <div class="chart-container-wide">
-              <BarChart :data="comparacaoTemporalData" :options="comparacaoTemporalOptions" />
-            </div>
+            <BarChart :data="comparacaoTemporalData" :options="comparacaoTemporalOptions" />
           </div>
 
           <div class="chart-card chart-card-wide">
             <h3>📊 Análise de Concentração de Mercado - {{ selectedYear }}</h3>
             <p class="chart-subtitle">Percentual acumulado do Top 10</p>
-            <div class="chart-container-wide">
-              <BarChart :data="concentrationChartData" :options="concentrationChartOptions" />
-            </div>
+            <BarChart :data="concentrationChartData" :options="concentrationChartOptions" />
           </div>
         </div>
       </template>
@@ -498,8 +488,7 @@ const barChartOptions = computed(() => {
         grid: { color: c.border }
       },
       y: { ticks: { font: { size: 11 }, autoSkip: false, color: c.text }, grid: { color: c.border } }
-    },
-    maintainAspectRatio: true
+    }
   }
 })
 
@@ -528,8 +517,7 @@ const pieChartOptions = computed(() => {
     plugins: {
       legend: { position: 'right', labels: { font: { size: 11 }, padding: 12, boxWidth: 15, color: c.text } },
       tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}%` } }
-    },
-    maintainAspectRatio: true
+    }
   }
 })
 
