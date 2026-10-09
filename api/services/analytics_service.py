@@ -32,7 +32,7 @@ class AnalyticsService:
             reg = str(op.get("registro_ans", "")).strip()
             if reg:
                 meta[reg] = {
-                    "u": op.get("u") or "",
+                    "uf": op.get("uf") or op.get("u") or "",
                     "regiao": op.get("regiao_comercializacao") or "",
                     "modalidade": op.get("modalidade") or "",
                 }
@@ -170,7 +170,7 @@ class AnalyticsService:
         dim = get_dimension(dimension)
         db_cols = sorted(set(dim["columns"].keys()))
         select_cols = ["registro_ans", "razao_social"] + db_cols
-        sql = """
+        sql = f"""
             SELECT {", ".join(select_cols)}
             FROM gastos_assistenciais
             WHERE periodo = :periodo
@@ -208,7 +208,7 @@ class AnalyticsService:
                 "outlier": bool(outliers[i]),
             }
             meta = self.cadop_meta.get(row["registro_ans"], {})
-            row["u"] = meta.get("uf") or None
+            row["uf"] = meta.get("uf") or None
             row["regiao"] = meta.get("regiao") or None
             row["modalidade"] = meta.get("modalidade") or None
             rows.append(row)
@@ -249,7 +249,7 @@ class AnalyticsService:
         """5 sub-rankings (receita, sinistro, patrimônio, caixa, lucro)."""
         out = {}
         for name, col in self.TOP_METRICS.items():
-            sql = """
+            sql = f"""
                 SELECT registro_ans, razao_social, "{col}" AS valor
                 FROM gastos_assistenciais
                 WHERE periodo = :periodo AND "{col}" > 0
@@ -283,7 +283,7 @@ class AnalyticsService:
             """
             df = self._query_df(sql, {"periodo": periodo, "reg": registro_ans})
         else:
-            sql = """
+            sql = f"""
                 SELECT 'TOTAL' AS registro_ans, 'Consolidado' AS razao_social,
                        {', '.join(f'SUM("{q}") AS "{q}"' for q in quarters)},
                        SUM(gasto_total) AS gasto_total
@@ -323,14 +323,14 @@ class AnalyticsService:
             }
             else "gasto_total"
         )
-        sql = """
+        sql = f"""
             SELECT registro_ans, razao_social, "{safe_metric}" AS valor
             FROM gastos_assistenciais WHERE periodo = :periodo
         """
         df = self._query_df(sql, {"periodo": periodo})
         agg: dict = {}
         for _, r in df.iterrows():
-            uf = self.cadop_meta.get(str(r["registro_ans"]), {}).get("u", "") or "--"
+            uf = self.cadop_meta.get(str(r["registro_ans"]), {}).get("uf", "") or "--"
             e = agg.setdefault(
                 uf,
                 {
@@ -389,7 +389,7 @@ class AnalyticsService:
         meta = self.cadop_meta.get(registro_ans, {})
         return {
             "registro_ans": registro_ans,
-            "u": meta.get("uf") or None,
+            "uf": meta.get("uf") or None,
             "modalidade": meta.get("modalidade") or None,
             "history": history,
         }

@@ -16,10 +16,43 @@
         <button @click="loadDashboard" :class="{ active: view === 'dashboard' }">
           📈 Dashboard Analytics
         </button>
+        <!-- v1.2 — Novas abas contábeis (Fase 2) -->
+        <button @click="view = 'financeira'" :class="{ active: view === 'financeira' }">
+          🏦 Financeira
+        </button>
+        <button @click="view = 'operacional'" :class="{ active: view === 'operacional' }">
+          ⚙️ Operacional
+        </button>
+        <button @click="view = 'estrutura'" :class="{ active: view === 'estrutura' }">
+          🏗️ Estrutura
+        </button>
+        <!-- v1.2 — Análises avançadas (Fase 3) -->
+        <button @click="view = 'top20'" :class="{ active: view === 'top20' }">
+          🏆 Top 20
+        </button>
+        <button @click="view = 'trimestral'" :class="{ active: view === 'trimestral' }">
+          🔄 Trimestral
+        </button>
+        <button @click="view = 'regional'" :class="{ active: view === 'regional' }">
+          🗺️ Regional
+        </button>
         <button @click="view = 'admin'" :class="{ active: view === 'admin' }">
           ⚙️ Admin
         </button>
       </nav>
+
+      <!-- v1.2 — Seletor de ano + exportação global (F4.1/F4.2) -->
+      <div class="global-bar" v-if="!['search', 'admin'].includes(view)">
+        <label>Ano:
+          <select v-model="selectedYear" @change="onYearChange">
+            <option v-for="ano in availableYears" :key="ano" :value="ano">{{ ano }}</option>
+          </select>
+        </label>
+        <span class="spacer"></span>
+        <button class="btn-export" @click="downloadExport('pdf')">📥 PDF</button>
+        <button class="btn-export" @click="downloadExport('excel')">📥 Excel</button>
+        <button class="btn-ghost" @click="showUpload = true">📤 Upload CSV</button>
+      </div>
     </header>
 
     <!-- ABA: BUSCA -->
@@ -121,6 +154,39 @@
     <div v-if="view === 'admin'" class="card">
       <AdminPanel />
     </div>
+
+    <!-- v1.2 — ABAS CONTÁBEIS (Fase 2) -->
+    <div v-if="['financeira', 'operacional', 'estrutura'].includes(view)" class="card">
+      <DimensionView
+        :dim="view"
+        :periodo="selectedYear"
+        @export="downloadExport"
+        @detail="openTimeline"
+      />
+    </div>
+
+    <!-- v1.2 — TOP 20 (F3.1) -->
+    <div v-if="view === 'top20'" class="card">
+      <TopRankingsView :periodo="selectedYear" @detail="openTimeline" />
+    </div>
+
+    <!-- v1.2 — TRIMESTRAL (F3.2) -->
+    <div v-if="view === 'trimestral'" class="card">
+      <QuarterlyView :periodo="selectedYear" />
+    </div>
+
+    <!-- v1.2 — REGIONAL / HEAT MAP (F3.5) -->
+    <div v-if="view === 'regional'" class="card">
+      <RegionalHeatmap :periodo="selectedYear" />
+    </div>
+
+    <!-- v1.2 — MODAIS -->
+    <OperadoraTimelineModal
+      v-if="timelineOp"
+      :operadora="timelineOp"
+      @close="timelineOp = null"
+    />
+    <UploadCsvModal v-if="showUpload" @close="showUpload = false" />
 
     <!-- ABA: DASHBOARD -->
     <div v-if="view === 'dashboard'" class="dashboard">
@@ -226,8 +292,29 @@ import TreemapChart from './components/TreemapChart.vue'
 import YearBadge from './components/YearBadge.vue'
 import AcademicDisclaimer from './components/AcademicDisclaimer.vue'
 import YearTimeline from './components/YearTimeline.vue'
+// v1.2 — novos componentes (Fases 2-4)
+import DimensionView from './components/DimensionView.vue'
+import TopRankingsView from './components/TopRankingsView.vue'
+import QuarterlyView from './components/QuarterlyView.vue'
+import RegionalHeatmap from './components/RegionalHeatmap.vue'
+import OperadoraTimelineModal from './components/OperadoraTimelineModal.vue'
+import UploadCsvModal from './components/UploadCsvModal.vue'
+import { api } from './api'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+
+// v1.2 — estado global de modais/export
+const showUpload = ref(false)
+const timelineOp = ref(null)
+
+function openTimeline(row) {
+  timelineOp.value = { registro_ans: row.registro_ans, razao_social: row.razao_social }
+}
+
+function downloadExport(kind) {
+  // abre o endpoint de download do backend em nova aba (Content-Disposition attachment)
+  window.open(api.exportUrl(kind, selectedYear.value), '_blank')
+}
 
 const view = ref('search')
 const query = ref('')
@@ -622,6 +709,8 @@ async function onYearChange() {
 
   if (view.value === 'ranking') await loadRanking()
   else if (view.value === 'dashboard') await loadDashboard()
+  // v1.2: abas novas (financeira/operacional/estrutura/top20/trimestral/regional)
+  // reagem à mudança de selectedYear via watch interno dos próprios componentes.
 }
 
 async function loadRanking() {
@@ -656,6 +745,18 @@ async function loadDashboard() {
 </script>
 
 <style scoped>
+/* v1.2 — barra global de ano + exportação */
+.global-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-top: 10px; padding: 8px 0;
+}
+.global-bar label { font-size: 13px; font-weight: 600; }
+.global-bar select { padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+.global-bar .spacer { flex: 1; }
+.btn-export { background: #1f4d3a; color: #fff; border: none; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-export:hover { opacity: .9; }
+.btn-ghost { background: transparent; border: 1px solid #cbd5e1; padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+
 .ranking-header {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
