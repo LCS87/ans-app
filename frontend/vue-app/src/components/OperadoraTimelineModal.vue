@@ -7,7 +7,7 @@
             <h3>📜 Timeline Histórica — {{ operadora.razao_social }}</h3>
             <p class="muted small">
               Registro ANS {{ operadora.registro_ans }}
-              <span v-if="info.u"> · UF {{ info.u }}</span>
+              <span v-if="info.uf"> · UF {{ info.uf }}</span>
               <span v-if="info.modalidade"> · {{ info.modalidade }}</span>
             </p>
           </div>

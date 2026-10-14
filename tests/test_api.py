@@ -119,7 +119,7 @@ class TestRegional:
     def test_heat_map_por_uf(self, client):
         r = client.get("/api/v1/regional?periodo=2024")
         data = r.json()
-        ufs = {u["u"]: u for u in data["ufs"]}
+        ufs = {u["uf"]: u for u in data["ufs"]}
         assert ufs["SP"]["operadoras"] == 2
         assert ufs["SP"]["valor"] == 9900.0
         assert ufs["RJ"]["valor"] == 700.0
@@ -148,7 +148,7 @@ class TestSummaryHistory:
         data = r.json()
         periods = [h["periodo"] for h in data["history"]]
         assert periods == ["2023", "2024"]
-        assert data["u"] == "SP"
+        assert data["uf"] == "SP"
 
     def test_history_desconhecido_404(self, client):
         r = client.get("/api/v1/operadoras/999999/history")

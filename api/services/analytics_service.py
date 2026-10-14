@@ -32,7 +32,8 @@ class AnalyticsService:
             reg = str(op.get("registro_ans", "")).strip()
             if reg:
                 meta[reg] = {
-                    "uf": op.get("uf") or op.get("u") or "",
+                    # contrato v1.2: CADOP expõe "uf"; "u" é alias legado tolerado
+                    "uf": op.get("uf") or op.get("u", "") or "",
                     "regiao": op.get("regiao_comercializacao") or "",
                     "modalidade": op.get("modalidade") or "",
                 }
