@@ -232,19 +232,19 @@ def client(seeded_db):
             return [
                 {
                     "registro_ans": "111111",
-                    "u": "SP",
+                    "uf": "SP",
                     "regiao_comercializacao": "Sudeste",
                     "modalidade": "Cooperativa Médica",
                 },
                 {
                     "registro_ans": "222222",
-                    "u": "RJ",
+                    "uf": "RJ",
                     "regiao_comercializacao": "Sudeste",
                     "modalidade": "Autogestão",
                 },
                 {
                     "registro_ans": "333333",
-                    "u": "SP",
+                    "uf": "SP",
                     "regiao_comercializacao": "Sudeste",
                     "modalidade": "Cooperativa Médica",
                 },
