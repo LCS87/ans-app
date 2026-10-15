@@ -165,7 +165,7 @@ const barOptions = computed(() => ({
 <style scoped>
 .filters { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin-bottom: 16px; }
 .filters label { display: flex; flex-direction: column; font-size: 12px; color: var(--text-muted, #64748b); gap: 4px; }
-.filters select { padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; min-width: 140px; }
+.filters select { padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; min-width: 140px; color: #374151; }
 .spacer { flex: 1; }
 .btn-export { background: #1f4d3a; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-export:hover { opacity: .9; }
