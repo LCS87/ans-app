@@ -24,13 +24,11 @@ Aplicação full-stack de **Business Intelligence** para dados abertos da Agênc
 
 ## 📸 Screenshots
 
-![Dashboard Analytics](assets/img001.png)
-
-![Busca de Operadoras](assets/img002.png)
-
-![Comparativo e Temas](assets/img003.png)
-
+## V 1.0
 ![Demonstração da Aplicação](assets/ANS-app.gif)
+
+## V 2.0
+![Demonstração da Aplicação](assets/ANS-V2.0.gif)
 
 ---
 
