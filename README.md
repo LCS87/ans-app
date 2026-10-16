@@ -30,7 +30,7 @@ Aplicação full-stack de **Business Intelligence** para dados abertos da Agênc
 ### V 1.0 — Busca e Dashboard Inicial
 ![Demonstração da Aplicação v1.0](assets/ANS-app.gif)
 
-### V 2.0 — Timeline Plurianual e Temas Institucionais
+### V 1.2 — Timeline Plurianual e Temas Institucionais
 ![Demonstração da Aplicação v2.0](assets/ANS-V2.0.gif)
 
 ---
