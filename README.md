@@ -6,6 +6,23 @@ Aplicação full-stack de **Business Intelligence** para os dados abertos da Ag�
 
 ---
 
+## 📚 Índice
+
+| # | Seção | O que você encontra |
+| :--: | :--- | :--- |
+| 1 | [Sumário Executivo](#-sumário-executivo) | O que mudou desde a v1.2 e por quê |
+| 2 | [Funcionalidades Principais](#-funcionalidades-principais) | Os 14 recursos do dashboard, um a um |
+| 3 | [Metodologia Contábil](#-metodologia-contábil) | Do CSV bruto ao número na tela: parse, deduplicação, Método D, mapeamento, gate e reconciliação |
+| 4 | [Limitações Conhecidas & Rigor Acadêmico](#-limitações-conhecidas--rigor-acadêmico) | O que este projeto **não** afirma |
+| 5 | [Tecnologias Utilizadas](#-tecnologias-utilizadas) | Stack de backend, frontend e infraestrutura |
+| 6 | [Como Executar Localmente](#-como-executar-localmente) | Setup ponta a ponta |
+| 7 | [Referência da API](#-referência-da-api-v13) | Todos os endpoints |
+| 8 | [Testes Automatizados](#-testes-automatizados--qualidade) | Suíte, cobertura e o que ela protege |
+| 9 | [Estrutura do Repositório](#-estrutura-do-repositório) | Mapa das pastas |
+| 10 | [Cronograma & Próximos Passos](#-cronograma--próximos-passos) | O que foi feito, o que falta e por quê |
+
+---
+
 ## 📋 Sumário Executivo
 
 | Métrica / Recurso | Antes (v1.2) | Atual |
@@ -21,7 +38,7 @@ Aplicação full-stack de **Business Intelligence** para os dados abertos da Ag�
 
 ### A correção que mudou a série inteira
 
-Em(setembro–outubro de 2026) a auditoria do pipeline revelou que **os valores da ANS chegam em formato brasileiro** (`30.941.701.628,46`) e o ETL os lia com `pd.to_numeric(...)` **sem `decimal=","`**. Resultado: todo valor com centavos virava **zero**.
+Em **setembro–outubro de 2026** a auditoria do pipeline revelou que **os valores da ANS chegam em formato brasileiro** (`30.941.701.628,46`) e o ETL os lia com `pd.to_numeric(...)` **sem `decimal=","`**. Resultado: todo valor com centavos virava **zero**.
 
 O efeito não era "2024 com lacuna da ANS": era **decimais perdidos**, ano a ano.
 
@@ -116,15 +133,54 @@ Claro (Azul), Escuro (Azul), Gold Institucional e Night Institucional, com persi
 
 ## 🧮 Metodologia Contábil
 
+### 0. Fluxo do dado (linhagem): do CSV bruto ao número na tela
+
+```
+dadosabertos.ans.gov.br
+        │  4 ZIPs por ano (1T..4T) + relatorio_cadop.csv
+        ▼
+  etl/download.py ──── resiliente (httpx + tenacity), pula o que já existe
+        ▼
+  etl/extract.py  ──── 1) lê com decimal="," / thousands="."   (P0-1)
+        │              2) canonicaliza REG_ANS (6 dígitos)     (P0-3)
+        │              3) deduplica: último valor não-zero por conta
+        │              4) aplica o Método D por ramo de conta (P0-4)
+        ▼
+  etl/pipeline.py ───  mescla as 4 dimensões em 1 linha por operadora
+        │              roda o gate de qualidade (8 checks)      (P0-5)
+        ▼
+  etl/load.py     ───  UPSERT idempotente + cadastro de operadoras
+        ▼
+  MySQL (gastos_assistenciais)  ──►  api/services/analytics_service.py
+                                              ▼
+                                    FastAPI  ──►  Vue 3  (Chart.js)
+```
+
+Cada etapa é determinística: o mesmo conjunto de ZIPs produz exatamente a mesma linha na tabela.
+
 ### 1. Leitura do dado (P0-1): parse brasileiro
 
 Os arquivos abertos da ANS gravam `VL_SALDO_FINAL` no formato brasileiro (`1.234.567,89`). O ETL agora lê com `decimal=","`, `thousands="."` e um parser próprio (`etl/normalization.py`) que também cobre negativos, parênteses, `R$`, valores vazios e separador ambíguo (`1.234` = milhar; `1234.56` = decimal).
+
+| Entrada | Saída |
+| :--- | ---: |
+| `30.941.701.628,46` | `30941701628.46` |
+| `1.234,56` | `1234.56` |
+| `1,234.56` | `1234.56` |
+| `1.234` *(milhar)* | `1234` |
+| `1234.56` *(decimal)* | `1234.56` |
+| `(1.234,56)` | `-1234.56` |
+| `1.234,56-` | `-1234.56` |
+| `R$ 1.234,56` | `1234.56` |
+| *(vazio)* / `NaN` | `0.0` |
 
 > Um único teste de regressão com a linha real `30.941.701.628,46 → 30941701628.46` teria evitado semanas de discussão sobre "lacuna da ANS" e "Método D".
 
 ### 2. Identidade da operadora (P0-3): `REG_ANS` canônico
 
 `REG_ANS` chega com ou sem zeros à esquerda (`5711` × `005711`). Hoje **todas** as camadas usam a mesma chave de 6 dígitos: extração, CADOP, carga (UPSERT), serviços de analytics, busca e endpoints. O loader rejeita linhas sem registro válido em vez de criar a "operadora 000000".
+
+Consequência prática: `GET /api/v1/operadoras/5711` e `GET /api/v1/operadoras/005711` retornam a **mesma** operadora, e o cruzamento entre o CADOP e as demonstrações não perde registros por diferença de formato.
 
 ### 3. Agregação (P0-4): Método D (híbrido) por ramo
 
@@ -141,6 +197,10 @@ Comparação entre as três estratégias (2025, mercado):
 | A — só folhas | R$ 282,17 Bi | ok, mas perde quem só publica a sintética |
 | B — só raízes | R$ 282,17 Bi | ok, mas perde quem só publica as analíticas |
 | **D — híbrido** | **R$ 282,17 Bi** | convergem; **C** (pai + filho) infla para R$ 1.975,50 Bi |
+
+> **Por que a complexidade do D se justifica:** A, B e D convergem no total do mercado, mas **não por operadora**. Existem operadoras que publicam a conta sintética (`41`) e outras só as analíticas (`411xx`); a estratégia A zera as primeiras, a B zera as outras. O híbrido entrega o total **de cada** operadora.
+
+**Regra de consolidação anual.** A ANS publica o **saldo de fechamento** de cada trimestre (e não o fluxo do trimestre). Para a série anual, o ETL usa o **último valor não-zero de cada conta**, priorizando o último trimestre publicado; quando a mesma conta aparece em duas publicações dentro do mesmo trimestre, vence a de **data mais recente**. É a regra que transforma um arquivo de saldos acumulados em um número anual comparável.
 
 ### 4. Mapeamento por dimensão (P1): o plano de contas real
 
@@ -191,34 +251,60 @@ O check 8 é o que teria barrado a série corrompida: 2024/2023 = 0,10 → bloqu
 
 ### 6. Reconciliação com o bruto
 
-`python scripts/auditar_serie.py` recalcula os agregados a partir dos CSV e compara com o banco:
+`python scripts/auditar_serie.py` recalcula os agregados a partir dos CSV e compara com o banco. Resultado da última execução (2023–2026):
 
-| Conta (2025) | Bruto | Banco | Diferença |
-| :--- | ---: | ---: | ---: |
-| Receita (`31`) | 355,71 Bi | 355,40 Bi | 0,085% |
-| Sinistros (`41`) | 282,17 Bi | 282,17 Bi | 0,001% |
-| Ativo (`1`) | 306,95 Bi | 307,58 Bi | 0,205% |
-| Passivo circulante (`21`) | 104,30 Bi | 104,59 Bi | 0,272% |
-| Resultado (`3 - 4 - 61`) | 24,43 Bi | 24,43 Bi | 0,008% |
-| Patrimônio (`25`) | 148,52 Bi | 153,67 Bi | 3,47% |
+| Conta | 2023 | 2024 | 2025 | 2026 |
+| :--- | ---: | ---: | ---: | ---: |
+| Receita (`31`) | 0,056% | 0,005% | 0,085% | 0,000% |
+| Sinistros (`41`) | 0,000% | 0,000% | 0,001% | 0,000% |
+| Ativo (`1`) | 0,203% | 0,203% | 0,205% | 0,215% |
+| Passivo circulante (`21`) | ~0,2% | ~0,2% | 0,272% | ~0,2% |
+| Resultado (`3 - 4 - 61`) | 0,243% | 0,027% | 0,008% | 0,001% |
+| Patrimônio (`25`) | 0,991% | 2,233% | 3,472% | 0,345% |
 
-A diferença no patrimônio é o próprio Método D: para operadoras que não publicam a conta sintética `25`, o híbrido soma as folhas analíticas.
+A diferença no patrimônio é o próprio Método D: para operadoras que não publicam a conta sintética `25`, o híbrido soma as folhas analíticas — resultado **mais próximo** do balanço real do que a raiz isolada.
+
+### 7. Reprodutibilidade e determinismo
+
+| Garantia | Como é garantida |
+| :--- | :--- |
+| Mesmos ZIPs ⇒ mesma tabela | Nenhuma etapa usa `random`, `now()` ou relógio na transformação; o `etl_executions` grava o histórico sem influenciar o dado |
+| Carga idempotente | `UPSERT` por `(periodo, registro_ans)` + remoção apenas das operadoras ausentes do novo conjunto |
+| Nenhuma "operadora 000000" | `REG_ANS` vazio ou inválido **rejeita** a carga (antes criava uma linha fantasma) |
+| Nenhuma dupla contagem | Deduplicação por conta/trimestre + Método D (folhas **ou** raiz, nunca as duas) |
+| Número publicável auditado | `scripts/auditar_serie.py` reconcilia banco × bruto a qualquer momento |
 
 ---
 
 ## ⚠️ Limitações Conhecidas & Rigor Acadêmico
 
 ### Delimitação temporal
-A série cobre **2023, 2024 e 2025** completos e **2026 parcial** (1T + 2T — a ANS ainda não publicou 3T/4T de 2026). O badge `⚠️ Parcial` aparece no seletor de período.
+A série cobre **2023, 2024 e 2025** completos e **2026 parcial** (1T + 2T — a ANS ainda não publicou 3T/4T de 2026). O badge `⚠️ Parcial` aparece no seletor de período. **Comparações ano a ano entre 2026 e os demais não são válidas**: 2026 é um exercício incompleto.
 
 ### Natureza do dado
-- A base é a **demonstração contábil quarterly publicada pela ANS**, com o valor de fechamento de cada trimestre (saldos acumulados, não fluxo trimestral).
+- A base é a **demonstração contábil quarterly publicada pela ANS**, com o valor de fechamento de cada trimestre (saldos acumulados, **não** fluxo trimestral).
 - Nem toda operadora publica todas as contas: quando uma conta falta, a métrica correspondente é **zero**, não "desconhecida". Rankings por métrica específica consideram apenas quem tem valor.
-- O **Método D** é uma regra de consolidação sobre a árvore de contas da ANS, não um procedimento oficial da ANS. A reconciliação com o bruto (item 6) é a evidência de que a distorção é pequena (< 0,3% nas contas agregadas).
+- O **Método D** é uma regra de consolidação sobre a árvore de contas da ANS, **não** um procedimento oficial da ANS. A reconciliação com o bruto (item 6) é a evidência de que a distorção é pequena (< 0,3% nas contas agregadas).
 - A identidade contábil `1 = 21 + 23 + 25` fecha exatamente para a maioria das operadoras; resíduo nas demais reflete assimetria de publicação (patrimônio de um trimestre, resultado de outro).
+
+### Limitações do resultado do exercício
+- O `lucro` é o resultado **anual** (`3 - 4 - 61`), não um fluxo trimestral. A ANS publica o fechamento acumulado de cada trimestre; para obter o resultado de um trimestre isolado seria necessário usar as demonstrações **parciais** (1T, 2T, 3T), que a ANS só disponibiliza para o exercício corrente.
+- A série de resultado reflete o momento do setor (2023: R$ 2,93 Bi; 2024: R$ 11,01 Bi; 2025: R$ 24,43 Bi). A variação entre anos é **real no dado**, mas exige cautela ao comparar exercícios com regras de provisionamento (provisões técnicas) muito distintas.
+
+### Limitações operacionais
+- O cadastro vem do **CADOP da ANS** (1.106 operadoras ativas no momento da carga). Operadoras que saíram do cadastro antes do período analisado não aparecem, mesmo que tenham publicado demonstrações.
+- A ANS **republica** demonstrações corrigidas. O ETL fica com o **último** valor publicado por conta; não há histórico de versões nem trilha de auditoria das republicações.
+- O pipeline processa ~3 milhões de linhas por ano; a memória é o limite real de execução (o ETL reduz cada trimestre a uma linha por conta antes de concatenar).
+- O `git` do repositório foi **reescrito** para remover artefatos pesados do histórico (`.venv`, dados brutos da ANS, logs): os commits antigos têm hashes diferentes dos publicados anteriormente.
 
 ### Ausência de "lacuna ANS 2024"
 Não há evidência de lacuna de publicação em 2024: os totais de 2024 refletem a série completa do `4T2024.csv`. A alegação anterior foi removida do código, do README e da interface.
+
+### O que este projeto **não** é
+- **Não é** uma projeção, previsão ou cenário de resultado.
+- **Não é** uma classificação de risco, solvência ou rating de operadora.
+- **Não substitui** a leitura das demonstrações pela ANS nem a análise de um contador.
+- **Não** afirma que os totais aqui reproduzem qualquer número oficial da ANS: a ANS publica por operadora e por conta, não por ramos agregados — o Método D é uma consolidação própria, reconciliada com o bruto e documentada.
 
 ---
 
@@ -386,22 +472,53 @@ ans-app/
 ├── db/mysql/01_ddl.sql           # Schema (inclui FK para `operadoras`)
 ├── docker/                       # Compose (MySQL, Redis, backend, frontend)
 ├── tests/                        # 127 testes (pytest)
-├── requirements.txt / requirements.prod.txt
-├── pytest.ini
+├── requirements.txt              # Ambiente completo (dev + runtime)
+├── requirements.prod.txt         # Runtime enxuto (Docker)
+├── pyproject.toml                # black/isort (linha 100) e config do pytest
+├── .flake8 / pytest.ini
+├── cronograma.md                 # Roadmap detalhado (F1–F5 + Fase 0)
 └── README.md
 ```
 
-> **Artefatos fora do Git** (`.gitignore`): ambiente virtual, dados brutos e processados da ANS (~1 GB), dumps de banco em `backups/`, logs, `.env` e cobertura.
+> **Artefatos fora do Git** (`.gitignore`): ambiente virtual, dados brutos e processados da ANS (~1 GB), dumps de banco em `backups/`, logs, `.env` e cobertura. O histórico do repositório também foi reescrito (`git filter-repo`) para retirar esses artefatos dos commits antigos — **os hashes antigos não existem mais no GitHub**.
 
 ---
 
-## 🗺️ Próximos Passos
+## 🗺️ Cronograma & Próximos Passos
 
-1. **🚀 Deploy em nuvem (Render/Railway)** — `render.yaml` servindo backend FastAPI + `dist/` do frontend.
-2. **📊 Observabilidade (Prometheus + Grafana)** — endpoint `/metrics` com `prometheus-fastapi-instrumentator` e 4 dashboards.
-3. **🔌 WebSocket de progresso do ETL** — feedback visual em tempo real durante o pipeline.
-4. **🧪 Smoke-test E2E no navegador** — percorrer as 8 abas e validar os downloads.
-5. **📐 Escopo plurianual do resultado** — o `lucro` é o resultado **anual**; um fluxo trimestral (1T–4T) exige as demonstrações parciais (1T/2T/3T), que a ANS publica apenas para o exercício corrente.
+### Fase 0 — Correção da série e do mapeamento contábil ✅ (Out/2026)
+
+Antes de qualquer funcionalidade nova, a auditoria do dado bruto mostrou que a série inteira estava corrompida. Esta fase está **concluída**.
+
+| ID | Correção | Entrega | Estado |
+| :--- | :--- | :--- | :--- |
+| P0-1 | Parse brasileiro (`decimal=","`) + parser próprio | 2024: R$ 19,57 Bi → **R$ 261,18 Bi** | ✅ |
+| P0-3 | `REG_ANS` canônico (6 dígitos) em todas as camadas | 0 duplicatas; `5711` ≡ `005711` | ✅ |
+| P0-4 | Carga multi-dimensão + UPSERT sem DELETE cego + sync do cadastro | 4 dimensões com **dados reais** | ✅ |
+| P0-5 | Gate de qualidade com falha fechada | A série corrompida seria barrada pelo check 8 | ✅ |
+| P1 | Mapeamento conferido contra o DOC 275 | `25` = PL, `12` ≠ caixa, `21/23` = passivo, `69` = apuração | ✅ |
+| P1.1 | Reconciliação banco × bruto | `scripts/auditar_serie.py` (< 0,3% nas contas agregadas) | ✅ |
+| P1.2 | 2023 reintegrado; "lacuna 2024" removida | Série contínua 2023–2026 | ✅ |
+| P1.3 | Higiene do repositório | `.git` de 458 MB → **55 MB** (histórico reescrito) | ✅ |
+
+### Roadmap original (F1–F5)
+
+| Fase | Escopo | Itens | Estado |
+| :--- | :--- | :--- | :--- |
+| **F1** | Qualidade & testes | Método D coberto, gate de qualidade, contrato REST, integração SQLite | ✅ Concluída (127 testes, 74,8%) |
+| **F2** | Novas abas contábeis | Financeira, Operacional, Estrutura; multi-prefixo; schema expandido | ✅ Concluída (com dados reais) |
+| **F3** | Análises avançadas | Top 20 multi-métrica, trimestral 1T–4T, outliers IQR, filtros cruzados, heatmap 27 UFs | ✅ Concluída |
+| **F4** | Exportação & relatórios | PDF institucional, Excel multi-abas, upload CSV, timeline por operadora | ✅ Concluída |
+| **F5** | CI/CD & deploy | GitHub Actions (lint + gate + integração + Docker), Dockerfile multi-stage | 🟡 Parcial — falta o deploy público |
+
+### Backlog priorizado
+
+1. **🚀 Deploy em nuvem (Render/Railway)** — `render.yaml` servindo o backend FastAPI + o `dist/` do frontend, com o MySQL gerenciado. *Alta prioridade: é o que falta para o link público no currículo.*
+2. **📊 Observabilidade (Prometheus + Grafana)** — endpoint `/metrics` com `prometheus-fastapi-instrumentator` e 4 dashboards (RPS/latência, taxa de erros, status do ETL, cache). O esqueleto de containers já existe em `docker-compose.monitoring.yml`.
+3. **🔌 WebSocket de progresso do ETL** — `/ws/etl-progress` para feedback visual durante o download e a carga.
+4. **🧪 Smoke-test E2E no navegador** — percorrer as 8 abas e validar os downloads de PDF/Excel.
+5. **📐 Resultado trimestral** — o `lucro` é anual; o fluxo 1T–4T exige as demonstrações parciais (1T/2T/3T), que a ANS só disponibiliza para o exercício corrente.
+6. **🧾 Trilha de republicações** — guardar o histórico de versões publicadas pela ANS por conta, para auditar correções retroativas.
 
 ---
 

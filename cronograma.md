@@ -1,4 +1,9 @@
 Cronograma de Implementação — ANS Intelligence v1.2
+
+> **Status atual (Out/2026):** F1–F4 concluídas · F5 parcial (falta o deploy público).
+> A tabela de status e o backlog priorizado ficam no [README](README.md#-cronograma--próximos-passos).
+> Este arquivo guarda o **detalhamento** de cada tarefa do roadmap original.
+
 🎯 Visão Geral
 Dividi as 15 tarefas do roadmap em 5 fases com duração estimada de 12 a 16 semanas (considerando dedicação parcial, ~15-20h/semana).
 
