@@ -142,8 +142,6 @@ async def _run_pipeline_background():
 @router.post("/run-update", response_model=RunUpdateResponse)
 async def trigger_update(background_tasks: BackgroundTasks):
     """Dispara atualização manual (endpoint antigo)."""
-    global _update_running
-
     if _update_running:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Atualização já em execução"

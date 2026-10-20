@@ -53,7 +53,7 @@
             <th>Operadora</th>
             <th>UF</th>
             <th v-for="col in columns" :key="col" style="text-align:right">{{ labelFor(col) }}</th>
-            <th v-for="agg in aggregateNames" :key="agg" style="text-align:right">{{ agg }}</th>
+            <th v-for="agg in aggregateNames" :key="agg" style="text-align:right">{{ aggLabelFor(agg) }}</th>
           </tr>
         </thead>
         <tbody>
@@ -86,6 +86,7 @@ import { api, fmtCompact, fmtPercent } from '../api'
 const props = defineProps({
   dim: { type: String, required: true },       // financeira | operacional | estrutura
   periodo: { type: String, required: true },
+  chartPalette: { type: Array, required: true },
 })
 defineEmits(['export', 'detail'])
 
@@ -108,17 +109,26 @@ const primaryCol = computed(() => columns.value[0])
 const primaryLabel = computed(() => labelFor(primaryCol.value))
 
 const LABELS = {
-  receita: 'Receita (31)', lucro: 'Lucro (25)', patrimonio: 'Patrimônio Líquido (256)',
-  caixa: 'Caixa (12)', obrigacoes_trabalhistas: 'Obrigações (21)', fornecedores: 'Fornecedores (23)',
-  sinistros: 'Sinistros (41)', dividas: 'Dívidas (21+23)',
+  receita: 'Receita c/ Planos (31)', lucro: 'Lucro/Prejuízo (69)', patrimonio: 'Patrimônio Líquido (25)',
+  caixa: 'Caixa e Investimentos (121+122)', passivo_circulante: 'Passivo Circulante (21)',
+  passivo_nao_circulante: 'Passivo Não Circulante (23)', ativo_total: 'Ativo Total (1)',
+  sinistros: 'Sinistros (41)', passivo_total: 'Passivo Total (21+23)',
   despesas_administrativas: 'Despesas Adm. (46)', pessoal: 'Pessoal (461)',
-  judiciais: 'Judiciais (468)', provisoes: 'Provisões (44)', glosas: 'Glosas',
+  servicos_terceiros: 'Serviços de Terceiros (462)', localizacao_funcionamento: 'Locação e Funcionamento (463)',
+  publicidade: 'Publicidade (464)', tributos_operacionais: 'Tributos (465)', multas: 'Multas (466)',
+  adm_diversas: 'Adm. Diversas (468)', outras_despesas_operacionais: 'Outras Despesas Oper. (44)',
+  provisoes_tecnicas: 'Provisões Técnicas (211+231)',
   investimentos: 'Investimentos (132)', imobilizado: 'Imobilizado (133)',
   intangivel: 'Intangível (134)', goodwill: 'Goodwill', it_softwares: 'TI/Softwares',
   gasto_total: 'Gastos Assistenciais (41)',
 }
 function labelFor(col) { return LABELS[col] || col }
-
+const AGG_LABELS = {
+  sinistralidade: 'Sinistralidade',
+  endividamento: 'Endividamento',
+  margem_lucro: 'Margem de Lucro',
+}
+function aggLabelFor(col) { return AGG_LABELS[col] || col }
 const modalidades = ['Medicina de Grupo', 'Cooperativa Médica', 'Odontologia de Grupo', 'Autogestão', 'Filantropia', 'Empresa Comercial de Planos de Assistência à Saúde']
 const ufs = ['SP', 'RJ', 'MG', 'RS', 'PR', 'SC', 'BA', 'DF', 'ES', 'GO', 'PE', 'CE', 'PA', 'AM', 'PB', 'RN', 'AL', 'MA', 'MT', 'MS', 'SE', 'PI', 'TO', 'RO', 'AC', 'AP', 'RR']
 const regioes = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul']
@@ -150,7 +160,9 @@ const barData = computed(() => {
     datasets: [{
       label: primaryLabel.value,
       data: top.map(r => Number(((r.valores[primaryCol.value] || 0) / 1e6).toFixed(1))),
-      backgroundColor: top.map(r => (r.outlier ? '#f87171' : '#3b82f6')),
+      backgroundColor: top.map((_, index) => props.chartPalette[index % props.chartPalette.length]),
+      borderColor: top.map((_, index) => props.chartPalette[index % props.chartPalette.length]),
+      borderWidth: 2,
       borderRadius: 4,
     }],
   }

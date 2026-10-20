@@ -226,7 +226,22 @@ Redis:           localhost:6379
 
 # Pipeline ETL
 py -c "from etl.cleanup import cleanup_old_files; cleanup_old_files()"
-py -m etl.pipeline
+
+# Carga por ano (o gate de qualidade bloqueia a carga se algo estiver errado)
+py -m etl.pipeline --ano 2023
+py -m etl.pipeline --ano 2024
+py -m etl.pipeline --ano 2025
+py -m etl.pipeline --ano 2026
+py -m etl.pipeline --anos 2023,2024,2025
+
+# Reconciliar o banco com o CSV bruto da ANS (contas de nível 1/2)
+py scripts/auditar_serie.py --anos 2023,2024,2025,2026
+
+# Migrar o schema contábil (novas colunas / remover obsoletas)
+py scripts/migrate_v12.py
+
+# Seed sintético (somente CI/testes; não grava sobre dados reais)
+py scripts/seed_ci.py
 
 # Admin / Monitoring
 py -m uvicorn api.main:app --reload

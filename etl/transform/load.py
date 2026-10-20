@@ -131,10 +131,10 @@ class ANSLoader:
                 for _, row in chunk.iterrows():
                     conn.execute(
                         text("""
-                            INSERT INTO gastos_assistenciais 
-                                (periodo, registro_ans, razao_social, 
+                            INSERT INTO gastos_assistenciais
+                                (periodo, registro_ans, razao_social,
                                  gasto_1T, gasto_2T, gasto_3T, gasto_4T, gasto_total)
-                            VALUES 
+                            VALUES
                                 (:periodo, :registro_ans, :razao_social,
                                  :gasto_1T, :gasto_2T, :gasto_3T, :gasto_4T, :gasto_total)
                             ON DUPLICATE KEY UPDATE
@@ -175,10 +175,10 @@ class ANSLoader:
             # Top 5
             result = conn.execute(
                 text("""
-                    SELECT registro_ans, razao_social, gasto_total 
-                    FROM gastos_assistenciais 
-                    WHERE periodo = :periodo 
-                    ORDER BY gasto_total DESC 
+                    SELECT registro_ans, razao_social, gasto_total
+                    FROM gastos_assistenciais
+                    WHERE periodo = :periodo
+                    ORDER BY gasto_total DESC
                     LIMIT 5
                 """),
                 {"periodo": periodo},
@@ -232,7 +232,7 @@ async def main():
     print("=" * 80)
     print(f"📊 Registros na tabela: {validacao['total_registros']:,}")
     print(f"💰 Soma de gastos: R$ {validacao['soma_gastos']:,.2f}")
-    print(f"\n🏆 TOP 5 NO BANCO:")
+    print("\n🏆 TOP 5 NO BANCO:")
     for i, row in enumerate(validacao["top5"], 1):
         print(f"   {i}. {row['razao_social'][:50]:<50} | R$ {row['gasto_total']:>15,.2f}")
     print("=" * 80)

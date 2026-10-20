@@ -47,7 +47,10 @@ import BarChart from './BarChart.vue'
 import SkeletonChart from './SkeletonChart.vue'
 import { api, fmtCompact } from '../api'
 
-const props = defineProps({ periodo: { type: String, required: true } })
+const props = defineProps({
+  periodo: { type: String, required: true },
+  chartColor: { type: String, required: true },
+})
 defineEmits(['detail'])
 
 const data = ref(null)
@@ -57,7 +60,7 @@ const activeMetric = ref('sinistro')
 
 const METRIC_LABELS = {
   sinistro: 'Sinistros Assistenciais', receita: 'Receita', patrimonio: 'Patrimônio Líquido',
-  caixa: 'Caixa', lucro: 'Lucro',
+  caixa: 'Caixa e Equivalentes', lucro: 'Lucro/Prejuízo',
 }
 
 async function load() {
@@ -83,7 +86,7 @@ const barData = computed(() => ({
   datasets: [{
     label: METRIC_LABELS[activeMetric.value],
     data: current.value.map(r => Number(((r.valor || 0) / 1e6).toFixed(1))),
-    backgroundColor: '#7c3aed',
+    backgroundColor: props.chartColor,
     borderRadius: 4,
   }],
 }))
@@ -96,8 +99,9 @@ const barOptions = computed(() => ({
 
 <style scoped>
 .metric-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-.metric-tabs button { padding: 8px 16px; border-radius: 999px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 500; }
-.metric-tabs button.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.metric-tabs button { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-primary); cursor: pointer; font-weight: 500; }
+.metric-tabs button:hover { background: var(--bg-hover); }
+.metric-tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .alert { background: #fef2f2; color: #b91c1c; padding: 10px 14px; border-radius: 8px; }
 .num { text-align: right; font-family: monospace; font-weight: 600; }
 .mono { font-family: monospace; }

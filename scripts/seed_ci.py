@@ -6,10 +6,15 @@ Popula `operadoras` (CADOP) e `gastos_assistenciais` (todas as dimensões
 contábeis: gastos, financeira, operacional, estrutura) com dados determinísticos
 para que os testes de integração contra MySQL real tenham conteúdo consistente.
 
+ATENÇÃO: estes dados são SINTÉTICOS e servem apenas para CI/testes. O banco
+de desenvolvimento é populado pelo ETL real (etl/pipeline.py). O script se
+recusa a gravar sobre dados reais sem `ANS_SEED_FORCE=1`.
+
 Uso (CI):
     MYSQL_HOST=127.0.0.1 MYSQL_PORT=3307 ... python scripts/seed_ci.py
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -21,7 +26,7 @@ from sqlalchemy import create_engine, text  # noqa: E402
 
 from api.config import get_settings  # noqa: E402
 
-PERIODOS = ["2022", "2023", "2024"]
+PERIODOS = ["2023", "2024", "2025"]
 N_OPS = 60
 SEED = 42
 
@@ -49,7 +54,7 @@ REGIOES = {
 
 
 def build_operadoras(rng: np.random.Generator) -> pd.DataFrame:
-    regs = [str(1 << 9 + i) and f"{30000 + i:05d}" for i in range(N_OPS)]
+    regs = [f"{30000 + i:06d}" for i in range(N_OPS)]
     return pd.DataFrame(
         {
             "registro_ans": regs,
@@ -90,18 +95,25 @@ def build_gastos(regs: list, rng: np.random.Generator) -> pd.DataFrame:
                     "lucro": receita * rng.uniform(-0.05, 0.15, size=len(regs)),
                     "patrimonio": receita * rng.uniform(0.1, 0.6, size=len(regs)),
                     "caixa": receita * rng.uniform(0.02, 0.2, size=len(regs)),
-                    "obrigacoes_trabalhistas": receita * rng.uniform(0.01, 0.05, len(regs)),
-                    "fornecedores": receita * rng.uniform(0.05, 0.25, len(regs)),
-                    "despesas_administrativas": receita * rng.uniform(0.05, 0.15, len(regs)),
-                    "pessoal": receita * rng.uniform(0.08, 0.25, len(regs)),
-                    "judiciais": receita * rng.uniform(0.0, 0.02, len(regs)),
-                    "provisoes": receita * rng.uniform(0.01, 0.08, len(regs)),
-                    "glosas": receita * rng.uniform(0.0, 0.03, len(regs)),
-                    "investimentos": receita * rng.uniform(0.01, 0.1, len(regs)),
-                    "imobilizado": receita * rng.uniform(0.01, 0.08, len(regs)),
-                    "intangivel": receita * rng.uniform(0.0, 0.03, len(regs)),
-                    "goodwill": receita * rng.uniform(0.0, 0.02, len(regs)),
-                    "it_softwares": receita * rng.uniform(0.0, 0.01, len(regs)),
+                    "passivo_circulante": receita * rng.uniform(0.01, 0.05, len(regs)),
+                    "passivo_nao_circulante": receita * rng.uniform(0.05, 0.25, len(regs)),
+                    "ativo_total": receita * rng.uniform(0.6, 1.2, len(regs)),
+                    "despesas_administrativas": receita * rng.uniform(0.05, 0.15, size=len(regs)),
+                    "pessoal": receita * rng.uniform(0.08, 0.25, size=len(regs)),
+                    "servicos_terceiros": receita * rng.uniform(0.02, 0.09, size=len(regs)),
+                    "localizacao_funcionamento": receita * rng.uniform(0.01, 0.05, size=len(regs)),
+                    "publicidade": receita * rng.uniform(0.0, 0.01, size=len(regs)),
+                    "tributos_operacionais": receita * rng.uniform(0.0, 0.01, size=len(regs)),
+                    "multas": receita * rng.uniform(0.0, 0.005, size=len(regs)),
+                    "adm_diversas": receita * rng.uniform(0.0, 0.02, size=len(regs)),
+                    "outras_despesas_operacionais": receita
+                    * rng.uniform(0.01, 0.08, size=len(regs)),
+                    "provisoes_tecnicas": receita * rng.uniform(0.1, 0.4, size=len(regs)),
+                    "investimentos": receita * rng.uniform(0.01, 0.1, size=len(regs)),
+                    "imobilizado": receita * rng.uniform(0.01, 0.08, size=len(regs)),
+                    "intangivel": receita * rng.uniform(0.0, 0.03, size=len(regs)),
+                    "goodwill": receita * rng.uniform(0.0, 0.02, size=len(regs)),
+                    "it_softwares": receita * rng.uniform(0.0, 0.01, size=len(regs)),
                 }
             )
         )
@@ -155,6 +167,21 @@ def main():
     from etl.load import ANSLoader
 
     ANSLoader().criar_tabela_se_nao_existe()
+
+    # Segurança: não sobrescreve base real (produção/dev) sem autorização.
+    with engine.connect() as conn:
+        reais = conn.execute(
+            text(
+                "SELECT COUNT(*) FROM gastos_assistenciais "
+                "WHERE razao_social NOT LIKE 'OPERADORA TESTE%'"
+            )
+        ).scalar()
+    if reais and os.environ.get("ANS_SEED_FORCE") != "1":
+        print(
+            "⚠️  seed ignorado: o banco já contém dados reais. "
+            "Use ANS_SEED_FORCE=1 para forçar (somente em ambiente descartável)."
+        )
+        return
 
     upsert(engine, "operadoras", ops, conflict_cols=["registro_ans"])
     upsert(

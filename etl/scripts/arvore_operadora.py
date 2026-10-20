@@ -113,7 +113,7 @@ def reconstruir_arvore(ano: int, reg_ans: str):
         print(f"   {t}: R$ {total:>18,.0f}")
 
     print("\n📊 TOTAIS POR TRIMESTRE (somente folhas 411):")
-    folhas = pivot[pivot["is_leaf"] == True]
+    folhas = pivot[pivot["is_leaf"].astype(bool)]
     for t in trims:
         total = folhas[t].sum()
         print(f"   {t}: R$ {total:>18,.0f}")

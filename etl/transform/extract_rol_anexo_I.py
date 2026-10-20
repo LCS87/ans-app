@@ -51,7 +51,7 @@ def extrair_tabela_anexo_i(pdf_path):
 
     try:
         legenda_map = extract_od_amb_legend(str(pdf_path))
-    except:
+    except Exception:
         legenda_map = {"OD": "Odontológico", "AMB": "Ambulatorial"}
 
     dfs = []

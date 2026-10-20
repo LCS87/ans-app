@@ -24,15 +24,15 @@ const disclaimerClass = computed(() => props.hasAnsgap ? 'disclaimer-danger' : '
 const icon = computed(() => props.hasAnsgap ? '⚠️' : '🕒')
 
 const title = computed(() => {
-  if (props.hasAnsgap && String(props.year) === '2024')
-    return 'Lacuna estrutural na publicação ANS (2024)'
+  if (props.hasAnsgap)
+    return `Lacuna de publicação da ANS (${props.year})`
   return `Dados parciais de ${props.year}`
 })
 
 const message = computed(() => {
-  if (props.hasAnsgap && String(props.year) === '2024')
-    return 'A ANS não publicou as contas 411 completas das grandes operadoras (AMIL, Bradesco, etc.) em 2024. ' +
-           'Os totais representam apenas o subset reportado. Para análise completa de mercado, prefira 2025.'
+  if (props.hasAnsgap)
+    return 'O período selecionado tem subtotais abaixo do conjunto completo de operadoras. ' +
+           'Use-o para análise exploratória e prefira o ano de referência completo para comparações.'
   if (props.quarters < 4)
     return `Apenas ${props.quarters} de 4 trimestres disponíveis. Os dados ainda não foram publicados integralmente pela ANS. ` +
            'Os valores representam o acumulado parcial do exercício.'

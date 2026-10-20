@@ -94,7 +94,8 @@ class ANSDownloader:
                             if total_size > 0:
                                 pct = (downloaded_size / total_size) * 100
                                 logger.debug(
-                                    f"📊 Progresso: {mb:.2f} MB / {total_size / (1024 * 1024):.2f} MB ({pct:.1f}%)"
+                                    f"📊 Progresso: {mb:.2f} MB / "
+                                    f"{total_size / (1024 * 1024):.2f} MB ({pct:.1f}%)"
                                 )
                             else:
                                 logger.debug(f"📊 Baixado: {mb:.2f} MB")

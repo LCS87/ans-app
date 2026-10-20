@@ -46,11 +46,20 @@ class TestValidarAno:
         assert statuses["ramo_411_presente"] == "PASS"
 
     def test_colunas_faltando_bloqueia(self):
-        df = _df_base().drop(columns=["DESCRICAO"])
+        # O ETL descarta DESCRICAO (coluna pesada) e entrega o frame sem ela:
+        # o gate não pode exigir uma coluna que o pipeline não carrega.
+        df = _df_base().drop(columns=["TRIM"])
         veredito, checks = validar_ano(2025, df)
         assert veredito == "BLOQUEADO"
         by_name = {c["check"]: c for c in checks}
         assert by_name["colunas_obrigatorias"]["status"] == "FAIL"
+
+    def test_descricao_opcional_nao_bloqueia(self):
+        df = _df_base().drop(columns=["DESCRICAO"])
+        veredito, checks = validar_ano(2025, df)
+        by_name = {c["check"]: c for c in checks}
+        assert by_name["colunas_obrigatorias"]["status"] == "PASS"
+        assert veredito != "BLOQUEADO"
 
     def test_reg_ans_invalido_bloqueia(self):
         df = _df_base()

@@ -25,7 +25,7 @@ def clean_numeric(s):
         s = s.replace(".", "").replace(",", ".")
     try:
         return float(re.sub(r"[^\d.-]", "", s))
-    except:
+    except Exception:
         return 0.0
 
 

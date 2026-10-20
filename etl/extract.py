@@ -14,12 +14,19 @@ Uso:
 """
 
 import shutil
+import time
 import zipfile
 from pathlib import Path
 from typing import List
 
 import pandas as pd
 from loguru import logger
+
+from etl.normalization import (
+    deduplicar_contas,
+    normalizar_serie_registro_ans,
+    parse_serie_valor_brl,
+)
 
 # ----------------------------------------------------------------------
 # CONSTANTES (legado — mantidas para compatibilidade com scripts de
@@ -67,6 +74,28 @@ KEYWORDS_ASSISTENCIAIS = PATTERNS_GASTOS_ASSISTENCIAIS
 
 class ANSExtractor:
     """Extrator e transformador de dados de demonstrações contábeis."""
+
+    # Colunas do CADOP usadas para popular a tabela ``operadoras``.
+    CADOP_CAMPOS = {
+        "CNPJ": "cnpj",
+        "NOME_FANTASIA": "nome_fantasia",
+        "MODALIDADE": "modalidade",
+        "LOGRADOURO": "logradouro",
+        "NUMERO": "numero",
+        "COMPLEMENTO": "complemento",
+        "BAIRRO": "bairro",
+        "CIDADE": "cidade",
+        "UF": "uf",
+        "CEP": "cep",
+        "DDD": "ddd",
+        "TELEFONE": "telefone",
+        "FAX": "fax",
+        "ENDERECO_ELETRONICO": "endereco_eletronico",
+        "REPRESENTANTE": "representante",
+        "CARGO_REPRESENTANTE": "cargo_representante",
+        "REGIAO_DE_COMERCIALIZACAO": "regiao_comercializacao",
+        "DATA_REGISTRO_ANS": "data_registro_ans",
+    }
 
     def __init__(self, base_dir: Path = None):
         if base_dir is None:
@@ -133,34 +162,76 @@ class ANSExtractor:
     # ------------------------------------------------------------------
     # LEITURA
     # ------------------------------------------------------------------
-    def _read_csv_demonstracao(self, csv_path: Path) -> pd.DataFrame:
-        """Lê CSV de demonstração contábil com detecção de encoding/separator."""
+    def _read_csv_demonstracao(
+        self, csv_path: Path, *, parse_numerico: bool = False
+    ) -> pd.DataFrame:
+        """Lê CSV de demonstração contábil com detecção de encoding/separator.
+
+        ``parse_numerico=True`` faz o pandas converter ``VL_SALDO_FINAL``
+        diretamente (decimal=',', milhar='.') e lê apenas as colunas usadas
+        pelo ETL. Isso evita manter milhões de strings em memória durante o
+        reload. O fallback mantém a leitura como string para layouts
+        inesperados.
+        """
         configs = [
             {"encoding": "utf-8", "sep": ";"},
             {"encoding": "utf-8", "sep": ","},
             {"encoding": "latin1", "sep": ";"},
             {"encoding": "latin1", "sep": ","},
         ]
+        colunas_uteis = {
+            "REG_ANS",
+            "CD_CONTA_CONTABIL",
+            "DESCRICAO",
+            "VL_SALDO_FINAL",
+            "DATA",
+        }
 
-        for config in configs:
-            try:
-                df = pd.read_csv(
-                    csv_path,
-                    encoding=config["encoding"],
-                    sep=config["sep"],
-                    on_bad_lines="skip",
-                    dtype=str,
-                )
+        # No Windows, o antivírus/antivirus service pode segurar o arquivo
+        # logo após a extração do ZIP. Duas tentativas evitam abortar o
+        # pipeline por um bloqueio transitório de I/O.
+        for tentativa in range(2):
+            for config in configs:
+                try:
+                    kwargs = dict(
+                        encoding=config["encoding"],
+                        sep=config["sep"],
+                        on_bad_lines="skip",
+                    )
+                    if parse_numerico and config["sep"] == ";":
+                        kwargs.update(
+                            usecols=lambda c: str(c).strip().replace("\ufeff", "").upper()
+                            in colunas_uteis,
+                            dtype={
+                                "REG_ANS": str,
+                                "CD_CONTA_CONTABIL": str,
+                                "DESCRICAO": str,
+                                "DATA": str,
+                            },
+                            decimal=",",
+                            thousands=".",
+                        )
+                    else:
+                        kwargs["dtype"] = str
 
-                required_cols = ["REG_ANS", "DESCRICAO", "VL_SALDO_FINAL"]
-                cols_upper = [c.upper() for c in df.columns]
+                    df = pd.read_csv(csv_path, **kwargs)
 
-                if all(col in cols_upper for col in required_cols):
-                    logger.debug(f"✅ CSV lido com {config['encoding']} + sep '{config['sep']}'")
-                    return df
+                    required_cols = ["REG_ANS", "DESCRICAO", "VL_SALDO_FINAL"]
+                    cols_upper = [c.upper() for c in df.columns]
 
-            except Exception:
-                continue
+                    if all(col in cols_upper for col in required_cols):
+                        logger.debug(
+                            f"✅ CSV lido com {config['encoding']} + sep '{config['sep']}'"
+                        )
+                        return df
+
+                except Exception as e:
+                    logger.debug(f"⚠️  Falha ao ler com {config}: {e}")
+                    continue
+
+            if tentativa == 0:
+                logger.warning(f"⚠️  Falha ao ler {csv_path.name}; nova tentativa em 3s...")
+                time.sleep(3)
 
         raise ValueError(f"Não foi possível ler {csv_path}")
 
@@ -194,7 +265,7 @@ class ANSExtractor:
     def _filter_gastos_assistenciais(self, df: pd.DataFrame) -> pd.DataFrame:
         """Somente contas-folha de eventos/sinistros (411), saldo > 0."""
         df = df.copy()
-        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
+        df["VL_SALDO_FINAL"] = parse_serie_valor_brl(df["VL_SALDO_FINAL"])
 
         df = self.marcar_folhas(df)
 
@@ -271,10 +342,33 @@ class ANSExtractor:
         if "RAZAO_SOCIAL" not in df.columns:
             df["RAZAO_SOCIAL"] = "OPERADORA SEM NOME"
 
-        df_final = df[["REG_ANS", "RAZAO_SOCIAL"]].drop_duplicates(subset=["REG_ANS"])
+        # Mesma canonicalização do lado das demonstrações: o CADOP pode vir
+        # com "5711" e o 4T com "005711" (ou vice-versa).
+        df["REG_ANS"] = normalizar_serie_registro_ans(df["REG_ANS"])
+        df = df[df["REG_ANS"] != ""]
+
+        # Campos cadastrais completos (base para a tabela ``operadoras``).
+        for origem, destino in self.CADOP_CAMPOS.items():
+            if origem in df.columns and destino not in df.columns:
+                df[destino] = df[origem]
+            elif destino not in df.columns:
+                df[destino] = ""
+
+        colunas = ["REG_ANS", "RAZAO_SOCIAL"] + [
+            c for c in self.CADOP_CAMPOS.values() if c in df.columns
+        ]
+        df_final = df[colunas].drop_duplicates(subset=["REG_ANS"], keep="first")
 
         logger.success(f"✅ CADOP carregado: {len(df_final)} operadoras")
         return df_final
+
+    def carregar_cadop(self) -> pd.DataFrame:
+        """Cadastro CADOP normalizado (REG_ANS canônico + campos cadastrais)."""
+        return self._load_cadop()
+
+    def df_bruto(self, ano: int) -> pd.DataFrame:
+        """Frame bruto (deduplicado) do ano — usado pelo gate de qualidade."""
+        return self._ler_df_all(ano)
 
     # ------------------------------------------------------------------
     # MÉTODO D (núcleo puro — reutilizável para qualquer prefixo de conta)
@@ -345,19 +439,52 @@ class ANSExtractor:
             raise ValueError("Nenhum CSV extraído")
 
         dfs = []
+        linhas_brutas = 0
         for csv_path in csv_files:
             trimestre = csv_path.stem
             logger.info(f"📊 Lendo {trimestre}...")
-            df = self._read_csv_demonstracao(csv_path)
+            df = self._read_csv_demonstracao(csv_path, parse_numerico=True)
+            linhas_brutas += len(df)
             df["TRIMESTRE"] = trimestre
+            df["CD_CONTA_CONTABIL"] = df["CD_CONTA_CONTABIL"].fillna("").str.strip()
+
+            # P0-3: canonicaliza o REG_ANS já por arquivo (5711 == 005711).
+            df["REG_ANS"] = normalizar_serie_registro_ans(df["REG_ANS"])
+            # P0-1: converte 1.234,56 antes de qualquer concat.
+            df["VL_SALDO_FINAL"] = parse_serie_valor_brl(df["VL_SALDO_FINAL"])
+
+            colunas = ["REG_ANS", "CD_CONTA_CONTABIL", "VL_SALDO_FINAL", "TRIMESTRE"]
+            if "DATA" in df.columns:
+                colunas.append("DATA")
+            df = df[colunas]
+            df = df[df["REG_ANS"] != ""]
+
+            # Reduz cada trimestre a UMA linha por conta antes de concatenar.
+            # O Método D só precisa do último valor não-zero de cada conta;
+            # manter os ~3 milhões de linhas brutas em memória era o que
+            # estourava o commit do Windows durante o reload.
+            df = df[df["VL_SALDO_FINAL"] != 0]
+            df, _ = deduplicar_contas(
+                df,
+                chaves=("REG_ANS", "CD_CONTA_CONTABIL", "TRIMESTRE"),
+                coluna_data="DATA",
+            )
+            df = df.drop_duplicates(subset=["REG_ANS", "CD_CONTA_CONTABIL"], keep="last").drop(
+                columns=["DATA"], errors="ignore"
+            )
             dfs.append(df)
 
         df_all = pd.concat(dfs, ignore_index=True)
-        df_all["CD_CONTA_CONTABIL"] = df_all["CD_CONTA_CONTABIL"].fillna("").str.strip()
-        df_all["VL_SALDO_FINAL"] = pd.to_numeric(df_all["VL_SALDO_FINAL"], errors="coerce").fillna(
-            0
+        df_all = df_all[df_all["REG_ANS"] != ""]
+        df_all, removidas = deduplicar_contas(df_all)
+        if removidas:
+            logger.info(f"🧹 {removidas:,} linhas duplicadas removidas (mesma conta/trimestre)")
+
+        logger.info(
+            f"📊 Linhas brutas: {linhas_brutas:,} | "
+            f"contas/trimestre: {len(df_all):,} | "
+            f"operadoras: {df_all['REG_ANS'].nunique():,}"
         )
-        logger.info(f"📊 Total de linhas: {len(df_all):,}")
 
         self._df_all_cache = (ano, df_all)
         return df_all
@@ -377,7 +504,9 @@ class ANSExtractor:
 
         Args:
             ano: ano das demonstrações (ex.: 2024)
-            prefixos: {nome_da_coluna: prefixo_de_conta}, ex. {"receita": "31"}
+            prefixos: {nome_da_coluna: prefixo_de_conta}, ex. {"receita": "31"}.
+                O prefixo pode ser uma tupla para somar várias contas na mesma
+                coluna (ex.: {"caixa": ("121", "122")}).
             output_col: coluna principal (usada p/ ordenação e fallback)
             quarterly_output: se True, gera também colunas <nome>_<trim> por
                               prefixo (histórico trimestral — F3.2)
@@ -387,7 +516,13 @@ class ANSExtractor:
             (+ colunas trimestrais quando solicitado).
         """
         df_all = self._ler_df_all(ano)
-        prefix_list = list(prefixos.values())
+        prefix_list = []
+        for valor in prefixos.values():
+            if isinstance(valor, str):
+                prefix_list.append(valor)
+            else:
+                prefix_list.extend(list(valor))
+        prefix_list = list(dict.fromkeys(prefix_list))
         mask = df_all["CD_CONTA_CONTABIL"].str.startswith(tuple(prefix_list))
         df_ramo = df_all[mask].copy()
         logger.info(f"🌳 Prefixos {prefix_list}: {len(df_ramo):,} registros ({ano})")
@@ -395,12 +530,22 @@ class ANSExtractor:
         def _aggregate(df_src: pd.DataFrame, suffix: str = "") -> pd.DataFrame:
             frames = []
             for nome, pref in prefixos.items():
-                sub = df_src[df_src["CD_CONTA_CONTABIL"].str.startswith(pref)]
-                nz = sub[sub["VL_SALDO_FINAL"] != 0]
-                res = self._metodo_d_por_operadora(nz)
-                if res:
+                # Uma coluna pode agregar VÁRIOS prefixos (ex.: caixa =
+                # 121 Disponível + 122 Aplicações Financeiras). Cada prefixo
+                # é consolidado pelo Método D e os resultados são somados.
+                prefixos_coluna = [pref] if isinstance(pref, str) else list(pref)
+                por_operadora: dict = {}
+                for p in prefixos_coluna:
+                    sub = df_src[df_src["CD_CONTA_CONTABIL"].str.startswith(p)]
+                    nz = sub[sub["VL_SALDO_FINAL"] != 0]
+                    res = self._metodo_d_por_operadora(nz)
+                    for reg, valor in res.items():
+                        por_operadora[reg] = por_operadora.get(reg, 0.0) + valor
+                if por_operadora:
                     frames.append(
-                        pd.DataFrame([{"REG_ANS": r, nome + suffix: v} for r, v in res.items()])
+                        pd.DataFrame(
+                            [{"REG_ANS": r, nome + suffix: v} for r, v in por_operadora.items()]
+                        )
                     )
             if not frames:
                 cols = ["REG_ANS"] + [p + suffix for p in prefixos]
@@ -435,14 +580,16 @@ class ANSExtractor:
         # Juntar com CADOP
         logger.info("🔗 Juntando com CADOP...")
         cadop = self._load_cadop()
-        consolidated["REG_ANS"] = consolidated["REG_ANS"].astype(str).str.strip()
+        consolidated["REG_ANS"] = normalizar_serie_registro_ans(consolidated["REG_ANS"])
+        consolidated = consolidated[consolidated["REG_ANS"] != ""].copy()
+        consolidated = consolidated.drop_duplicates(subset=["REG_ANS"], keep="last")
 
         if cadop.empty:
             logger.warning("⚠️  CADOP vazio, usando nome padrão")
             consolidated["RAZAO_SOCIAL"] = "OPERADORA SEM NOME"
         else:
             cadop = cadop.copy()
-            cadop["REG_ANS"] = cadop["REG_ANS"].astype(str).str.strip()
+            cadop["REG_ANS"] = normalizar_serie_registro_ans(cadop["REG_ANS"])
             consolidated = consolidated.merge(cadop, on="REG_ANS", how="left")
             consolidated["RAZAO_SOCIAL"] = consolidated["RAZAO_SOCIAL"].fillna("OPERADORA SEM NOME")
 
@@ -487,11 +634,11 @@ class ANSExtractor:
         )
 
         if quarterly_output:
-            # Compatibilidade histórica: colunas chamavam gasto_1T2024 etc.
+            # Compatibilidade histórica: "gasto_total_1T2024" → "gasto_1T2024".
             rename = {
-                c: c.replace(f"_{ano}", "") + f"{ano}"
+                c: "gasto_" + c[len("gasto_total_") :]
                 for c in df.columns
-                if c.startswith("gasto_") and c != "gasto_total"
+                if c.startswith("gasto_total_")
             }
             df = df.rename(columns=rename)
         return df
@@ -529,7 +676,7 @@ async def main():
         print("=" * 80)
 
         total = df_consolidated["gasto_total"].sum()
-        print(f"\n📊 ESTATÍSTICAS")
+        print("\n📊 ESTATÍSTICAS")
         print(f"   Total de operadoras: {len(df_consolidated):,}")
         print(f"   Gasto total 2024: R$ {total:,.2f}")
         print(f"   Média por operadora: R$ {df_consolidated['gasto_total'].mean():,.2f}")

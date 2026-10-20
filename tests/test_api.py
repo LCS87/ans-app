@@ -45,6 +45,28 @@ class TestEndpointsLegados:
         assert "results" in r.json()
 
 
+def test_registro_ans_sem_zero_e_canonizado():
+    """P0-3: /operadoras/5711 deve encontrar 005711."""
+    import asyncio
+
+    from api.main import get_operadora_by_registro
+    from api.models import OperadoraResponse
+
+    class FakeService:
+        def search(self, query, limit=1):
+            assert query == "005711"
+            return [
+                OperadoraResponse(
+                    registro_ans="005711",
+                    cnpj="00000000000000",
+                    razao_social="BRADESCO SAÚDE S.A.",
+                )
+            ]
+
+    result = asyncio.run(get_operadora_by_registro("5711", service=FakeService()))
+    assert result["registro_ans"] == "005711"
+
+
 class TestDimension:
     def test_financeira_com_sinistralidade(self, client):
         r = client.get("/api/v1/dimension/financeira?periodo=2024&top=20")

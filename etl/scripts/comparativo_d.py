@@ -15,6 +15,11 @@ import pandas as pd
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 from etl.extract import ANSExtractor
+from etl.normalization import (
+    deduplicar_contas,
+    normalizar_serie_registro_ans,
+    parse_serie_valor_brl,
+)
 
 BRANCH = "41"
 
@@ -25,17 +30,24 @@ def load_year(ano):
     for f in ext.extract_zips(ano):
         df = pd.read_csv(f, sep=";", encoding="utf-8", on_bad_lines="skip", dtype=str)
         df.columns = [c.upper().strip() for c in df.columns]
-        df["VL_SALDO_FINAL"] = pd.to_numeric(df["VL_SALDO_FINAL"], errors="coerce").fillna(0)
+        df["VL_SALDO_FINAL"] = parse_serie_valor_brl(df["VL_SALDO_FINAL"])
         df["TRIM"] = f.stem
+        df["REG_ANS"] = normalizar_serie_registro_ans(df["REG_ANS"])
         df["CD_CONTA_CONTABIL"] = df["CD_CONTA_CONTABIL"].fillna("").str.strip()
         dfs.append(df)
     df = pd.concat(dfs, ignore_index=True)
+    df = df[df["REG_ANS"] != ""]
     return df[df["CD_CONTA_CONTABIL"].str.startswith(BRANCH)]
 
 
 def last_values(df):
     """Último valor não-zero por (operadora, conta)."""
     nz = df[df["VL_SALDO_FINAL"] != 0]
+    nz, _ = deduplicar_contas(
+        nz,
+        chaves=("REG_ANS", "CD_CONTA_CONTABIL", "TRIM"),
+        coluna_data="DATA",
+    )
     return nz.sort_values("TRIM").groupby(["REG_ANS", "CD_CONTA_CONTABIL"], as_index=False).tail(1)
 
 
@@ -45,7 +57,7 @@ def compute_all(df):
 
     # ---- A: folhas sobre o CONSOLIDADO (não o df completo) ----
     df_leaf = ext.marcar_folhas(last)
-    A = df_leaf[df_leaf["is_lea"]].groupby("REG_ANS")["VL_SALDO_FINAL"].sum()
+    A = df_leaf[df_leaf["is_leaf"]].groupby("REG_ANS")["VL_SALDO_FINAL"].sum()
 
     result_B, result_C, result_D = {}, {}, {}
 
@@ -100,7 +112,7 @@ def compare(ano):
     comp = pd.DataFrame({"A_folhas": A, "B_raiz": B, "C_tudo": C, "D_hibrido": D}).fillna(0)
     comp = comp.sort_values("D_hibrido", ascending=False)
 
-    print(f"\n📊 TOTAIS:")
+    print("\n📊 TOTAIS:")
     print(f"   A (folhas):  {fmt(comp['A_folhas'].sum())}")
     print(f"   B (raiz):    {fmt(comp['B_raiz'].sum())}")
     print(f"   C (tudo):    {fmt(comp['C_tudo'].sum())}  ❌ dupla contagem")
@@ -123,7 +135,7 @@ def compare(ano):
     print(f"{'─'*110}")
 
     # Onde D difere de A e B
-    print(f"\n🔬 ONDE D DIVERGE:")
+    print("\n🔬 ONDE D DIVERGE:")
     diff = comp[
         ((comp["D_hibrido"] - comp["A_folhas"]).abs() > 1e8)
         | ((comp["D_hibrido"] - comp["B_raiz"]).abs() > 1e8)

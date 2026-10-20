@@ -22,8 +22,8 @@
             <thead>
               <tr>
                 <th>Período</th><th style="text-align:right">Gastos (R$)</th>
-                <th style="text-align:right">Receita</th><th style="text-align:right">Lucro</th>
-                <th style="text-align:right">Patrimônio</th><th style="text-align:right">Caixa</th>
+                <th style="text-align:right">Receita</th><th style="text-align:right">Lucro/Prejuízo</th>
+                <th style="text-align:right">Patrimônio Líquido</th><th style="text-align:right">Caixa e Equivalentes</th>
               </tr>
             </thead>
             <tbody>

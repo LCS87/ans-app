@@ -1,325 +1,288 @@
 # 🏥 ANS Intelligence
 
-Aplicação full-stack de **Business Intelligence** para dados abertos da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras de saúde, analisar demonstrações contábeis em múltiplas dimensões (Gastos Assistenciais, Financeira, Operacional e Estrutura), comparar trimestres e sazonalidade, visualizar concentração regional (Heatmap 27 UFs) e exportar relatórios consolidados em PDF e Excel, tudo com metodologia contábil auditável e dados reais.
+Aplicação full-stack de **Business Intelligence** para os dados abertos da Agência Nacional de Saúde Suplementar (ANS). Permite buscar operadoras, analisar demonstrações contábeis em quatro dimensões (Gastos Assistenciais, Financeira, Operacional e Estrutura), comparar trimestres e sazonalidade, visualizar concentração regional (Heatmap das 27 UFs) e exportar relatórios consolidados em PDF e Excel.
 
-> **Status:** 🟢 Full-Stack 100% Funcional | 🟢 Multi-Dimensão Contábil (v1.2) | 🟢 82 Testes (74% Cobertura) | 🟢 Pipeline CI/CD GitHub Actions | 🟢 Exportação PDF/Excel & Upload CSV | 🟢 Metodologia D Auditada
+> **Status:** 🟢 Full-Stack funcional | 🟢 4 dimensões contábeis com dados reais | 🟢 127 testes (74,8% de cobertura) | 🟢 Gate de qualidade com falha fechada | 🟢 CI/CD (GitHub Actions)
 
 ---
 
 ## 📋 Sumário Executivo
 
-| Métrica / Recurso | v1.0 | v1.1 | v1.2 (Atual) |
-| :--- | :--- | :--- | :--- |
-| **Dimensões Contábeis** | 1 (Gastos Assistenciais) | 1 (Gastos Assistenciais) | **4 (Gastos, Financeira, Operacional, Estrutura)** |
-| **Abas no Dashboard** | 2 abas | 3 abas | **8 abas analíticas integradas** |
-| **Total Gastos 2024** | R$ 6.37 Bi | R$ 19.57 Bi *(com lacuna ANS)* | **R$ 19.57 Bi** *(com auditoria quantitativa)* |
-| **Total Gastos 2025** | R$ 8.31 Bi | R$ 44.48 Bi *(ano referência)* | **R$ 44.48 Bi** *(ano referência completo)* |
-| **Total Gastos 2026** | — | R$ 15.69 Bi *(1T+2T)* | **R$ 15.69 Bi** *(acompanhamento contínuo)* |
-| **Metodologia Contábil** | `len(CD_CONTA) == 9` | **Método D (Híbrido)** | **Método D expandido** (prefixos 31, 41, 44, 46, 12, 13, 21, 23, 25) |
-| **Análises Avançadas** | Top 10 Básico | Top 10 + Timeline Anual | **Top 20 Multi-Métrica, Trimestral 1T-4T, Outliers IQR, Heatmap 27 UFs** |
-| **Exportação de Dados** | CSV simples | CSV com UTF-8 BOM | **PDF Institucional (ReportLab/Matplotlib) + Excel (.xlsx) + CSV** |
-| **Filtros Dinâmicos** | Texto simples | Modalidade básica | **Filtros cruzados (Modalidade, UF, Região) com alta legibilidade** |
-| **Carga de Dados** | Apenas pipeline fixo | Pipeline dinâmico | **Pipeline automatizado + Upload manual de CSV (drag & drop)** |
-| **Suíte de Testes** | Inexistente | Testes iniciais | **82 testes passando (74% de cobertura, gate ≥65% superado)** |
-| **Automação & CI/CD** | Manual | Docker Compose | **GitHub Actions (Lint, Testes com gate, Integração MySQL/Redis, Docker build)** |
+| Métrica / Recurso | Antes (v1.2) | Atual |
+| :--- | :--- | :--- |
+| **Origem dos dados** | Mistura (sintético nas dimensões) | **100% dados reais da ANS** (CSV aberto) |
+| **Total Gastos 2024** | R$ 19,57 Bi *(dado corrompido)* | **R$ 261,18 Bi** |
+| **Total Gastos 2025** | R$ 44,48 Bi *(dado corrompido)* | **R$ 282,17 Bi** |
+| **Cobertura da série** | 2024–2025 (2023 excluído) | **2023–2026** (2026 parcial, 2T) |
+| **Mapeamento contábil** | Suposição (`25` = lucro, `12` = caixa) | **Plano DOC 275 conferido conta a conta** |
+| **Dimensões contábeis** | 4 (2 delas sintéticas) | 4 (todas extraídas do bruto) |
+| **Gate de qualidade** | Registrado no log, não executado | **Executa e bloqueia a carga** |
+| **Suíte de testes** | 82 testes / 74% | **127 testes / 74,8%** |
 
----
+### A correção que mudou a série inteira
 
-## 📸 Demonstração Visual
+Em(setembro–outubro de 2026) a auditoria do pipeline revelou que **os valores da ANS chegam em formato brasileiro** (`30.941.701.628,46`) e o ETL os lia com `pd.to_numeric(...)` **sem `decimal=","`**. Resultado: todo valor com centavos virava **zero**.
 
-### V 1.0 — Busca e Dashboard Inicial
-![Demonstração da Aplicação v1.0](assets/ANS-app.gif)
+O efeito não era "2024 com lacuna da ANS": era **decimais perdidos**, ano a ano.
 
-### V 1.2 — Timeline Plurianual e Temas Institucionais
-![Demonstração da Aplicação v2.0](assets/ANS-V2.0.gif)
+| Ano | Totais no app antes | Totais reais (bruto ANS) | Razão |
+| :---: | ---: | ---: | ---: |
+| 2023 | R$ 191,50 Bi *(excluído da série)* | **R$ 241,16 Bi** | valores com centavos → 0 |
+| 2024 | R$ 19,57 Bi *(suposta "lacuna ANS")* | **R$ 261,18 Bi** | ~13× de diferença |
+| 2025 | R$ 44,48 Bi | **R$ 282,17 Bi** | ~6× de diferença |
+| 2026 | R$ 15,69 Bi *(2T)* | **R$ 145,80 Bi** *(2T)* | ~9× de diferença |
+
+Com o parser corrigido, a série cresce de forma **suave e plausível** (+8,3% em 2024, +8,0% em 2025), como se espera do setor. A "lacuna da ANS em 2024" **não existe**: Bradesco, Amil e Hapvida estão no `4T2024.csv`, com o valor íntegro. O README anterior tratava uma hipótese não verificada como fato auditado — isso foi removido.
 
 ---
 
 ## ✨ Funcionalidades Principais
 
 ### 🔍 1. Busca e Detalhamento de Operadoras
-- **Busca inteligente:** por registro ANS, CNPJ, razão social ou nome fantasia com normalização Unicode (sem distinção de acentos ou maiúsculas/minúsculas).
+- **Busca inteligente:** por registro ANS, CNPJ, razão social ou nome fantasia com normalização Unicode.
 - **Base indexada:** **1.106 operadoras** ativas mapeadas em memória para resposta instantânea.
+- **Chave canônica:** `REG_ANS` normalizado em 6 dígitos (`5711` ≡ `005711`) em ETL, banco e API.
 - **Paginação completa:** metadados com `page`, `limit`, `total` e `pages`.
-- **Filtro por modalidade:** Medicina de Grupo, Cooperativa Médica, Autogestão, Filantropia, etc.
-- **Exportação CSV:** download instantâneo com codificação UTF-8 BOM (compatível com Excel brasileiro).
-
----
+- **Filtro por modalidade** e exportação CSV com UTF-8 BOM.
 
 ### 🏥 2. Gastos Assistenciais (Foco no Sinistro)
-- **Top 10 operadoras** com maiores gastos assistenciais no período.
-- **Dropdown multi-ano** com indicadores visuais: ✅ Completo, ⚠️ Parcial, ⚠️ Lacuna ANS.
-- **Badges de metadata:** `<YearBadge>` indicando status do período selecionado.
-- **Disclaimer acadêmico:** `<AcademicDisclaimer>` contextual sobre ressalvas metodológicas da base.
-- **Cache client-side por ano:** transições instantâneas entre períodos sem sobrecarga de rede.
-- **Visualizações integradas:** Ranking Top 10, Market Share Top 5 vs Outros (Pizza), Evolução Anual, Comparação Temporal agrupada e Curva de Concentração de Pareto (80/20).
+- Top 10/20 operadoras com maiores gastos assistenciais (conta `41`).
+- **Dropdown multi-ano** com badges de integridade (✅ Completo, ⚠️ Parcial).
+- **Disclaimer acadêmico** contextual sobre ressalvas metodológicas da base.
+- **Cache client-side por ano:** transições instantâneas entre períodos.
+- **Visualizações:** ranking, Market Share (Top 5 vs Outros), evolução anual, comparação temporal e Curva de Pareto (80/20).
 
----
+### 🏦 3. Análise Financeira 360° (F2.1)
+Contas e métricas **todas extraídas do bruto**, com semântica conferida contra o plano de contas real (DOC 275):
 
-### 🏦 3. Análise Financeira 360° (v1.2 — F2.1)
-- **Métricas estruturais:** Receita com Operações de Planos de Saúde (`31`), Lucro Líquido (`25`), Patrimônio Líquido (`256`), Caixa e Equivalentes (`12`), Obrigações Trabalhistas (`21`) e Fornecedores (`23`).
-- **Métricas calculadas em tempo real:**
-  - **Sinistralidade (%)**: relação direta `Eventos / Receita` (`41 / 31`).
-  - **Endividamento (%)**: relação de passivo de curto prazo sobre caixa/receita (`(21 + 23) / Caixa`).
-- **Cards de KPI:** Receita Total, Caixa Consolidado, Lucro Líquido Médio e Sinistralidade Média de Mercado.
-- **Gráfico Top 10 por Receita** e tabela completa com drill-down instantâneo.
+| Métrica | Conta | 2023 | 2024 | 2025 |
+| :--- | :--- | ---: | ---: | ---: |
+| Receita c/ operações de planos | `31` | 286,35 Bi | 322,95 Bi | 355,40 Bi |
+| Sinistros (eventos indenizáveis) | `41` | 241,16 Bi | 261,18 Bi | 282,17 Bi |
+| **Resultado do exercício** | `3 - 4 - 61` | 2,93 Bi | 11,01 Bi | 24,43 Bi |
+| Patrimônio líquido | `25` | 123,11 Bi | 135,70 Bi | 153,67 Bi |
+| Caixa e investimentos | `121 + 122` | 94,31 Bi | 104,52 Bi | 119,41 Bi |
+| Passivo circulante | `21` | 85,56 Bi | 97,56 Bi | 104,59 Bi |
+| Passivo não circulante | `23` | 42,06 Bi | 48,89 Bi | 54,08 Bi |
+| Ativo total | `1` | 249,46 Bi | 279,43 Bi | 307,58 Bi |
+| **Sinistralidade** | `41 / 31` | 84,2% | 80,9% | 79,4% |
 
----
+- **Sinistralidade (%)** = `41 / 31`.
+- **Endividamento (%)** = `(21 + 23) / 1` (passivo total sobre ativo total — mesma dimensão, ambos estoques).
+- **Margem de lucro (%)** = `(3 - 4 - 61) / 31`.
+- Identidade contábil verificada no ETL: `1 = 21 + 23 + 25`.
 
-### ⚙️ 4. Análise Operacional (v1.2 — F2.2)
-- **Detalhamento de despesas operacionais:** Despesas Administrativas (`46`), Despesas com Pessoal Próprio (`461`), Despesas Judiciais e Contingências (`468`) e Provisões Técnicas (`44`).
-- **Identificação de gargalos:** peso relativo dos custos de pessoal e litígios sobre o total de gastos administrativos.
-- **KPIs consolidados:** Despesa Administrativa Total, Total de Provisões e Médias do Setor.
+### ⚙️ 4. Análise Operacional (F2.2)
+- Despesas administrativas (`46`), pessoal próprio (`461`), serviços de terceiros (`462`), localização e funcionamento (`463`), publicidade (`464`), tributos (`465`), multas (`466`), despesas administrativas diversas (`468`) e outras despesas operacionais (`44`).
+- **Provisões técnicas** (`211 + 231`): provisão de assistências a saúde no circulante e não circulante.
 
----
+### 🏗️ 5. Estrutura & Ativos (F2.3)
+- Investimentos (`132`), imobilizado (`133`), intangível (`134`).
+- **Goodwill** (`132139013`) e **Sistemas de computação / TI** (`134129011`) — contas específicas que existem no layout real.
 
-### 🏗️ 5. Estrutura & Ativos (v1.2 — F2.3)
-- **Mapeamento de solidez e infraestrutura:**
-  - Imobilizado e Hospitais Próprios (`133`).
-  - Goodwill / Ágio por Expectativa de Rentabilidade (`132139013`).
-  - Intangível e Marcas (`134`).
-  - Sistemas de Computação e Tecnologia da Informação (`134129011`).
-  - Carteira de Investimentos (`132`).
-- **KPIs dedicados:** Ativo Imobilizado Total, Goodwill Acumulado, Investimento em Tecnologia e Investimentos Financeiros.
+### 🏆 6. Rankings Top 20 Multi-Métrica (F3.1)
+Cinco sub-rankings alternáveis: por **Receita**, **Sinistro**, **Patrimônio Líquido**, **Caixa e Investimentos** e **Lucro/Prejuízo**. Gráfico de barras acoplado à tabela com drill-down.
 
----
+### 🔄 7. Análise Trimestral & Sazonalidade (F3.2)
+Gráfico agrupado 1T × 2T × 3T × 4T do Top 5 e drill-down individual por operadora com pizza de sazonalidade.
 
-### 🏆 6. Rankings Top 20 Multi-Métrica (v1.2 — F3.1)
-- Cinco sub-rankings dinâmicos alternáveis com um clique:
-  1. 💰 **Por Receita:** maiores faturamentos do mercado suplementar.
-  2. 🏥 **Por Sinistro:** maiores volumes assistenciais pagos.
-  3. 🏛️ **Por Patrimônio Líquido:** maior robustez patrimonial e reservas.
-  4. 💵 **Por Caixa e Equivalentes:** operadoras com maior liquidez imediata.
-  5. 📈 **Por Lucro Líquido:** operadoras mais rentáveis do exercício.
-- Gráfico de barras horizontais acoplado à tabela com drill-down ao clicar na linha.
+### ⚠️ 8. Detecção Estatística de Outliers (F3.3)
+Metodologia **IQR** (`Q3 + 1,5×IQR` / `Q1 - 1,5×IQR`) com guardrail de porte (mediana × 4) para amostras pequenas; badge `⚠️ Outlier` nas tabelas.
 
----
+### 🗺️ 9. Distribuição Regional & Heatmap das 27 UFs (F3.5)
+Agrupamento por Macrorregião, escala de calor em tons de azul e seletor de métrica (gastos, receita, caixa, PL, ativo total).
 
-### 🔄 7. Análise Trimestral & Sazonalidade (v1.2 — F3.2)
-- **Gráfico agrupado 1T × 2T × 3T × 4T:** visualização da curva sazonal do Top 5 de operadoras.
-- **Drill-down individual por operadora:** seletor com busca para analisar uma operadora específica, renderizando sua distribuição trimestral e um gráfico de pizza com percentual de sazonalidade por trimestre.
+### 🔍 10. Filtros Avançados & Acessibilidade Visual (F3.4)
+Recorte simultâneo por **Modalidade**, **UF** e **Região**, com contraste WCAG calibrado.
 
----
+### 📥 11. Central de Exportação & Relatórios (F4.1 & F4.2)
+- **PDF Institucional** (`/export/pdf`): ReportLab + Matplotlib, gráficos renderizados em memória.
+- **Planilha Excel** (`/export/excel`): openpyxl com abas Resumo, Gastos, Financeiro, Operacional, Estrutura, Trimestral e Regional.
 
-### ⚠️ 8. Detecção Estatística de Outliers (v1.2 — F3.3)
-- **Metodologia IQR (Interquartile Range):** detecção estatística de valores discrepantes ($Q_3 + 1.5 \times IQR$ e $Q_1 - 1.5 \times IQR$).
-- **Identificação visual:** sinalização automática via badge `⚠️ Outlier` nas tabelas contábeis, destacando desvios atípicos de sinistralidade ou despesas administrativas para auditoria.
-
----
-
-### 🗺️ 9. Distribuição Regional & Heatmap das 27 UFs (v1.2 — F3.5)
-- **Painel visual das 27 UFs:** agrupadas por Macrorregião (Norte, Nordeste, Centro-Oeste, Sudeste, Sul).
-- **Intensidade cromática:** escala de calor em tons de azul proporcional ao volume financeiro.
-- **Seletor de métrica:** alternância dinâmica entre Gastos Assistenciais, Receita, Caixa e Patrimônio.
-- **Ranking estadual:** lista ordenada dos estados com maior participação no mercado de saúde suplementar.
-
----
-
-### 🔍 10. Filtros Avançados & Acessibilidade Visual (v1.2 — F3.4)
-- **Recorte multidimensional:** filtros simultâneos por Modalidade Jurídica, Unidade Federativa (UF) e Região Geográfica.
-- **Acessibilidade e legibilidade:** calibragem cromática do texto dos componentes de seleção (`#1e293b`), prevenindo texto invisível em fundos brancos e garantindo contraste WCAG.
-
----
-
-### 📥 11. Central de Exportação & Relatórios (v1.2 — F4.1 & F4.2)
-- **PDF Institucional (`/export/pdf`):** geração em tempo real via **ReportLab** e **Matplotlib**, gerando relatórios de padrão executivo com tabelas estruturadas e gráficos de barras renderizados como vetores/PNG em memória (sem dependência de navegadores headless como WeasyPrint ou GTK).
-- **Planilha Excel Consolidada (`/export/excel`):** geração via **openpyxl** com abas dedicadas para Resumo, Gastos, Financeiro, Operacional, Estrutura, Trimestral e Regional.
-- **Exportação CSV:** disponível em tabelas analíticas com codificação UTF-8 BOM.
-
----
-
-### 📤 12. Upload Manual de CSV & Histórico Individual (v1.2 — F4.3 & F4.4)
-- **Upload Manual de CSV (`<UploadCsvModal>`):** interface drag-and-drop permitindo carregar bases de demonstrações históricas ou customizadas para qualquer dimensão contábil (`gastos`, `financeira`, `operacional`, `estrutura`), passando por validação de colunas e normalização automática do `ANSLoader`.
-- **Timeline Histórica Multi-Anos (`<OperadoraTimelineModal>`):** modal de consulta detalhada que consolida a trajetória de 3 anos de uma operadora (Gastos, Receita, Lucro, Patrimônio e Caixa) ao clicar em seu registro na tabela.
-
----
+### 📤 12. Upload Manual de CSV & Histórico Individual (F4.3 & F4.4)
+- `<UploadCsvModal>`: drag-and-drop de bases históricas para qualquer dimensão.
+- `<OperadoraTimelineModal>`: trajetória plurianual de uma operadora (Gastos, Receita, Lucro, PL, Caixa).
 
 ### 🎭 13. Sistema de 4 Temas Institucionais
-O dashboard oferece 4 temas visuais com persistência via `localStorage` e reatividade sem efeitos fantasmas no Canvas do Chart.js:
-1. ☀️ **Claro (Azul)** (`light-blue`): uso diurno padrão e corporativo.
-2. 🌙 **Escuro (Azul)** (`dark-blue`): visualização noturna de alto contraste.
-3. 🏛️ **Gold Institucional** (`light-gold`): estética executiva em tons de terra e dourado.
-4. 🌑 **Night Institucional** (`dark-gold`): modo escuro institucional com destaques em ouro.
-- **Contraste WCAG calibrado:** ratio ≥ 4.5:1 em todos os modos e fundos claros suaves (`#e8edf2` e `#ece5d6`).
-
----
+Claro (Azul), Escuro (Azul), Gold Institucional e Night Institucional, com persistência em `localStorage` e reatividade sem "efeitos fantasmas" no Chart.js.
 
 ### ⚙️ 14. Painel de Administração & Telemetria
-- **Scheduler Automático:** agendado via APScheduler para o **1º domingo de cada mês às 03:00**.
-- **Disparo Manual:** execução do pipeline por ano diretamente pela interface (via `/api/v1/admin/run-pipeline?ano={ano}`).
-- **Histórico Auditável:** rastreamento com status, duração e registros em `etl_executions`.
-- **Diagnóstico de Recursos:** uso de disco discriminado (`raw_data`, `backups`, `logs`) e health check de MySQL, Redis e Uptime.
+- **Scheduler** (APScheduler) para o 1º domingo de cada mês às 03:00.
+- **Disparo manual** do pipeline por ano (`/api/v1/admin/run-pipeline?ano={ano}`).
+- **Histórico auditável** em `etl_executions` (status, duração, volumetria, veredito do gate).
+- **Diagnóstico de recursos:** uso de disco por categoria e health check de MySQL/Redis.
 
 ---
 
-## 🧮 Metodologia Contábil: Método D (Híbrido)
+## 🧮 Metodologia Contábil
 
-### O Problema Identificado
-Os demonstrativos contábeis da ANS possuem plano de contas hierárquico com até **9 níveis de profundidade**. Filtros ingênuos baseados em regex, comprimento fixo ou soma indiscriminada geram distorções grosseiras:
+### 1. Leitura do dado (P0-1): parse brasileiro
 
-| Causa da Distorção | Impacto no Dado |
-| :--- | :--- |
-| **Contagem múltipla** (soma de contas pai sintéticas + filhas analíticas) | Inflação de 3x a 5x |
-| **PEONA incluída** (provisão para eventos ocorridos e não avisados) | Erro conceitual: soma de passivo como despesa |
-| **VL_SALDO_FINAL tomado como fluxo** (contas de saldo patrimonial) | Soma conceitualmente equivocada de estoque |
-| **Receitas misturadas** (contraprestações somadas a sinistros) | Inflação adicional significativa |
-| **Granularidade variável** (operadoras em folhas, outras em sintéticas) | Perda massiva de dados em filtros ingênuos |
+Os arquivos abertos da ANS gravam `VL_SALDO_FINAL` no formato brasileiro (`1.234.567,89`). O ETL agora lê com `decimal=","`, `thousands="."` e um parser próprio (`etl/normalization.py`) que também cobre negativos, parênteses, `R$`, valores vazios e separador ambíguo (`1.234` = milhar; `1234.56` = decimal).
 
-> **Evolução da calibração:**  
-> R$ 2.05 Tri *(ingênuo)* ➔ R$ 670 Bi ➔ R$ 152 Bi *(len==9, 2023)* ➔ R$ 19.57 Bi *(Método D, 2024)* ➔ **R$ 44.48 Bi** *(Método D, 2025)*
+> Um único teste de regressão com a linha real `30.941.701.628,46 → 30941701628.46` teria evitado semanas de discussão sobre "lacuna da ANS" e "Método D".
 
-### A Solução: Algoritmo do Método D
-O **Método D (híbrido)** analisa os dados de forma empírica e resolve simultaneamente:
-1. **Dupla contagem hierárquica** (pai + filho)
-2. **Granularidade variável** (contas sintéticas vs analíticas)
-3. **Valores negativos** (recuperações, glosas e reembolsos que devem abater despesas)
+### 2. Identidade da operadora (P0-3): `REG_ANS` canônico
 
-```mermaid
-flowchart TD
-    A[Demonstrativo Contábil ANS] --> B[Consolida último valor não-zero de cada conta no ano]
-    B --> C[Identifica RAÍZES de valor sem ancestral com valor]
-    C --> D{Tem folhas descendentes cobrindo >= 90%?}
-    D -- Sim --> E[Utiliza as FOLHAS analíticas]
-    D -- Não --> F{Soma das folhas > valor da raiz?}
-    F -- Sim --> E
-    F -- Não --> G[Utiliza a RAIZ sintética]
-    E --> H[Soma Consolidada por Operadora]
-    G --> H
-```
+`REG_ANS` chega com ou sem zeros à esquerda (`5711` × `005711`). Hoje **todas** as camadas usam a mesma chave de 6 dígitos: extração, CADOP, carga (UPSERT), serviços de analytics, busca e endpoints. O loader rejeita linhas sem registro válido em vez de criar a "operadora 000000".
 
-### Regras de Filtragem Auditáveis
+### 3. Agregação (P0-4): Método D (híbrido) por ramo
 
-| Dimensão / Regra | Critério | Fundamentação Contábil |
-| :--- | :--- | :--- |
-| ✅ **Gastos Assistenciais** | Inicia com `41` (foco em `411`) | Eventos / Sinistros Conhecidos ou Avisados |
-| ❌ **Exclusão de Provisão** | Inicia com `414` | Provisões técnicas atuariais (PEONA) — passivo contingencial |
-| ✅ **Receita de Planos** | Inicia com `31` | Contraprestações efetivas de planos de saúde |
-| ✅ **Despesas Administrativas** | Inicia com `46` (e subcontas `461`, `468`) | Custos de gestão, folha própria e contingências judiciais |
-| ✅ **Provisões Técnicas** | Inicia com `44` | Provisões de operações de assistência à saúde |
-| ✅ **Patrimônio & Lucro** | Contas `25` e `256` | Lucro líquido e lucros/prejuízos acumulados |
-| ✅ **Liquidez & Ativos** | Contas `12`, `132`, `133`, `134` | Caixa, investimentos, imobilizado e ativos intangíveis |
-| ✅ **Anti-duplicação** | Soma apenas raízes/folhas válidas | Elimina dupla contagem pai+filho em qualquer nível |
+O plano de contas da ANS é hierárquico (até 12 dígitos) e cada operadora publica em granularidade diferente. Para cada conta-ramo, o **Método D** evita dupla contagem pai/filho:
 
-### Valores Consolidados (Método D)
+1. identifica as **raízes** (contas sem ancestral com valor);
+2. se as **folhas** descendentes cobrem ≥ 90% da raiz (ou a superam), usa as folhas;
+3. caso contrário, usa a **raiz** sintética.
 
-| Ano | Operadoras | Gastos Totais | Trimestres | Status Metodológico |
-| :---: | :---: | :---: | :---: | :---: |
-| **2024** | 601 | **R$ 19.57 Bi** | 4/4 | ⚠️ Lacuna ANS documentada e auditada |
-| **2025** | 581 | **R$ 44.48 Bi** | 4/4 | ✅ Ano de referência completo |
-| **2026** | 507 | **R$ 15.69 Bi** | 2/4 | 🕒 Parcial (dados em publicação contínua) |
+Comparação entre as três estratégias (2025, mercado):
+
+| Estratégia | Total | Diagnóstico |
+| :--- | ---: | :--- |
+| A — só folhas | R$ 282,17 Bi | ok, mas perde quem só publica a sintética |
+| B — só raízes | R$ 282,17 Bi | ok, mas perde quem só publica as analíticas |
+| **D — híbrido** | **R$ 282,17 Bi** | convergem; **C** (pai + filho) infla para R$ 1.975,50 Bi |
+
+### 4. Mapeamento por dimensão (P1): o plano de contas real
+
+Cada mapeamento foi conferido contra o **CSV bruto** e contra a identidade do balanço. `api/accounting_maps.py` documenta cada conta com o total de mercado em 2025.
+
+| Dimensão | Coluna | Conta | Total 2025 |
+| :--- | :--- | :--- | ---: |
+| Financeira | `receita` | `31` | 355,71 Bi |
+| Financeira | `sinistros` | `41` | 282,17 Bi |
+| Financeira | `lucro` | `69` → derivado `3 - 4 - 61` | 24,43 Bi |
+| Financeira | `patrimonio` | `25` | 148,52 Bi |
+| Financeira | `caixa` | `121 + 122` | 119,27 Bi |
+| Financeira | `passivo_circulante` | `21` | 104,30 Bi |
+| Financeira | `passivo_nao_circulante` | `23` | 53,95 Bi |
+| Financeira | `ativo_total` | `1` | 306,95 Bi |
+| Operacional | `despesas_administrativas` | `46` | 32,32 Bi |
+| Operacional | `pessoal` | `461` | 14,06 Bi |
+| Operacional | `servicos_terceiros` | `462` | 7,57 Bi |
+| Operacional | `localizacao_funcionamento` | `463` | 5,09 Bi |
+| Operacional | `publicidade` | `464` | 1,40 Bi |
+| Operacional | `tributos_operacionais` | `465` | 0,67 Bi |
+| Operacional | `multas` | `466` | 0,72 Bi |
+| Operacional | `adm_diversas` | `468` | 2,80 Bi |
+| Operacional | `outras_despesas_operacionais` | `44` | 31,76 Bi |
+| Operacional | `provisoes_tecnicas` | `211 + 231` | 82,50 Bi |
+| Estrutura | `investimentos` | `132` | 38,57 Bi |
+| Estrutura | `imobilizado` | `133` | 31,68 Bi |
+| Estrutura | `intangivel` | `134` | 19,97 Bi |
+| Estrutura | `goodwill` | `132139013` | 3,58 Bi (9 ops) |
+| Estrutura | `it_softwares` | `134129011` | 6,01 Bi |
+
+**Leituras que evitam erro de interpretação:**
+
+- `25` é o **Patrimônio Líquido** (não lucro líquido). O lucro acumulado é `256` (R$ 1,30 Bi em 2025).
+- `12` é o **Ativo Circulante** (R$ 160,37 Bi), **não** caixa. Liquidez imediata = `121` (Disponível) + `122` (Aplicações Financeiras).
+- `21` é o **Passivo Circulante** e `23` o **Passivo Não Circulante** (não "obrigações trabalhistas"/"fornecedores").
+- `6` é o **pai** de `61` (impostos) e `69` (apuração do resultado): usar `6` como despesa contaria o resultado duas vezes.
+- `468` são despesas administrativas diversas (não judiciais) e `463` é localização e funcionamento (não glosas).
+- A identidade do balanço é `1 = 21 + 23 + 25`.
+
+### 5. Gate de qualidade (fail-closed)
+
+`etl/validation.py` roda **8 checagens** sobre o frame bruto **antes** da carga e **bloqueia** o ano se qualquer uma falhar:
+
+1. colunas obrigatórias · 2. `REG_ANS` válido · 3. valores numéricos · 4. ramo `411` presente · 5. estrutura de códigos · 6. volume plausível · 7. sem duplicidades · 8. comparação com o ano-base (razão entre 0,1× e 10×).
+
+O check 8 é o que teria barrado a série corrompida: 2024/2023 = 0,10 → bloqueio.
+
+### 6. Reconciliação com o bruto
+
+`python scripts/auditar_serie.py` recalcula os agregados a partir dos CSV e compara com o banco:
+
+| Conta (2025) | Bruto | Banco | Diferença |
+| :--- | ---: | ---: | ---: |
+| Receita (`31`) | 355,71 Bi | 355,40 Bi | 0,085% |
+| Sinistros (`41`) | 282,17 Bi | 282,17 Bi | 0,001% |
+| Ativo (`1`) | 306,95 Bi | 307,58 Bi | 0,205% |
+| Passivo circulante (`21`) | 104,30 Bi | 104,59 Bi | 0,272% |
+| Resultado (`3 - 4 - 61`) | 24,43 Bi | 24,43 Bi | 0,008% |
+| Patrimônio (`25`) | 148,52 Bi | 153,67 Bi | 3,47% |
+
+A diferença no patrimônio é o próprio Método D: para operadoras que não publicam a conta sintética `25`, o híbrido soma as folhas analíticas.
 
 ---
 
 ## ⚠️ Limitações Conhecidas & Rigor Acadêmico
 
-### Delimitação Temporal
-O período de análise principal foi delimitado aos exercícios de **2024 e 2025** em razão de inconsistências estruturais identificadas no plano de contas de 2023 publicado pela ANS, que comprometeriam a comparabilidade da série histórica. A exclusão de 2023 do escopo principal assegura consistência aos indicadores analíticos apresentados.
+### Delimitação temporal
+A série cobre **2023, 2024 e 2025** completos e **2026 parcial** (1T + 2T — a ANS ainda não publicou 3T/4T de 2026). O badge `⚠️ Parcial` aparece no seletor de período.
 
-### Lacuna Estrutural da ANS (2024)
-A ANS não publicou as contas `411xxxxxx` completas de certas grandes operadoras no exercício de 2024. O sistema lida com isso de forma transparente:
-- Badge explicativo `⚠️ Lacuna ANS` em seletores e cabeçalhos.
-- Script dedicado de auditoria quantitativa operadora-por-operadora: `scripts/auditar_lacuna_2024.py`.
-- Disclaimer acadêmico contextual em todas as abas.
+### Natureza do dado
+- A base é a **demonstração contábil quarterly publicada pela ANS**, com o valor de fechamento de cada trimestre (saldos acumulados, não fluxo trimestral).
+- Nem toda operadora publica todas as contas: quando uma conta falta, a métrica correspondente é **zero**, não "desconhecida". Rankings por métrica específica consideram apenas quem tem valor.
+- O **Método D** é uma regra de consolidação sobre a árvore de contas da ANS, não um procedimento oficial da ANS. A reconciliação com o bruto (item 6) é a evidência de que a distorção é pequena (< 0,3% nas contas agregadas).
+- A identidade contábil `1 = 21 + 23 + 25` fecha exatamente para a maioria das operadoras; resíduo nas demais reflete assimetria de publicação (patrimônio de um trimestre, resultado de outro).
+
+### Ausência de "lacuna ANS 2024"
+Não há evidência de lacuna de publicação em 2024: os totais de 2024 refletem a série completa do `4T2024.csv`. A alegação anterior foi removida do código, do README e da interface.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
 ### Backend
-- **Python 3.11+**
-- **FastAPI:** framework moderno e assíncrono para construção de APIs REST de alta performance.
-- **Pydantic 2.x & pydantic-settings:** tipagem estrita, schemas de resposta e injeção de configuração por variáveis de ambiente.
-- **SQLAlchemy 2.x & PyMySQL:** ORM, conexão transacional e pool de conexões otimizado.
-- **Pandas 2.x & NumPy:** processamento vetorizado de grandes volumes tabulares e cálculos estatísticos (IQR).
-- **ReportLab & Matplotlib:** geração dinâmica de relatórios executivos em PDF com gráficos de alta resolução.
-- **openpyxl:** geração e formatação de planilhas Excel `.xlsx` multi-abas consolidadas.
-- **APScheduler:** orquestração e agendamento de jobs de background.
-- **httpx & tenacity:** download resiliente de arquivos compactados com retries exponenciais.
-- **Loguru:** telemetria estruturada e rastreabilidade de execuções.
+- **Python 3.11+**, **FastAPI**, **Pydantic 2.x** / `pydantic-settings`
+- **SQLAlchemy 2.x** + **PyMySQL**, **Pandas 2.x** / **NumPy**
+- **ReportLab** + **Matplotlib** (PDF), **openpyxl** (Excel)
+- **APScheduler**, **httpx** + **tenacity**, **Loguru**
 
 ### Frontend
-- **Vue.js 3:** Composition API com reatividade desacoplada e modularização por componentes.
-- **Vite 5+:** pipeline de build moderno com empacotamento rápido e tree-shaking otimizado.
-- **Chart.js 4:** renderização dinâmica de gráficos de barras horizontais, barras agrupadas, linhas e pizza.
-- **Vanilla CSS:** design system autoral com variáveis CSS para suporte completo a 4 temas institucionais, sem dependências de frameworks pesados.
-- **API Client Centralizado (`api.js`):** camada desacoplada com tratamento de exceções, rotas v1.2 e formatação monetária (BRL).
+- **Vue.js 3** (Composition API), **Vite 5+**, **Chart.js 4**
+- **Vanilla CSS** com design system próprio (4 temas institucionais, contraste WCAG)
 
 ### Infraestrutura & DevOps
-- **Docker & Docker Compose:** orquestração de containers para MySQL 8.0, Redis 7 e Backend.
-- **Dockerfile Multi-Stage:** imagem otimizada em 3 stages (`builder`, `production`, `test`) baseada em Python 3.12-slim.
-- **GitHub Actions (`ci.yml`):** pipeline automatizado executando lint (`black`, `isort`, `flake8`), testes unitários com gate de cobertura ≥65%, integração com serviços MySQL/Redis ao vivo e build da imagem Docker.
-- **MySQL 8.0:** banco de dados relacional principal (porta 3307).
-- **Redis 7:** cache de consultas e controle de locks de execução (porta 6379).
+- **Docker & Docker Compose**: MySQL 8.0 (porta 3307) e Redis 7
+- **Dockerfile multi-stage** (builder / produção / teste) em Python 3.12-slim
+- **GitHub Actions**: lint (`black`, `isort`, `flake8`), testes com gate de cobertura ≥ 60%, integração com MySQL/Redis ao vivo e build da imagem
 
 ---
 
 ## 🚀 Como Executar Localmente
 
 ### Pré-requisitos
-- Python 3.11+
-- Node.js 18+ e npm
-- Docker e Docker Compose (para MySQL e Redis)
+Python 3.11+, Node.js 18+, Docker e Docker Compose.
 
----
-
-### 1. Clonar e Configurar o Ambiente
+### 1. Configurar o ambiente
 
 ```bash
-# Clonar o repositório
 git clone https://github.com/LCS87/ans-app.git
 cd ans-app
+cp .env.example .env          # Windows: Copy-Item .env.example .env
 
-# Criar arquivo de configuração a partir do exemplo
-cp .env.example .env
-
-# Criar e ativar o ambiente virtual (Windows PowerShell)
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
-# Linux / macOS:
-# python3 -m venv .venv && source .venv/bin/activate
-
-# Instalar dependências completas
 pip install -r requirements.txt
 ```
 
----
-
-### 2. Iniciar Serviços Docker (MySQL + Redis)
+### 2. Subir MySQL e Redis
 
 ```bash
 cd docker
 docker-compose up -d db redis
-docker-compose ps
 cd ..
 ```
 
----
-
-### 3. Carga Inicial Rápida para Desenvolvimento (Opcional)
-
-Para testar a aplicação imediatamente com dados sintéticos sem precisar baixar gigabytes de ZIPs da ANS:
+### 3. (Opcional) Dados sintéticos para desenvolvimento rápido
 
 ```bash
-# Popula o banco com dados completos de teste para todas as dimensões v1.2
-python scripts/seed_ci.py
+python scripts/seed_ci.py     # 60 operadoras sintéticas, período 2023-2025
 ```
 
----
+> O seed **recusa gravar sobre dados reais** (a menos que `ANS_SEED_FORCE=1`). Para o dashboard com dados da ANS, use o pipeline (passo 5).
 
-### 4. Executar o Backend (FastAPI)
+### 4. Backend
 
 ```bash
 py -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-A API estará disponível em: `http://localhost:8000` (Swagger UI em `http://localhost:8000/api/v1/docs`).
+Swagger em `http://localhost:8000/api/v1/docs`.
 
----
-
-### 5. Executar o Frontend (Vue 3 + Vite)
-
-Em um novo terminal:
+### 5. Frontend
 
 ```bash
 cd frontend/vue-app
@@ -327,80 +290,68 @@ npm install
 npm run dev
 ```
 
-Acesse o dashboard em: **`http://localhost:5173/`**
+Dashboard em **`http://localhost:5173/`**.
 
----
-
-### 6. Executar Pipeline ETL com Dados Reais da ANS (Produção)
+### 6. Carregar os dados reais da ANS
 
 ```bash
-# Executar pipeline para o ano de referência (2025)
-curl.exe -X POST "http://localhost:8000/api/v1/admin/run-pipeline?ano=2025"
-
-# Executar pipeline para 2024 (com lacuna)
-curl.exe -X POST "http://localhost:8000/api/v1/admin/run-pipeline?ano=2024"
-
-# Executar para 2026 parcial
-curl.exe -X POST "http://localhost:8000/api/v1/admin/run-pipeline?ano=2026"
+py -m etl.pipeline --ano 2023
+py -m etl.pipeline --ano 2024
+py -m etl.pipeline --ano 2025
+py -m etl.pipeline --ano 2026
 ```
+
+Cada execução: download (pula o que já existe) → extração multi-dimensão → **gate de qualidade** → carga idempotente no MySQL. Alternativa: `POST /api/v1/admin/run-pipeline?ano={ano}`.
 
 ---
 
-## 📡 Referência da API (Endpoints v1.2)
+## 📡 Referência da API (v1.3)
 
-### 🏥 Dimensões Contábeis & Analytics
+### Dimensões Contábeis & Analytics
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `GET` | `/api/v1/dimension/{dim}` | Retorna ranking da dimensão (`gastos`, `financeira`, `operacional`, `estrutura`) com filtros opcionais (`periodo`, `top`, `modalidade`, `uf`, `regiao`) e badges de outlier |
-| `GET` | `/api/v1/top-rankings` | 5 sub-rankings Top 20 por Receita, Sinistro, Patrimônio Líquido, Caixa e Lucro |
-| `GET` | `/api/v1/quarterly` | Análise temporal agrupada 1T×2T×3T×4T do Top 5, ou drill-down por operadora (`registro_ans`) com sazonalidade |
-| `GET` | `/api/v1/regional` | Dados agregados por UF e Região para o Heatmap das 27 UFs com seletor de métrica |
-| `GET` | `/api/v1/summary` | Resumo consolidado de KPIs do período |
-| `GET` | `/api/v1/operadoras/{registro_ans}/history` | Linha do tempo plurianual de uma operadora (Gastos, Receita, Lucro, Patrimônio, Caixa) |
+| `GET` | `/api/v1/dimension/{dim}` | Ranking da dimensão (`gastos`, `financeira`, `operacional`, `estrutura`) com filtros (`periodo`, `top`, `modalidade`, `uf`, `regiao`) e badges de outlier |
+| `GET` | `/api/v1/top-rankings` | 5 sub-rankings Top 20 (receita, sinistro, PL, caixa, lucro) |
+| `GET` | `/api/v1/quarterly` | Análise 1T×2T×3T×4T do Top 5 ou drill-down por operadora |
+| `GET` | `/api/v1/regional` | Agregado por UF e Região (Heatmap) com seletor de métrica |
+| `GET` | `/api/v1/summary` | Resumo consolidado do período |
+| `GET` | `/api/v1/operadoras/{registro_ans}/history` | Timeline plurianual da operadora |
 | `GET` | `/api/v1/analytics/gastos` | Ranking clássico de gastos assistenciais |
-| `GET` | `/api/v1/analytics/year-metadata` | Metadados dos anos carregados para exibição de badges no seletor |
+| `GET` | `/api/v1/analytics/year-metadata` | Metadados dos anos (trimestres, totais, badges) |
 
-### 📥 Exportação & Relatórios
+### Exportação & Relatórios
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `GET` | `/api/v1/export/pdf?periodo={ano}` | Download de relatório institucional completo em PDF com gráficos gerados dinamicamente |
-| `GET` | `/api/v1/export/excel?periodo={ano}` | Download de planilha Excel `.xlsx` multi-abas consolidada |
-| `POST` | `/api/v1/upload-csv` | Upload manual de arquivo CSV de demonstrações com validação e normalização automática |
+| `GET` | `/api/v1/export/pdf?periodo={ano}` | Relatório institucional em PDF |
+| `GET` | `/api/v1/export/excel?periodo={ano}` | Planilha `.xlsx` multi-abas |
+| `POST` | `/api/v1/upload-csv` | Upload manual de CSV com validação e normalização |
 
-### 🔍 Operadoras
+### Operadoras
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
 | `GET` | `/api/v1/operadoras?q={termo}&page={p}&limit={n}` | Busca paginada com normalização Unicode |
-| `GET` | `/api/v1/operadoras/{registro_ans}` | Detalhes cadastrais de uma operadora específica |
+| `GET` | `/api/v1/operadoras/{registro_ans}` | Detalhes cadastrais (aceita `5711` ou `005711`) |
 
-### ⚙️ Administração & Saúde
+### Administração & Saúde
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `GET` | `/health` | Liveness e readiness probe da aplicação (status, banco, uptime) |
-| `GET` | `/api/v1/admin/status` | Status do scheduler e componentes do sistema |
-| `GET` | `/api/v1/admin/disk-usage` | Uso detalhado de disco por categoria |
-| `GET` | `/api/v1/admin/pipeline-history` | Histórico de execuções do ETL com status e volumetria |
-| `POST` | `/api/v1/admin/run-pipeline?ano={ano}` | Disparo manual do pipeline para um ano específico |
+| `GET` | `/health` | Liveness/readiness (status, banco, uptime) |
+| `GET` | `/api/v1/admin/status` | Status do scheduler e dos componentes |
+| `GET` | `/api/v1/admin/disk-usage` | Uso de disco por categoria |
+| `GET` | `/api/v1/admin/pipeline-history` | Histórico do ETL com veredito do gate |
+| `POST` | `/api/v1/admin/run-pipeline?ano={ano}` | Disparo manual do pipeline |
 
 ---
 
 ## 🧪 Testes Automatizados & Qualidade
 
-A suíte de testes do projeto conta com **82 testes automatizados** cobrindo todas as camadas da aplicação:
-
 ```bash
-# Executar a suíte de testes com medição de cobertura
-pytest tests/ -q --ignore=tests/test_endpoints.py --ignore=tests/test_pipeline.py --cov=api --cov=etl --cov-report=term-missing
+pytest tests/ -q --ignore=tests/test_endpoints.py --ignore=tests/test_pipeline.py
 ```
 
-### Resultados da Suíte:
-- **Testes:** ✅ **82 passed**, 4 skipped (testes de integração com banco/rede externa desacoplados).
-- **Cobertura de Código:** **74%** (superando com folga a meta do milestone F1 de ≥65%).
-- **Pipeline de Integração Contínua (CI):**
-  1. `Lint`: validação estrita com `black --check`, `isort --check` e `flake8`.
-  2. `Tests + Coverage Gate`: execução automatizada com falha caso a cobertura fique abaixo de 65%.
-  3. `Integration`: deploy de containers MySQL e Redis em ambiente de CI, carga via `scripts/seed_ci.py`, inicialização da API e execução de testes de integração com banco vivo.
-  4. `Docker Build`: compilação e verificação de integridade da imagem Docker multi-stage de produção.
+- **127 testes passando** · **74,8% de cobertura** (gate do CI: ≥ 60%).
+- Cobrem: normalização (`etl/normalization.py`), Método D, mapeamento P1 (multi-prefixo, identidade de balanço, lucro derivado), carga/upsert, gate de qualidade, contrato dos endpoints REST e normalização de `REG_ANS`.
+- `scripts/auditar_serie.py` reconcilia o banco com o CSV bruto (fora da suíte, por depender dos arquivos da ANS).
 
 ---
 
@@ -408,160 +359,63 @@ pytest tests/ -q --ignore=tests/test_endpoints.py --ignore=tests/test_pipeline.p
 
 ```text
 ans-app/
-├── .github/workflows/
-│   └── ci.yml                         # Pipeline CI completo (Lint, Testes, Gate 65%, Docker)
-├── api/                               # Backend FastAPI
-│   ├── main.py                        # Rotas principais, lifespan, injeção de dependência e CORS
-│   ├── admin.py                       # Rotas administrativas e telemetria
-│   ├── accounting_maps.py             # Mapeamento do plano de contas ANS (DOC 275)
-│   ├── models.py                      # Schemas Pydantic v2
-│   ├── config.py                      # Configurações de ambiente (pydantic-settings)
-│   ├── cache.py                       # Camada de cache (Redis)
-│   ├── scheduler.py                   # APScheduler mensal
-│   ├── search_service.py              # Indexação em memória e busca de operadoras
+├── .github/workflows/ci.yml      # Lint, testes + gate de cobertura, integração, Docker
+├── api/                          # Backend FastAPI
+│   ├── main.py                   # Rotas, lifespan, CORS, year-metadata
+│   ├── accounting_maps.py        # Plano de contas ANS (DOC 275) por dimensão
+│   ├── console.py                # Console UTF-8 (Windows cp1252)
+│   ├── models.py / config.py / cache.py / scheduler.py / search_service.py
 │   └── services/
-│       ├── analytics_service.py       # Cálculos contábeis, rankings, trimestrais e regionais
-│       ├── operadoras_service.py      # Gestão de cadastro e dados das operadoras (CADOP)
-│       └── export/
-│           ├── pdf_export.py          # Exportação PDF com ReportLab e Matplotlib
-│           └── excel_export.py        # Exportação Excel consolidada com openpyxl
-│
-├── frontend/vue-app/                  # Frontend Vue 3 + Vite
-│   └── src/
-│       ├── App.vue                    # Aplicação principal (Barra global, 8 abas, modais)
-│       ├── api.js                     # Cliente HTTP centralizado com endpoints v1.2
-│       ├── style.css                  # Design system, variáveis CSS, temas e acessibilidade
-│       ├── main.js                    # Inicialização do Vue
-│       └── components/
-│           ├── DimensionView.vue      # Visualização multi-dimensão (Financeira/Operacional/Estrutura)
-│           ├── TopRankingsView.vue    # Rankings alternáveis Top 20 (5 sub-rankings)
-│           ├── QuarterlyView.vue      # Gráfico agrupado 1T-4T e pizza de sazonalidade
-│           ├── RegionalHeatmap.vue    # Heatmap das 27 UFs por região e seletor de métrica
-│           ├── OperadoraTimelineModal.vue # Modal com timeline plurianual por operadora
-│           ├── UploadCsvModal.vue     # Modal drag & drop para carga manual de CSV
-│           ├── AdminPanel.vue         # Painel administrativo e status do scheduler
-│           ├── BarChart.vue           # Wrapper Chart.js para gráficos de barras
-│           ├── PieChart.vue           # Wrapper Chart.js para gráficos de pizza
-│           ├── LineChart.vue          # Wrapper Chart.js para gráficos de linhas
-│           ├── TreemapChart.vue       # Componente para visualização hierárquica
-│           ├── SkeletonChart.vue      # Skeleton loaders animados
-│           ├── ThemeToggle.vue        # Seletor dinâmico dos 4 temas
-│           ├── ExportButton.vue       # Botão de exportação CSV com UTF-8 BOM
-│           ├── YearBadge.vue          # Badges de qualidade e integridade do período
-│           ├── YearTimeline.vue       # Barras comparativas de anos no dashboard
-│           └── AcademicDisclaimer.vue # Disclaimers metodológicos contextuais
-│
-├── etl/                               # Pipeline de Engenharia de Dados
-│   ├── pipeline.py                    # Orquestrador unificado (Extract -> Transform -> Load)
-│   ├── download.py                    # Download assíncrono resiliente (httpx + tenacity)
-│   ├── extract.py                     # Extração e aplicação do Método D híbrido
-│   ├── load.py                        # Ingestão idempotente no MySQL (ANSLoader)
-│   ├── validation.py                  # Gate de qualidade com 8 checagens automatizadas
-│   ├── cleanup.py                     # Rotinas de limpeza de temporários
-│   └── notifications.py              # Disparo de alertas de falha no pipeline
-│
-├── scripts/                           # Ferramentas de suporte e automação
-│   ├── auditar_lacuna_2024.py         # Auditoria quantitativa da lacuna da ANS em 2024
-│   ├── seed_ci.py                     # População de dados sintéticos para testes e CI
-│   ├── populate_dimensions.py         # Carga inicial das dimensões contábeis v1.2
-│   ├── run_full_pipeline.py           # Execução completa ponta a ponta
-│   └── check_endpoints.py             # Validação rápida de integridade dos endpoints
-│
-├── docker/
-│   ├── docker-compose.yml             # MySQL 8.0, Redis 7 e serviços auxiliares
-│   ├── docker-compose.monitoring.yml  # Esqueleto Prometheus + Grafana
-│   └── backend/
-│       └── Dockerfile                 # Dockerfile multi-stage otimizado
-│
-├── tests/                             # Suíte de testes automatizados (pytest)
-│   ├── conftest.py                    # Fixtures compartilhadas e banco SQLite em memória
-│   ├── test_api.py                    # Testes de contrato dos endpoints REST v1.2
-│   ├── test_extract.py                # Testes unitários do Método D
-│   ├── test_validation.py             # Testes do gate de qualidade (8 checks)
-│   ├── test_cache_search.py           # Testes de busca e cache Redis
-│   ├── test_etl.py                    # Testes integrados de carga e normalização
-│   └── test_endpoints.py              # Testes de integração ao vivo
-│
-├── requirements.txt                   # Dependências Python completas
-├── requirements.prod.txt              # Dependências mínimas de produção
-├── pytest.ini                         # Configurações do pytest e coverage
-└── README.md                          # Este documento
+│       ├── analytics_service.py  # Rankings, trimestral, regional, outliers
+│       ├── operadoras_service.py # Cadastro CADOP e busca
+│       └── export/               # pdf_export.py, excel_export.py
+├── frontend/vue-app/src/         # Vue 3 + Vite (App.vue, 8 abas, modais)
+├── etl/                          # Pipeline de dados
+│   ├── pipeline.py               # Orquestrador (extrair → mesclar → gate → carga)
+│   ├── download.py               # Download resiliente (httpx + tenacity)
+│   ├── extract.py                # Leitura, normalização e Método D
+│   ├── load.py                   # UPSERT idempotente + migração de schema
+│   ├── normalization.py          # REG_ANS canônico, parser BRL, deduplicação
+│   ├── validation.py             # Gate de qualidade (8 checks, fail-closed)
+│   └── scripts/                  # Diagnósticos e comparativos A/B/C/D
+├── scripts/
+│   ├── seed_ci.py                # Seed sintético (somente CI/testes)
+│   ├── auditar_serie.py          # Reconciliação banco × CSV bruto
+│   ├── migrate_v12.py            # Migração de schema
+│   └── run_full_pipeline.py      # Execução ponta a ponta
+├── db/mysql/01_ddl.sql           # Schema (inclui FK para `operadoras`)
+├── docker/                       # Compose (MySQL, Redis, backend, frontend)
+├── tests/                        # 127 testes (pytest)
+├── requirements.txt / requirements.prod.txt
+├── pytest.ini
+└── README.md
 ```
 
----
-
-## 🗺️ Status do Cronograma & Próximos Passos
-
-### 🏁 Fases Concluídas (v1.2 — Estável)
-
-- [x] **Fase 1 — Qualidade & Testes:**
-  - Testes unitários do Método D (`test_extract.py`) e gate de qualidade (`test_validation.py`).
-  - Testes de contrato de endpoints REST (`test_api.py`) e integração com SQLite em memória (`test_etl.py`).
-  - Cobertura de código atingiu **74%** (meta ≥65% batida).
-  - Script de auditoria da lacuna ANS 2024 (`scripts/auditar_lacuna_2024.py`).
-- [x] **Fase 2 — Novas Abas Contábeis:**
-  - Abas Financeira, Operacional e Estrutura implementadas no frontend (`DimensionView.vue`).
-  - Suporte a múltiplos prefixos contábeis no ETL e no schema do banco (`accounting_maps.py`).
-  - Métricas derivadas calculadas em tempo real (Sinistralidade % e Endividamento %).
-- [x] **Fase 3 — Análises Avançadas:**
-  - Rankings Top 20 por 5 métricas distintas (`TopRankingsView.vue`).
-  - Análise Trimestral comparativa 1T×2T×3T×4T e sazonalidade individual (`QuarterlyView.vue`).
-  - Detecção estatística de outliers com método IQR e badge `⚠️ Outlier`.
-  - Filtros cruzados por Modalidade, UF e Região com correção de contraste (`#1e293b`).
-  - Comparação regional com Heatmap interativo das 27 UFs (`RegionalHeatmap.vue`).
-- [x] **Fase 4 — Exportação & Relatórios:**
-  - Exportação em PDF institucional gerado via ReportLab/Matplotlib (`/export/pdf`).
-  - Exportação em planilha Excel multi-abas consolidada via openpyxl (`/export/excel`).
-  - Interface para Upload Manual de CSV com drag & drop (`UploadCsvModal.vue`).
-  - Modal com linha do tempo histórica plurianual da operadora (`OperadoraTimelineModal.vue`).
-- [x] **Fase 5 (Parcial) — CI & Containerização:**
-  - Pipeline de CI automatizado no GitHub Actions com lint, testes, gate de cobertura, banco ao vivo e build Docker.
-  - Dockerfile multi-stage otimizado (builder, production, test) em Python 3.12-slim.
+> **Artefatos fora do Git** (`.gitignore`): ambiente virtual, dados brutos e processados da ANS (~1 GB), dumps de banco em `backups/`, logs, `.env` e cobertura.
 
 ---
 
-### ⏳ Backlog — Fase 5 Restante (Produção & Nuvem)
+## 🗺️ Próximos Passos
 
-Os itens restantes encerram o ciclo de profissionalização do sistema:
-
-1. **🚀 F5.3 — Deploy em Nuvem (Render/Railway com `render.yaml`):**
-   - **O que faz:** Provisionamento de Infrastructure-as-Code (IaC) para disponibilizar a aplicação em URL pública gratuita (ex.: `ans-intelligence.onrender.com`), integrando backend FastAPI e servindo os arquivos estáticos do frontend Vue (`dist/`).
-   - **Status:** Backlog prioritário.
-2. **📊 F5.4 — Observabilidade (Prometheus + Grafana):**
-   - **O que faz:** Exposição de métricas via endpoint `/metrics` com `prometheus-fastapi-instrumentator` e provisionamento de 4 dashboards no Grafana (RPS/latência da API, taxa de erros, status dos jobs de ETL e métricas de cache).
-   - **Status:** Esqueleto de containers presente em `docker-compose.monitoring.yml`; configuração e painéis em backlog.
-3. **🔌 F5.5 — WebSocket de Progresso do ETL:**
-   - **O que faz:** Canal de comunicação bidirecional (`/ws/etl-progress`) para feedback visual em tempo real durante a execução do pipeline longo de download e ingestão.
-   - **Status:** Backlog de baixa prioridade (conveniência de UX para painel de administração).
-4. **🧪 Smoke-Test E2E Automatizado no Navegador:**
-   - Validação automatizada ponta a ponta navegando pelas 8 abas e testando downloads de relatórios.
-
----
-
-## 🏆 Destaques de Engenharia e Portfólio
-
-- **Domínio Contábil Real:** Em vez de assumir hipóteses simplistas de planos de contas, desenvolveu-se o **Método D (Híbrido)** com fundamentação em normas contábeis da ANS (DOC 275), neutralizando distorções de contas sintéticas, folhas analíticas e recuperações financeiras.
-- **Transparência e Rigor Acadêmico:** Decisão consciente de delimitar os anos de 2024 e 2025, documentando a lacuna de publicação da ANS com auditoria detalhada operadora-por-operadora.
-- **Arquitetura Full-Stack Moderna:** Separação estrita de camadas entre API REST, serviços de analytics, pipeline de dados idempotente e Single Page Application reativa com design system próprio.
-- **Visualização Executiva de Dados:** Gráficos interativos com transições suaves, mapas de calor regionais, análises de sazonalidade e geração nativa de relatórios consolidados em PDF e planilhas Excel.
-- **Engenharia de Software de Qualidade:** Pipeline com 82 testes automatizados, gate de cobertura rígido no CI/CD e Dockerfile multi-stage pronto para implantação.
+1. **🚀 Deploy em nuvem (Render/Railway)** — `render.yaml` servindo backend FastAPI + `dist/` do frontend.
+2. **📊 Observabilidade (Prometheus + Grafana)** — endpoint `/metrics` com `prometheus-fastapi-instrumentator` e 4 dashboards.
+3. **🔌 WebSocket de progresso do ETL** — feedback visual em tempo real durante o pipeline.
+4. **🧪 Smoke-test E2E no navegador** — percorrer as 8 abas e validar os downloads.
+5. **📐 Escopo plurianual do resultado** — o `lucro` é o resultado **anual**; um fluxo trimestral (1T–4T) exige as demonstrações parciais (1T/2T/3T), que a ANS publica apenas para o exercício corrente.
 
 ---
 
 ## 👤 Autor
 
-**Leo** — Desenvolvedor Full-Stack & Engenheiro/Analista de Dados  
-- **GitHub:** [@LCS87](https://github.com/LCS87)  
-- **Projeto:** [ANS Intelligence](https://github.com/LCS87/ans-app)
+**Leo** — Desenvolvedor Full-Stack & Engenheiro/Analista de Dados
+- **GitHub:** [@LCS87](https://github.com/LCS87) · **Projeto:** [ANS Intelligence](https://github.com/LCS87/ans-app)
 
 ---
 
 ## 🙏 Agradecimentos
 
-- **ANS (Agência Nacional de Saúde Suplementar)** pela disponibilização dos Dados Abertos e demonstrativos contábeis.
-- Comunidades open-source do **FastAPI**, **Vue.js**, **Chart.js** e **ReportLab**.
+**ANS (Agência Nacional de Saúde Suplementar)** pela disponibilização dos Dados Abertos e das demonstrações contábeis, e as comunidades open-source de FastAPI, Vue.js, Chart.js e ReportLab.
 
 ---
 
-*Última atualização: Outubro/2026*  
-*Versão: **1.2.0** (Estável)*
+*Última atualização: Outubro/2026 · Versão: **1.3.0** (mapeamento contábil P1 + dados reais)*

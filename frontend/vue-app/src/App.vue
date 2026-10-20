@@ -160,6 +160,7 @@
       <DimensionView
         :dim="view"
         :periodo="selectedYear"
+        :chart-palette="operatorChartPalette"
         @export="downloadExport"
         @detail="openTimeline"
       />
@@ -167,7 +168,7 @@
 
     <!-- v1.2 — TOP 20 (F3.1) -->
     <div v-if="view === 'top20'" class="card">
-      <TopRankingsView :periodo="selectedYear" @detail="openTimeline" />
+      <TopRankingsView :periodo="selectedYear" :chart-color="getChartColors()[1]" @detail="openTimeline" />
     </div>
 
     <!-- v1.2 — TRIMESTRAL (F3.2) -->
@@ -364,6 +365,10 @@ function getOperadoraColor(index) {
   const palette = [c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10]]
   return palette[index % palette.length]
 }
+
+const operatorChartPalette = computed(() =>
+  Array.from({ length: 10 }, (_, index) => getOperadoraColor(index))
+)
 
 function getYearColor(ano) {
   const c = getChartColors()

@@ -38,7 +38,7 @@ df_all = ext.marcar_folhas(df_all)
 
 # Filtrar APENAS folhas 411 com valor > 0
 df_folhas = df_all[
-    (df_all["is_leaf"] == True)
+    (df_all["is_leaf"].astype(bool))
     & (df_all["CD_CONTA_CONTABIL"].str.startswith("411"))
     & (df_all["VL_SALDO_FINAL"] > 0)
 ].copy()

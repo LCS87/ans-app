@@ -24,7 +24,6 @@ from typing import List, Optional
 from loguru import logger
 from sqlalchemy import create_engine, text
 
-
 # Adicionar raiz do projeto ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -33,6 +32,7 @@ from api.config import get_settings
 from etl.download import ANSDownloader
 from etl.extract import ANSExtractor
 from etl.load import ANSLoader
+from etl.validation import imprimir_relatorio, validar_ano
 
 
 # ----------------------------------------------------------------------
@@ -44,35 +44,99 @@ def extrair_dimensoes(ano: int, base_dir=None, extractor=None) -> dict:
     """
     Extrai todas as dimensões contábeis de um ano em uma passada cacheada.
 
+    ``gastos`` usa ``processar_ano`` para manter as colunas trimestrais
+    (gasto_1T..4T); as demais dimensões usam ``processar_contas``.
+
     Returns:
         {nome_da_dimensao: DataFrame(REG_ANS, RAZAO_SOCIAL, <colunas>)}
     """
     ex = extractor or ANSExtractor(base_dir=base_dir)
     results = {}
     for nome in DIMENSIONS:
-        prefixes = load_prefixes(nome)
-        df = ex.processar_contas(ano, prefixos=prefixes, output_col=list(prefixes)[0])
+        prefixes = dict(load_prefixes(nome))
+        if nome == "financeira":
+            # Contas internas para o fallback do resultado:
+            # 3 = Receitas, 4 = Despesas, 61 = Impostos/participações.
+            prefixes.update(
+                {
+                    "receita_total": "3",
+                    "despesas_total": "4",
+                    "impostos": "61",
+                }
+            )
+        if nome == "gastos":
+            df = ex.processar_ano(ano, quarterly_output=True)
+        else:
+            df = ex.processar_contas(ano, prefixos=prefixes, output_col=list(prefixes)[0])
+
+        if nome == "financeira" and not df.empty:
+            import pandas as pd
+
+            apurado = df["lucro"] if "lucro" in df.columns else pd.Series(0.0, index=df.index)
+            # 3 = Receitas, 4 = Despesas, 61 = Impostos e participações sobre
+            # o lucro. A diferença é o RESULTADO DO EXERCÍCIO (a conta 69
+            # "APURAÇÃO DO RESULTADO" vale exatamente isso quando publicada).
+            derivado = (
+                df.get("receita_total", 0.0)
+                - df.get("despesas_total", 0.0)
+                - df.get("impostos", 0.0)
+            )
+            # Regra uniforme para todas as operadoras: usa o derivado; só
+            # recorre à apuração publicada quando o derivado não existe
+            # (operadora sem 3/4/61 no período).
+            df["lucro"] = derivado.where(derivado != 0, apurado)
+            df = df.drop(
+                columns=["receita_total", "despesas_total", "impostos"],
+                errors="ignore",
+            )
+
         results[nome] = df
         logger.info(f"🌳 [{ano}] dimensão '{nome}': {len(df)} operadoras")
     return results
 
 
-def mesclar_dimensoes(results: dict) -> "pd.DataFrame":
-    """Mescla os DataFrames das dimensões em um único wide-frame por REG_ANS."""
+def mesclar_dimensoes(results: dict) -> "pd.DataFrame":  # noqa: F821
+    """Mescla as dimensões em um wide-frame único por REG_ANS.
+
+    A primeira dimensão define a base (idealmente ``gastos``, que já traz
+    ``gasto_total`` e as colunas trimestrais). As seguintes entram apenas
+    com ``REG_ANS`` + suas métricas, evitando ``RAZAO_SOCIAL_x/_y`` e
+    colunas duplicadas. Operadoras que só existem em outra dimensão ficam
+    com ``gasto_total = 0``.
+    """
     import pandas as pd
 
-    base_cols = ["REG_ANS", "RAZAO_SOCIAL"]
-    out = None
+    base = None
     for df in results.values():
         if df is None or df.empty:
             continue
-        cols = [c for c in df.columns if c not in base_cols[1:]]
-        piece = df[[c for c in base_cols + list(df.columns[2:]) if c in df.columns]]
-        out = piece if out is None else out.merge(piece, on="REG_ANS", how="outer")
-    if out is None:
-        out = pd.DataFrame(columns=base_cols)
-    out["RAZAO_SOCIAL"] = out["RAZAO_SOCIAL"].fillna("OPERADORA SEM NOME")
-    return out
+        if base is None:
+            base = df.copy()
+            continue
+
+        piece = df.drop(columns=["RAZAO_SOCIAL"], errors="ignore")
+        duplicadas = [c for c in piece.columns if c in base.columns and c != "REG_ANS"]
+        if duplicadas:
+            piece = piece.drop(columns=duplicadas)
+        base = base.merge(piece, on="REG_ANS", how="outer")
+
+    if base is None:
+        return pd.DataFrame(columns=["REG_ANS", "RAZAO_SOCIAL"])
+
+    # Nome mais completo disponível em qualquer dimensão.
+    nomes = {}
+    for df in results.values():
+        if df is None or df.empty:
+            continue
+        if {"REG_ANS", "RAZAO_SOCIAL"} <= set(df.columns):
+            nomes.update(dict(zip(df["REG_ANS"], df["RAZAO_SOCIAL"])))
+
+    base["RAZAO_SOCIAL"] = base["REG_ANS"].map(nomes).fillna("OPERADORA SEM NOME")
+    for col in base.columns:
+        if col not in ("REG_ANS", "RAZAO_SOCIAL"):
+            base[col] = pd.to_numeric(base[col], errors="coerce").fillna(0.0)
+
+    return base.reset_index(drop=True)
 
 
 class PipelineOrchestrator:
@@ -208,18 +272,45 @@ class PipelineOrchestrator:
             # ---- ETAPA 2: EXTRAÇÃO E TRANSFORMAÇÃO ----
             logger.info(f"🔄 [{ano}] ETAPA 2/3: Extração e transformação...")
             try:
-                df_consolidated = self.extractor.processar_ano(ano)
-                output_path = self.extractor.salvar_csv(df_consolidated, ano)
+                # P0-4: uma única passada extrai gastos + financeira +
+                # operacional + estrutura e mescla por REG_ANS.
+                resultados = extrair_dimensoes(ano, extractor=self.extractor)
+                df_gastos = resultados.get("gastos")
+                if df_gastos is None or df_gastos.empty:
+                    raise ValueError("Nenhuma operadora com gastos assistenciais")
+                df_consolidado = mesclar_dimensoes(resultados)
+                output_path = self.extractor.salvar_csv(df_gastos, ano)
+
+                # Cadastro de operadoras (referenciado pela FK do DDL).
+                self.loader.sincronizar_operadoras(self.extractor.carregar_cadop())
 
                 result["extract"] = {
                     "status": "success",
-                    "records": len(df_consolidated),
+                    "records": len(df_gastos),
+                    "dimensions": {nome: len(df) for nome, df in resultados.items()},
                     "output": str(output_path),
                 }
-                logger.success(f"✅ [{ano}] {len(df_consolidated)} operadoras consolidadas")
+                logger.success(
+                    f"✅ [{ano}] {len(df_gastos)} operadoras de gastos | "
+                    f"{len(df_consolidado)} operadoras no consolidado multi-dimensão"
+                )
 
-                # ---- ETAPA 2.1: VALIDAÇÃO DE QUALIDADE (OPCIONAL) ----
-                logger.info(f"✅ [{ano}] Validação de qualidade: pulada (já validado)")
+                # ---- ETAPA 2.1: GATE DE QUALIDADE (BLOQUEIA A CARGA) ----
+                bruto = self.extractor.df_bruto(ano).rename(columns={"TRIMESTRE": "TRIM"})
+                veredito, checks = validar_ano(
+                    ano,
+                    bruto,
+                    total_base=self.loader.obter_total(str(ano - 1)),
+                )
+                imprimir_relatorio(ano, veredito, checks)
+                result["quality_gate"] = {"veredito": veredito, "checks": checks}
+                if veredito == "BLOQUEADO":
+                    raise ValueError(
+                        f"Gate de qualidade bloqueou o ano {ano}: "
+                        + "; ".join(
+                            f"{c['check']}={c['detalhe']}" for c in checks if c["status"] == "FAIL"
+                        )
+                    )
 
             except Exception as e:
                 logger.error(f"❌ [{ano}] Erro na extração: {e}")
@@ -229,8 +320,12 @@ class PipelineOrchestrator:
             # ---- ETAPA 3: CARGA NO MYSQL ----
             logger.info(f"💾 [{ano}] ETAPA 3/3: Carga no MySQL...")
             try:
-                df_normalizado = self.loader.normalizar_colunas(df_consolidated, periodo=str(ano))
-                total_carregado = self.loader.carregar(df_normalizado, periodo=str(ano))
+                df_normalizado = self.loader.normalizar_colunas(
+                    df_consolidado, periodo=str(ano), dimensao="todas"
+                )
+                total_carregado = self.loader.carregar(
+                    df_normalizado, periodo=str(ano), truncate=True
+                )
 
                 validacao = self.loader.validar(str(ano))
 
@@ -355,12 +450,14 @@ async def main():
     orchestrator = PipelineOrchestrator()
     results = await orchestrator.run(anos)
 
-    # Exit code: 0 se todos OK, 1 se algum falhou
+    # Exit code: 0 se todos OK, 1 se algum falhou.
+    # Usa logger (e não print) porque o console do Windows (cp1252) não
+    # consegue codificar os emojis e derrubava o processo no final.
     if all(r["status"] == "success" for r in results):
-        print("\n🎉 PIPELINE EXECUTADO COM SUCESSO!")
+        logger.success("PIPELINE EXECUTADO COM SUCESSO!")
         sys.exit(0)
     else:
-        print("\n⚠️  PIPELINE FINALIZOU COM ERROS!")
+        logger.error("PIPELINE FINALIZOU COM ERROS!")
         sys.exit(1)
 
 

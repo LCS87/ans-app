@@ -11,11 +11,17 @@ OUTPUT_ZIP = PROJECT_ROOT / "data" / "processed" / "anexos_ans.zip"
 # Links Oficiais (Fallback Direto)
 LINKS_ANEXOS = [
     {
-        "url": "https://www.ans.gov.br/images/stories/Legislacao/rn/Anexo_I_Rol_2021RN_465.2021_RN654.2025L.pdf",
+        "url": (
+            "https://www.ans.gov.br/images/stories/Legislacao/rn/"
+            "Anexo_I_Rol_2021RN_465.2021_RN654.2025L.pdf"
+        ),
         "nome": "Anexo_I_Rol_Procedimentos.pdf",
     },
     {
-        "url": "https://www.ans.gov.br/images/stories/Legislacao/rn/Anexo_II_DUT_2021_RN_465.2021_RN660.2025.pdf",
+        "url": (
+            "https://www.ans.gov.br/images/stories/Legislacao/rn/"
+            "Anexo_II_DUT_2021_RN_465.2021_RN660.2025.pdf"
+        ),
         "nome": "Anexo_II_DUT.pdf",
     },
 ]

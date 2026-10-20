@@ -8,9 +8,9 @@
           <select v-model="metric" @change="load">
             <option value="gasto_total">Gastos Assistenciais</option>
             <option value="receita">Receita</option>
-            <option value="lucro">Lucro</option>
-            <option value="caixa">Caixa</option>
-            <option value="patrimonio">Patrimônio</option>
+            <option value="lucro">Lucro/Prejuízo</option>
+            <option value="caixa">Caixa e Equivalentes</option>
+            <option value="patrimonio">Patrimônio Líquido</option>
             <option value="despesas_administrativas">Despesas Adm.</option>
           </select>
         </label>
@@ -102,13 +102,11 @@ const maxVal = computed(() => Math.max(1, ...(data.value?.ufs || []).map(u => u.
 
 function cellStyle(uf) {
   const e = byUf.value[uf]
-  if (!e || !e.valor) return { background: '#f1f5f9', color: '#94a3b8' }
+  if (!e || !e.valor) return { background: 'var(--bg-hover)', color: 'var(--text-secondary)' }
   const t = Math.min(1, e.valor / maxVal.value)
-  // azul escalonado
-  const alpha = 0.12 + t * 0.85
   return {
-    background: `rgba(37, 99, 235, ${alpha.toFixed(2)})`,
-    color: t > 0.5 ? '#fff' : '#1e3a8a',
+    '--intensity': `${Math.round((0.12 + t * 0.68) * 100)}%`,
+    color: t > 0.5 ? '#fff' : 'var(--text-primary)',
   }
 }
 function tipFor(uf) {
@@ -120,15 +118,15 @@ function tipFor(uf) {
 <style scoped>
 .alert { background: #fef2f2; color: #b91c1c; padding: 10px 14px; border-radius: 8px; }
 .heatmap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
-.region-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; }
-.region-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: #475569; }
+.region-block { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.region-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); }
 .uf-cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
-.uf-cell { border-radius: 8px; padding: 8px 6px; text-align: center; min-height: 52px; display: flex; flex-direction: column; justify-content: center; transition: transform .1s; cursor: default; }
+.uf-cell { background: color-mix(in srgb, var(--accent) var(--intensity), var(--bg-surface)); border-radius: 8px; padding: 8px 6px; text-align: center; min-height: 52px; display: flex; flex-direction: column; justify-content: center; transition: transform .1s; cursor: default; }
 .uf-cell:hover { transform: scale(1.05); }
 .uf-label { font-weight: 800; font-size: 13px; display: block; }
 .uf-value { font-size: 10px; opacity: .9; }
-.legend { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; color: #64748b; }
-.legend-bar { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(to right, rgba(37,99,235,.12), rgba(37,99,235,.97)); }
+.legend { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; color: var(--text-secondary); }
+.legend-bar { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(to right, color-mix(in srgb, var(--accent) 12%, var(--bg-surface)), color-mix(in srgb, var(--accent) 80%, var(--bg-surface))); }
 .num { text-align: right; font-family: monospace; }
 .row { display: flex; align-items: center; gap: 10px; }
 select { padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }

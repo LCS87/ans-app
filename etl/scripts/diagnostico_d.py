@@ -43,7 +43,7 @@ def analisar_operadora(ano, reg_ans):
     df_leaf = ext.marcar_folhas(last)
     folhas = df_leaf[df_leaf["is_lea"]]["CD_CONTA_CONTABIL"].tolist()
 
-    print(f"\n📊 TODAS AS CONTAS (último trim não-zero):")
+    print("\n📊 TODAS AS CONTAS (último trim não-zero):")
     print(f"{'CD_CONTA':<12} {'VALOR':>15} {'FOLHA':>8} {'DESCRICAO':<60}")
     print(f"{'-'*100}")
 
@@ -58,7 +58,7 @@ def analisar_operadora(ano, reg_ans):
     contas_set = set(last["CD_CONTA_CONTABIL"])
     raizes = [c for c in contas_set if not any(c[:L] in contas_set for L in range(1, len(c)))]
 
-    print(f"\n🌱 RAÍzes DE VALOR (sem ancestral com valor):")
+    print("\n🌱 RAÍzes DE VALOR (sem ancestral com valor):")
     print(f"{'RAIZ':<12} {'VALOR':>15} {'FOLHAS DESC':>20} {'SOMA FOLHAS':>15}")
     print(f"{'-'*70}")
 

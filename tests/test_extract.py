@@ -84,11 +84,11 @@ class TestMetodoDCore:
 CSV_COLS = ["REG_ANS", "CD_CONTA_CONTABIL", "DESCRICAO", "VL_SALDO_FINAL"]
 
 
-def _make_zip(base_dir: Path, ano: int, trimestre: str, rows: list):
+def _make_zip(base_dir: Path, ano: int, trimestre: str, rows: list, columns=None):
     """Cria raw/demonstracoes/<ano>/<trim>.zip com um CSV interno."""
     ano_dir = base_dir / "raw" / "demonstracoes" / str(ano)
     ano_dir.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame(rows, columns=CSV_COLS)
+    df = pd.DataFrame(rows, columns=columns or CSV_COLS)
     csv_path = base_dir / f"_tmp_{trimestre}.csv"
     df.to_csv(csv_path, sep=";", index=False, encoding="utf-8")
     zip_path = ano_dir / f"{trimestre}.zip"
@@ -184,3 +184,72 @@ class TestProcessarContas:
     def test_ano_sem_zips_levanta_erro(self, extractor):
         with pytest.raises(FileNotFoundError):
             extractor.processar_contas(2099, prefixos={"x": "31"})
+
+    def test_processar_ano_colunas_trimestrais(self, extractor):
+        """O nome legado deve ser gasto_1T2024, não gasto_total_1T20242024."""
+        rows = [
+            ("111111", "41", "SINISTROS", "1.000,00"),
+            ("111111", "411", "EVENTOS", "1.000,00"),
+        ]
+        _make_zip(extractor.raw_dir.parent.parent, 2024, "1T2024", rows)
+
+        df = extractor.processar_ano(2024, quarterly_output=True)
+
+        assert "gasto_1T2024" in df.columns
+        assert "gasto_total_1T20242024" not in df.columns
+        assert df["gasto_1T2024"].iloc[0] == pytest.approx(1000.0)
+
+    # ------------------------------------------------------------------
+    # P0-1 / P0-3: regressões dos dados reais da ANS
+    # ------------------------------------------------------------------
+    def test_valor_com_virgula_decimal_nao_vira_zero(self, extractor):
+        """O CSV da ANS usa 3.500,75; o to_numeric direto devolvia NaN → 0."""
+        rows = [
+            ("111111", "41", "SINISTROS", "3.500,75"),
+            ("111111", "411", "EVENTOS", "3.500,75"),
+        ]
+        _make_zip(extractor.raw_dir.parent.parent, 2024, "1T2024", rows)
+
+        df = extractor.processar_contas(2024, prefixos={"gasto_total": "41"})
+
+        assert df.loc[df.REG_ANS == "111111", "gasto_total"].iloc[0] == pytest.approx(3500.75)
+
+    def test_reg_ans_com_e_sem_zero_viram_uma_operadora(self, extractor):
+        """5711 (1T) e 005711 (2T) são a mesma Bradesco, não duas linhas."""
+        rows_1t = [
+            ("5711", "41", "SINISTROS", "1.000,50"),
+            ("5711", "411", "EVENTOS", "1.000,50"),
+        ]
+        rows_2t = [
+            ("005711", "41", "SINISTROS", "2.000,25"),
+            ("005711", "411", "EVENTOS", "2.000,25"),
+        ]
+        base = extractor.raw_dir.parent.parent
+        _make_zip(base, 2024, "1T2024", rows_1t)
+        _make_zip(base, 2024, "2T2024", rows_2t)
+
+        df = extractor.processar_contas(2024, prefixos={"gasto_total": "41"})
+
+        assert len(df) == 1
+        assert df["REG_ANS"].iloc[0] == "005711"
+        assert df["gasto_total"].iloc[0] == pytest.approx(2000.25)
+
+    def test_conta_repetida_usa_publicacao_mais_recente(self, extractor):
+        """Mesma conta/trimestre com duas datas: vale a linha mais recente."""
+        columns = CSV_COLS + ["DATA"]
+        rows = [
+            ("111111", "41", "SINISTROS", "1.000,00", "2024-10-01"),
+            ("111111", "41", "SINISTROS", "2.000,00", "2024-12-31"),
+            ("111111", "411", "EVENTOS", "2.000,00", "2024-12-31"),
+        ]
+        _make_zip(
+            extractor.raw_dir.parent.parent,
+            2024,
+            "1T2024",
+            rows,
+            columns=columns,
+        )
+
+        df = extractor.processar_contas(2024, prefixos={"gasto_total": "41"})
+
+        assert df["gasto_total"].iloc[0] == pytest.approx(2000.0)

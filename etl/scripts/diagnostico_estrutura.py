@@ -47,7 +47,7 @@ def diagnosticar_estrutura(ano: int = 2024):
     if col_conta:
         print(f"\n✅ Coluna de código contábil encontrada: {col_conta}")
     else:
-        print(f"\n❌ NÃO há coluna de código contábil!")
+        print("\n❌ NÃO há coluna de código contábil!")
         print("   Contas disponíveis:", [c for c in df.columns if "CONT" in c.upper()])
 
     # 3. Verificar se existe VL_SALDO_INICIAL e VL_SALDO_FINAL
@@ -59,7 +59,7 @@ def diagnosticar_estrutura(ano: int = 2024):
         if "FINAL" in col:
             col_final = col
 
-    print(f"\n📊 Colunas de saldo:")
+    print("\n📊 Colunas de saldo:")
     print(f"   • Saldo Inicial: {col_inicial or 'NÃO ENCONTRADO'}")
     print(f"   • Saldo Final: {col_final or 'NÃO ENCONTRADO'}")
 
@@ -101,7 +101,8 @@ def diagnosticar_estrutura(ano: int = 2024):
         codigo = row.get(col_conta, "N/A") if col_conta else "N/A"
 
         print(
-            f"{codigo:<10} | {desc:<60} | Inicial: {valor_inicial:>15,.0f} | Final: {valor_final:>15,.0f}"
+            f"{codigo:<10} | {desc:<60} | Inicial: {valor_inicial:>15,.0f} "
+            f"| Final: {valor_final:>15,.0f}"
         )
 
     # 5. Verificar acumulação trimestral (comparar 1T vs 2T)
@@ -145,7 +146,7 @@ def diagnosticar_estrutura(ano: int = 2024):
         # Verificar níveis hierárquicos pelo código
         df_op["NIVEL"] = df_op[col_conta].str.len()
         niveis = df_op["NIVEL"].value_counts().sort_index()
-        print(f"\nNíveis hierárquicos detectados:")
+        print("\nNíveis hierárquicos detectados:")
         for nivel, count in niveis.items():
             print(f"  • Nível {nivel}: {count} contas")
 

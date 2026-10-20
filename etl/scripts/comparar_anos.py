@@ -51,8 +51,8 @@ for _, r in top.iterrows():
     d26 = f"{r['d26-25']:.1f}%" if pd.notna(r.get("d26-25")) else "—"
     print(f"{r['REG_ANS']:<8} {nome:<35} {g24:>10} {g25:>10} {g26:>10} {d25:>8} {d26:>8}")
 
-print(f"\n* 2026 é parcial (apenas 1T + 2T disponíveis)")
-print(f"\nTotais:")
+print("\n* 2026 é parcial (apenas 1T + 2T disponíveis)")
+print("\nTotais:")
 print(f"  2024: R$ {m['g2024'].sum()/1e9:.1f} Bi")
 print(f"  2025: R$ {m['g2025'].sum()/1e9:.1f} Bi")
 if "g2026" in m:

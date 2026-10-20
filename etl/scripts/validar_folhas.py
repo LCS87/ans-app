@@ -53,6 +53,7 @@ for ano in [2023, 2024, 2025]:
     so_4t = folhas411[folhas411["TRIM"].str.contains("4T", na=False)]
 
     print(
-        f"Soma 411 folhas (últ. trim. por conta): R$ {ultimo_trim['VL_SALDO_FINAL'].sum():>20,.0f}  ← CORRETO (anual)"
+        f"Soma 411 folhas (últ. trim. por conta): "
+        f"R$ {ultimo_trim['VL_SALDO_FINAL'].sum():>20,.0f}  ← CORRETO (anual)"
     )
     print(f"Soma 411 folhas (somente 4T)          : R$ {so_4t['VL_SALDO_FINAL'].sum():>20,.0f}")

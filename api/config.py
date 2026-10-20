@@ -7,6 +7,11 @@ from pathlib import Path
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from api.console import configurar_console
+
+# Console do Windows em cp1252 quebra qualquer log com símbolos Unicode.
+configurar_console()
+
 
 class Settings(BaseSettings):
     """Configurações carregadas de .env"""

@@ -1,0 +1,10 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = "etl/data"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["api", "etl", "scripts"]
+skip_glob = ["etl/data/*"]

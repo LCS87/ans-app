@@ -22,6 +22,7 @@ from api.models import (
 from api.scheduler import start_scheduler, stop_scheduler
 from api.services.analytics_service import AnalyticsService
 from api.services.operadoras_service import OperadorasService
+from etl.normalization import normalizar_registro_ans
 
 # Tempo de início para uptime
 START_TIME = time.time()
@@ -286,7 +287,7 @@ async def year_metadata():
             result = conn.execute(text("""
                 SELECT
                     periodo,
-                    COUNT(*) as total_operadoras,
+                    COUNT(CASE WHEN gasto_total > 0 THEN 1 END) as total_operadoras,
                     SUM(gasto_total) as total_geral,
                     SUM(CASE WHEN gasto_1T > 0 THEN 1 ELSE 0 END) as tem_1t,
                     SUM(CASE WHEN gasto_2T > 0 THEN 1 ELSE 0 END) as tem_2t,
@@ -298,8 +299,9 @@ async def year_metadata():
             """))
             rows = result.fetchall()
 
-        # Anos fora do escopo acadêmico (documentado no README)
-        EXCLUDED_YEARS = {"2023"}
+        # 2023 foi reincluído após a correção do parser (P0-1) e do REG_ANS
+        # (P0-3). 2022 é apenas seed sintético de CI e não deve aparecer.
+        EXCLUDED_YEARS = {"2022"}
 
         metadata = {}
         for row in rows:
@@ -325,7 +327,9 @@ async def year_metadata():
                 "quarters": trimestres_com_dados,
                 "total_operadoras": total_ops,
                 "total_geral": total_geral,
-                "hasAnsgap": periodo == "2024",
+                # Não há lacuna comprovada em 2024: o valor antigo era
+                # consequência do parser decimal (P0-1).
+                "hasAnsgap": False,
             }
 
         return metadata
@@ -354,10 +358,11 @@ async def get_operadora_by_registro(
     - **registro_ans**: Número de registro ANS da operadora
     """
 
-    # Busca exata pelo registro
-    results = service.search(query=registro_ans, limit=1)
+    # Busca exata pelo registro canônico (005711 == 5711)
+    registro_canonico = normalizar_registro_ans(registro_ans)
+    results = service.search(query=registro_canonico, limit=1)
 
-    if not results or results[0].registro_ans != registro_ans:
+    if not results or results[0].registro_ans != registro_canonico:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Operadora com registro ANS '{registro_ans}' não encontrada",
@@ -510,6 +515,7 @@ async def get_summary(
 async def get_operadora_history(
     registro_ans: str, svc: AnalyticsService = Depends(get_analytics_service)
 ):
+    registro_ans = normalizar_registro_ans(registro_ans)
     data = svc.get_operadora_history(registro_ans)
     if not data["history"]:
         raise HTTPException(

@@ -55,7 +55,7 @@ for ano in [2023, 2024, 2025]:
     # 2) Top 10 contas da AMIL no 4T, SEM threshold (para ver a magnitude real)
     amil_4t = df[(df["REG_NORM"] == "326305") & (df["TRIM"].str.contains("4T"))]
     amil_4t = amil_4t.nlargest(10, "VL_SALDO_FINAL")
-    print(f"\n📌 AMIL (326305) — TOP 10 CONTAS NO 4T (sem filtro, sem threshold):")
+    print("\n📌 AMIL (326305) — TOP 10 CONTAS NO 4T (sem filtro, sem threshold):")
     for _, r in amil_4t.iterrows():
         print(
             f"   {r['CD_CONTA_CONTABIL']:>10} | R$ {r['VL_SALDO_FINAL']:>17,.0f} | "

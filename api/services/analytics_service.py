@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, text
 
 from api.accounting_maps import get_dimension
 from api.config import Settings
+from etl.normalization import normalizar_registro_ans
 
 
 class AnalyticsService:
@@ -29,7 +30,7 @@ class AnalyticsService:
         """Anexa metadata do CADOP (UF/região/modalidade) para filtros e heat map."""
         meta = {}
         for op in operadoras_service.get_all():
-            reg = str(op.get("registro_ans", "")).strip()
+            reg = normalizar_registro_ans(op.get("registro_ans", ""))
             if reg:
                 meta[reg] = {
                     # contrato v1.2: CADOP expõe "uf"; "u" é alias legado tolerado
@@ -108,7 +109,8 @@ class AnalyticsService:
                 # Contar total de operadoras no período
                 result_count = conn.execute(
                     text("""
-                        SELECT COUNT(*) as total, SUM(gasto_total) as soma
+                        SELECT COUNT(CASE WHEN gasto_total > 0 THEN 1 END) as total,
+                               SUM(gasto_total) as soma
                         FROM gastos_assistenciais
                         WHERE periodo = :periodo
                     """),
@@ -276,6 +278,7 @@ class AnalyticsService:
         """Drill-down temporal 1T × 2T × 3T × 4T (por operadora ou consolidado)."""
         quarters = ["gasto_1T", "gasto_2T", "gasto_3T", "gasto_4T"]
         if registro_ans:
+            registro_ans = normalizar_registro_ans(registro_ans)
             sql = """
                 SELECT registro_ans, razao_social, gasto_1T, gasto_2T,
                        gasto_3T, gasto_4T, gasto_total
@@ -323,22 +326,48 @@ class AnalyticsService:
     # ------------------------------------------------------------------
     # Mapeamento de código de região CADOP → nome legível
     _REGIAO_MAP = {
-        "1": "Norte", "2": "Nordeste", "3": "Centro-Oeste",
-        "4": "Sul", "5": "Sudeste",
+        "1": "Norte",
+        "2": "Nordeste",
+        "3": "Centro-Oeste",
+        "4": "Sul",
+        "5": "Sudeste",
         # Variantes por nome completo (caso o CADOP retorne nome)
-        "Norte": "Norte", "Nordeste": "Nordeste", "Centro-Oeste": "Centro-Oeste",
-        "Sul": "Sul", "Sudeste": "Sudeste",
+        "Norte": "Norte",
+        "Nordeste": "Nordeste",
+        "Centro-Oeste": "Centro-Oeste",
+        "Sul": "Sul",
+        "Sudeste": "Sudeste",
     }
 
     # Mapeamento UF → região (fallback quando CADOP não tem)
     _UF_REGIAO = {
-        "AC": "Norte", "AP": "Norte", "AM": "Norte", "PA": "Norte",
-        "RO": "Norte", "RR": "Norte", "TO": "Norte",
-        "AL": "Nordeste", "BA": "Nordeste", "CE": "Nordeste", "MA": "Nordeste",
-        "PB": "Nordeste", "PE": "Nordeste", "PI": "Nordeste", "RN": "Nordeste", "SE": "Nordeste",
-        "DF": "Centro-Oeste", "GO": "Centro-Oeste", "MT": "Centro-Oeste", "MS": "Centro-Oeste",
-        "ES": "Sudeste", "MG": "Sudeste", "RJ": "Sudeste", "SP": "Sudeste",
-        "PR": "Sul", "RS": "Sul", "SC": "Sul",
+        "AC": "Norte",
+        "AP": "Norte",
+        "AM": "Norte",
+        "PA": "Norte",
+        "RO": "Norte",
+        "RR": "Norte",
+        "TO": "Norte",
+        "AL": "Nordeste",
+        "BA": "Nordeste",
+        "CE": "Nordeste",
+        "MA": "Nordeste",
+        "PB": "Nordeste",
+        "PE": "Nordeste",
+        "PI": "Nordeste",
+        "RN": "Nordeste",
+        "SE": "Nordeste",
+        "DF": "Centro-Oeste",
+        "GO": "Centro-Oeste",
+        "MT": "Centro-Oeste",
+        "MS": "Centro-Oeste",
+        "ES": "Sudeste",
+        "MG": "Sudeste",
+        "RJ": "Sudeste",
+        "SP": "Sudeste",
+        "PR": "Sul",
+        "RS": "Sul",
+        "SC": "Sul",
     }
 
     def get_regional(self, periodo: str, metric: str = "gasto_total") -> dict:
@@ -352,6 +381,7 @@ class AnalyticsService:
                 "lucro",
                 "caixa",
                 "patrimonio",
+                "ativo_total",
                 "despesas_administrativas",
             }
             else "gasto_total"
@@ -363,11 +393,14 @@ class AnalyticsService:
         df = self._query_df(sql, {"periodo": periodo})
         agg: dict = {}
         for _, r in df.iterrows():
-            uf = self.cadop_meta.get(str(r["registro_ans"]), {}).get("uf", "") or "--"
+            registro = normalizar_registro_ans(r["registro_ans"])
+            uf = self.cadop_meta.get(registro, {}).get("uf", "") or "--"
             uf = uf.upper().strip()
             # Resolve nome da região: CADOP pode retornar código ou nome
-            regiao_raw = self.cadop_meta.get(str(r["registro_ans"]), {}).get("regiao", "") or ""
-            regiao = self._REGIAO_MAP.get(str(regiao_raw).strip(), "") or self._UF_REGIAO.get(uf, "")
+            regiao_raw = self.cadop_meta.get(registro, {}).get("regiao", "") or ""
+            regiao = self._REGIAO_MAP.get(str(regiao_raw).strip(), "") or self._UF_REGIAO.get(
+                uf, ""
+            )
             e = agg.setdefault(
                 uf,
                 {
@@ -405,6 +438,7 @@ class AnalyticsService:
     # F4.4 — Timeline histórica por operadora
     # ------------------------------------------------------------------
     def get_operadora_history(self, registro_ans: str) -> dict:
+        registro_ans = normalizar_registro_ans(registro_ans)
         sql = """
             SELECT periodo, razao_social, gasto_total, receita, lucro,
                    patrimonio, caixa, despesas_administrativas

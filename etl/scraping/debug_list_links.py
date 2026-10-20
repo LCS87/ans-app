@@ -1,6 +1,9 @@
 from etl.scraping.utils_parse_links import fetch_page
 
-BASE_URL = "https://www.gov.br/ans/pt-br/assuntos/consumidor/o-que-o-seu-plano-de-saude-deve-cobrir-1/o-que-e-o-rol-de-procedimentos-e-evento-em-saude"
+BASE_URL = (
+    "https://www.gov.br/ans/pt-br/assuntos/consumidor/o-que-o-seu-plano-de-saude-deve-cobrir-1"
+    "/o-que-e-o-rol-de-procedimentos-e-evento-em-saude"
+)
 html = fetch_page(BASE_URL)
 
 from bs4 import BeautifulSoup

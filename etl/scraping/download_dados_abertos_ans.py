@@ -18,7 +18,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 DEMONSTRACOES_BASE_URL = "https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/"
-CADOP_URL = "https://www.gov.br/ans/pt-br/arquivos/acesso-a-informacao/perfil-do-setor/dados-e-indicadores-do-setor/operadoras-de-planos-privados-de-saude/relatorio_cadop.csv"
+CADOP_URL = (
+    "https://www.gov.br/ans/pt-br/arquivos/acesso-a-informacao/perfil-do-setor"
+    "/dados-e-indicadores-do-setor/operadoras-de-planos-privados-de-saude"
+    "/relatorio_cadop.csv"
+)
 
 # Suprime avisos de conexões HTTPS não seguras (comum em servidores governamentais)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -33,7 +37,10 @@ def _download(url: str, dest: Path, timeout: int = 180) -> Path:
     _safe_mkdir(dest.parent)
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
     }
 
     # verify=False é necessário para o servidor PDA da ANS devido a certificados instáveis

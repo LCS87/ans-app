@@ -8,6 +8,29 @@ Fase 3 ━━┫ Análises Avançadas (trimestral / outliers / Top 20)
 Fase 4 ━━┫ Exportação & Relatórios
 Fase 5 ━━┫ CI/CD & Deploy (contínuo)
 
+---
+
+## ✅ Fase 0 — Correção da série e do mapeamento contábil (executada em Out/2026)
+
+Antes do roadmap acima, a auditoria do dado bruto mostrou que a série inteira
+estava corrompida. As correções abaixo já estão no código:
+
+| ID | Correção | Entrega |
+| :--- | :--- | :--- |
+| **P0-1** | Parse brasileiro (`decimal=","`, `thousands="."`) + parser próprio em `etl/normalization.py` | 2024: R$ 19,57 Bi → **R$ 261,18 Bi** |
+| **P0-3** | `REG_ANS` canônico em 6 dígitos em todas as camadas | 0 duplicatas; "5711" e "005711" viram a mesma operadora |
+| **P0-4** | Carga multi-dimensão em uma passada + UPSERT sem DELETE cego + sync do cadastro `operadoras` | 4 dimensões com **dados reais** (antes sintéticas) |
+| **P0-5** | Gate de qualidade ligado de verdade (8 checks, **falha fechada**) | Série corrompida seria barrada pelo check 8 |
+| **P1** | Mapeamento contábil conferido contra o plano DOC 275 | `25` = PL, `12` ≠ caixa, `21/23` = passivo, `69` = apuração |
+| **P1.1** | `REG_ANS`, dedup e identidade `1 = 21 + 23 + 25` auditáveis | `scripts/auditar_serie.py` reconcilia banco × bruto (< 0,3%) |
+| **P1.2** | 2023 reintegrado à série; "lacuna ANS 2024" removida | Série contínua 2023–2026 |
+
+> A "Lacuna ANS 2024" (item 1.5 do roadmap original) **não se confirmou**: era
+> o parser. O item foi encerrado como falso positivo e o script correspondente
+> virou `scripts/auditar_serie.py` (reconciliação com o bruto).
+
+---
+
 Cronograma Detalhado
 
 🏁 FASE 1 — Qualidade & Testes (Semanas 1-3)

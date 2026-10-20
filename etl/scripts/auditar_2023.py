@@ -47,7 +47,7 @@ def auditar_ano(df: pd.DataFrame, ano: int):
     print(f"{'='*80}")
 
     # 1. Estatísticas gerais
-    print(f"\n📊 ESTATÍSTICAS DO VALOR (VL_SALDO_FINAL):")
+    print("\n📊 ESTATÍSTICAS DO VALOR (VL_SALDO_FINAL):")
     desc = df["VL_SALDO_FINAL"].describe()
     for stat, val in desc.items():
         print(f"  {stat:>10}: R$ {val:>20,.2f}")
@@ -58,7 +58,7 @@ def auditar_ano(df: pd.DataFrame, ano: int):
     print(f"  🏢 Operadoras únicas: {df['REG_ANS'].nunique()}")
 
     # 2. Top 30 registros individuais (linha a linha)
-    print(f"\n🔥 TOP 30 REGISTROS INDIVIDUAIS:")
+    print("\n🔥 TOP 30 REGISTROS INDIVIDUAIS:")
     print(f"{'REG_ANS':>10} | {'CD_CONTA':>10} | {'VALOR':>20} | {'DESCRICAO':<40}")
     print("-" * 90)
     top_reg = df.nlargest(30, "VL_SALDO_FINAL")
@@ -70,7 +70,7 @@ def auditar_ano(df: pd.DataFrame, ano: int):
         )
 
     # 3. Top 30 operadoras (agrupado)
-    print(f"\n🏆 TOP 30 OPERADORAS (soma por REG_ANS):")
+    print("\n🏆 TOP 30 OPERADORAS (soma por REG_ANS):")
     por_op = (
         df.groupby("REG_ANS")["VL_SALDO_FINAL"]
         .agg(["sum", "count", "mean", "max"])
@@ -92,7 +92,7 @@ def auditar_ano(df: pd.DataFrame, ano: int):
     limite = Q3 + 1.5 * IQR
     outliers = df[df["VL_SALDO_FINAL"] > limite]
 
-    print(f"\n🚨 DETECÇÃO DE OUTLIERS (IQR 1.5x):")
+    print("\n🚨 DETECÇÃO DE OUTLIERS (IQR 1.5x):")
     print(f"  Q1:           R$ {Q1:,.2f}")
     print(f"  Q3:           R$ {Q3:,.2f}")
     print(f"  IQR:          R$ {IQR:,.2f}")
@@ -104,7 +104,7 @@ def auditar_ano(df: pd.DataFrame, ano: int):
     )
 
     # 5. Por trimestre
-    print(f"\n📅 POR TRIMESTRE:")
+    print("\n📅 POR TRIMESTRE:")
     por_trim = df.groupby("TRIMESTRE")["VL_SALDO_FINAL"].agg(["count", "sum", "mean", "max"])
     print(f"{'TRIM':>5} | {'COUNT':>7} | {'SOMA':>20} | {'MÉDIA':>15} | {'MAX':>15}")
     print("-" * 75)
@@ -115,7 +115,7 @@ def auditar_ano(df: pd.DataFrame, ano: int):
         )
 
     # 6. Por código contábil (top 10)
-    print(f"\n🔢 TOP 10 CÓDIGOS CONTÁBEIS:")
+    print("\n🔢 TOP 10 CÓDIGOS CONTÁBEIS:")
     por_cd = (
         df.groupby("CD_CONTA_CONTABIL")["VL_SALDO_FINAL"]
         .agg(["count", "sum"])
@@ -161,7 +161,7 @@ def main():
     print(df_comp.to_string(float_format=lambda x: f"R$ {x:,.2f}"))
 
     # Análise de proporção
-    print(f"\n🔍 ANÁLISE DE PROPORÇÃO:")
+    print("\n🔍 ANÁLISE DE PROPORÇÃO:")
     if len(resultados) >= 2:
         r23 = next((r for r in resultados if r["ano"] == 2023), None)
         r24 = next((r for r in resultados if r["ano"] == 2024), None)

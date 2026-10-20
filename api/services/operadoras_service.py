@@ -8,6 +8,7 @@ import pandas as pd
 
 from api.config import Settings
 from api.models import OperadoraResponse
+from etl.normalization import normalizar_registro_ans
 
 
 def _normalize_text(value: str | None) -> str:
@@ -117,7 +118,7 @@ class OperadorasService:
                 )
 
             for _, row in df.iterrows():
-                reg_ans = str(row.get(col_reg, "")).strip().replace('"', "")
+                reg_ans = normalizar_registro_ans(row.get(col_reg, ""))
                 cnpj = str(row.get(col_cnpj, "")).strip() if col_cnpj else ""
                 razao = str(row.get(col_razao, "")).strip().replace('"', "")
                 fantasia = str(row.get(col_fantasia, "")).strip() if col_fantasia else ""
@@ -199,12 +200,12 @@ class OperadorasService:
         for hit in hits[: limit * 2]:
             try:
                 # Limpa e valida campos antes de criar o model
-                registro = str(hit.get("registro_ans", "")).strip()
+                registro = normalizar_registro_ans(hit.get("registro_ans", ""))
+                if not registro:
+                    continue
                 cnpj = "".join(filter(str.isdigit, str(hit.get("cnpj", ""))))
                 razao = str(hit.get("razao_social", "")).strip()
 
-                # Normalizações defensivas
-                registro = registro.zfill(6)[:6] if registro else "000000"
                 cnpj = cnpj[:14].ljust(14, "0") if cnpj else "00000000000000"
                 razao = razao if razao else "SEM RAZÃO SOCIAL"
 
@@ -214,7 +215,7 @@ class OperadorasService:
                     "razao_social": razao,
                     "nome_fantasia": str(hit.get("nome_fantasia", "")).strip() or None,
                     "modalidade": str(hit.get("modalidade", "")).strip() or None,
-                    "u": str(hit.get("u", "")).strip() or None,
+                    "uf": str(hit.get("uf", "")).strip() or None,
                     "regiao_comercializacao": str(hit.get("regiao_comercializacao", "")).strip()
                     or None,
                     "score": hit.get("score", 0),

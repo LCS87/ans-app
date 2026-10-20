@@ -94,21 +94,24 @@ def compare(ano):
     comp = comp.sort_values("B_raiz", ascending=False)
 
     # Totais
-    print(f"\n📊 TOTAIS:")
+    print("\n📊 TOTAIS:")
     print(f"   A (folhas):  R$ {comp['A_folhas'].sum():>18,.0f}")
     print(f"   B (raiz):    R$ {comp['B_raiz'].sum():>18,.0f}")
     print(f"   C (tudo):    R$ {comp['C_tudo'].sum():>18,.0f}")
     print(
-        f"\n   B-A (ganho da raiz): R$ {comp['B-A'].sum():>18,.0f} ({(comp['B-A'].sum()/comp['A_folhas'].sum()*100):+.1f}%)"
+        f"\n   B-A (ganho da raiz): R$ {comp['B-A'].sum():>18,.0f} "
+        f"({(comp['B-A'].sum() / comp['A_folhas'].sum() * 100):+.1f}%)"
     )
     print(
-        f"   C-B (dupla contagem): R$ {comp['C-B'].sum():>18,.0f} ({(comp['C-B'].sum()/comp['B_raiz'].sum()*100):+.1f}%)"
+        f"   C-B (dupla contagem): R$ {comp['C-B'].sum():>18,.0f} "
+        f"({(comp['C-B'].sum() / comp['B_raiz'].sum() * 100):+.1f}%)"
     )
 
     # Top 20 operadoras
     print(f"\n{'─'*100}")
     print(
-        f"{'REG_ANS':<10} {'A (folhas)':>15} {'B (raiz)':>15} {'C (tudo)':>15} {'B-A':>12} {'B/A':>8} {'C/B':>8}"
+        f"{'REG_ANS':<10} {'A (folhas)':>15} {'B (raiz)':>15} "
+        f"{'C (tudo)':>15} {'B-A':>12} {'B/A':>8} {'C/B':>8}"
     )
     print(f"{'─'*100}")
 
@@ -137,43 +140,46 @@ def compare(ano):
         CB_ratio = f"{row['C/B']:.2f}x" if not pd.isna(row["C/B"]) else "∞"
 
         print(
-            f"{reg:<10} {A_val:>15} {B_val:>15} {C_val:>15} {BA_val:>12} {BA_ratio:>8} {CB_ratio:>8}"
+            f"{reg:<10} {A_val:>15} {B_val:>15} {C_val:>15} "
+            f"{BA_val:>12} {BA_ratio:>8} {CB_ratio:>8}"
         )
 
     print(f"{'─'*100}")
 
     # Casos interessantes
-    print(f"\n🔬 CASOS INTERESSANTES:")
+    print("\n🔬 CASOS INTERESSANTES:")
 
     # Onde raiz recupera muito (B >> A)
     big_gain = comp[comp["B-A"] > 100_000_000].head(5)
     if len(big_gain) > 0:
-        print(f"\n   📈 Raiz recupera > R$ 100 Mi vs folhas (B >> A):")
+        print("\n   📈 Raiz recupera > R$ 100 Mi vs folhas (B >> A):")
         for reg, row in big_gain.iterrows():
             print(
-                f"      {reg}: A={row['A_folhas']/1e6:.1f}Mi → B={row['B_raiz']/1e6:.1f}Mi (+{row['B-A']/1e6:.1f}Mi)"
+                f"      {reg}: A={row['A_folhas'] / 1e6:.1f}Mi "
+                f"→ B={row['B_raiz'] / 1e6:.1f}Mi (+{row['B-A'] / 1e6:.1f}Mi)"
             )
 
     # Onde há dupla contagem massiva (C >> B)
     big_dup = comp[comp["C-B"] > 500_000_000].head(5)
     if len(big_dup) > 0:
-        print(f"\n   ⚠️  Dupla contagem > R$ 500 Mi (C >> B):")
+        print("\n   ⚠️  Dupla contagem > R$ 500 Mi (C >> B):")
         for reg, row in big_dup.iterrows():
             print(
-                f"      {reg}: B={row['B_raiz']/1e6:.1f}Mi → C={row['C_tudo']/1e6:.1f}Mi (+{row['C-B']/1e6:.1f}Mi)"
+                f"      {reg}: B={row['B_raiz'] / 1e6:.1f}Mi "
+                f"→ C={row['C_tudo'] / 1e6:.1f}Mi (+{row['C-B'] / 1e6:.1f}Mi)"
             )
 
     # Onde folhas e raiz são iguais (B ≈ A)
     equal = comp[(comp["B-A"].abs() < 10_000_000) & (comp["A_folhas"] > 100_000_000)].head(5)
     if len(equal) > 0:
-        print(f"\n   ✅ Folhas e raiz são iguais (B ≈ A, > R$ 100 Mi):")
+        print("\n   ✅ Folhas e raiz são iguais (B ≈ A, > R$ 100 Mi):")
         for reg, row in equal.iterrows():
             print(f"      {reg}: A={row['A_folhas']/1e6:.1f}Mi, B={row['B_raiz']/1e6:.1f}Mi")
 
     # Onde folhas é zero mas raiz tem valor
     leaf_zero = comp[(comp["A_folhas"] == 0) & (comp["B_raiz"] > 100_000_000)].head(5)
     if len(leaf_zero) > 0:
-        print(f"\n   🚨 Folhas = 0, mas raiz tem > R$ 100 Mi (perda total):")
+        print("\n   🚨 Folhas = 0, mas raiz tem > R$ 100 Mi (perda total):")
         for reg, row in leaf_zero.iterrows():
             print(f"      {reg}: A=0 → B={row['B_raiz']/1e6:.1f}Mi (recuperado pela raiz)")
 
