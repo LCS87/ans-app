@@ -71,3 +71,1954 @@
 2026-10-02 22:05:04 | INFO     | 📊 Total registros: 783
 2026-10-02 22:05:04 | INFO     | 💰 Total gastos: R$ 105,699,639,190.00
 2026-10-02 22:05:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2023]
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | 
+======================================================================
+2026-10-19 18:40:04 | INFO     | 📅 Processando ano 2023
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | 📥 [2023] ETAPA 1/3: Download de dados...
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2023...
+2026-10-19 18:40:04 | INFO     | ⏭️  1T2023.zip já existe (7.57 MB), pulando...
+2026-10-19 18:40:04 | INFO     | ⏭️  2T2023.zip já existe (8.46 MB), pulando...
+2026-10-19 18:40:04 | INFO     | ⏭️  3T2023.zip já existe (9.49 MB), pulando...
+2026-10-19 18:40:04 | INFO     | ⏭️  4T2023.zip já existe (10.77 MB), pulando...
+2026-10-19 18:40:04 | SUCCESS  | ✅ Demonstrações de 2023: 4/4 trimestres baixados
+2026-10-19 18:40:04 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | INFO     |   ✅ 1T2023.zip      |     7.57 MB
+2026-10-19 18:40:04 | INFO     |   ✅ 2T2023.zip      |     8.46 MB
+2026-10-19 18:40:04 | INFO     |   ✅ 3T2023.zip      |     9.49 MB
+2026-10-19 18:40:04 | INFO     |   ✅ 4T2023.zip      |    10.77 MB
+2026-10-19 18:40:04 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 18:40:04 | INFO     | ======================================================================
+2026-10-19 18:40:04 | SUCCESS  | ✅ [2023] Download completo
+2026-10-19 18:40:04 | INFO     | 🔄 [2023] ETAPA 2/3: Extração e transformação...
+2026-10-19 18:40:04 | INFO     | 🔄 Processando demonstrações contábeis de 2023 (ramo 41)...
+2026-10-19 18:40:04 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2023...
+2026-10-19 18:40:04 | INFO     | 🔓 Extraindo 1T2023.zip → extracted/1T2023/
+2026-10-19 18:40:05 | SUCCESS  | ✅ 1T2023.zip → 1T2023.csv (60646 KB)
+2026-10-19 18:40:05 | INFO     | 🔓 Extraindo 2T2023.zip → extracted/2T2023/
+2026-10-19 18:40:05 | SUCCESS  | ✅ 2T2023.zip → 2T2023.csv (63691 KB)
+2026-10-19 18:40:05 | INFO     | 🔓 Extraindo 3T2023.zip → extracted/3T2023/
+2026-10-19 18:40:05 | SUCCESS  | ✅ 3T2023.zip → 3T2023.csv (65630 KB)
+2026-10-19 18:40:05 | INFO     | 🔓 Extraindo 4T2023.zip → extracted/4T2023/
+2026-10-19 18:40:05 | SUCCESS  | ✅ 4T2023.zip → 4T2023.csv (73523 KB)
+2026-10-19 18:40:05 | INFO     | 📊 Lendo 1T2023...
+2026-10-19 18:40:08 | INFO     | 📊 Lendo 2T2023...
+2026-10-19 18:40:10 | INFO     | 📊 Lendo 3T2023...
+2026-10-19 18:40:13 | INFO     | 📊 Lendo 4T2023...
+2026-10-19 18:40:17 | INFO     | 📊 Linhas brutas: 3,194,869 | contas/trimestre: 2,056,908 | operadoras: 1,092
+2026-10-19 18:40:18 | INFO     | 🌳 Prefixos ['41']: 237,852 registros (2023)
+2026-10-19 18:40:18 | INFO     | 🌱 Operadoras com valor: 881
+2026-10-19 18:40:19 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:19 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:19 | SUCCESS  | ✅ Consolidação completa: 881 operadoras | R$ 241,159,935,778 (Método D - híbrido)
+2026-10-19 18:40:19 | INFO     | 🌳 [2023] dimensão 'gastos': 881 operadoras
+2026-10-19 18:40:19 | INFO     | 🌳 Prefixos ['31', '41', '25', '256', '12', '21', '23']: 996,647 registros (2023)
+2026-10-19 18:40:22 | INFO     | 🌱 Operadoras com valor: 1,092
+2026-10-19 18:40:22 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:22 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:22 | SUCCESS  | ✅ Consolidação completa: 1092 operadoras | R$ 286,353,692,094 (Método D - híbrido)
+2026-10-19 18:40:22 | INFO     | 🌳 [2023] dimensão 'financeira': 1092 operadoras
+2026-10-19 18:40:22 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 493,124 registros (2023)
+2026-10-19 18:40:24 | INFO     | 🌱 Operadoras com valor: 1,080
+2026-10-19 18:40:24 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:24 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:24 | SUCCESS  | ✅ Consolidação completa: 1080 operadoras | R$ 28,716,564,618 (Método D - híbrido)
+2026-10-19 18:40:24 | INFO     | 🌳 [2023] dimensão 'operacional': 1080 operadoras
+2026-10-19 18:40:24 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 152,940 registros (2023)
+2026-10-19 18:40:25 | INFO     | 🌱 Operadoras com valor: 1,003
+2026-10-19 18:40:25 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:25 | SUCCESS  | ✅ Consolidação completa: 1003 operadoras | R$ 26,254,588,353 (Método D - híbrido)
+2026-10-19 18:40:25 | INFO     | 🌳 [2023] dimensão 'estrutura': 1003 operadoras
+2026-10-19 18:40:25 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2023.csv (0.10 MB)
+2026-10-19 18:40:25 | SUCCESS  | ✅ [2023] 881 operadoras de gastos | 1092 operadoras no consolidado multi-dimensão
+2026-10-19 18:40:25 | INFO     | ⚠️  [2023] Gate de qualidade: não integrado nesta execução
+2026-10-19 18:40:25 | INFO     | 💾 [2023] ETAPA 3/3: Carga no MySQL...
+2026-10-19 18:40:25 | INFO     | 🧹 66 operadora(s) ausente(s) do novo conjunto removida(s) do período 2023
+2026-10-19 18:40:25 | SUCCESS  | ✅ 1,092 linhas do período 2023 carregadas
+2026-10-19 18:40:25 | SUCCESS  | ✅ [2023] 1092 registros no MySQL
+2026-10-19 18:40:25 | SUCCESS  | 💰 [2023] Total: R$ 241,159,935,778.45
+2026-10-19 18:40:25 | INFO     | 
+======================================================================
+2026-10-19 18:40:25 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 18:40:25 | INFO     | ======================================================================
+2026-10-19 18:40:25 | INFO     | ✅ 2023: 881 registros | R$ 241,159,935,778.45 | 20.61s
+2026-10-19 18:40:25 | INFO     | 
+⏱️  Tempo total: 20.62s
+2026-10-19 18:40:25 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 18:40:25 | INFO     | 📊 Total registros: 881
+2026-10-19 18:40:25 | INFO     | 💰 Total gastos: R$ 241,159,935,778.45
+2026-10-19 18:40:25 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2024]
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | 
+======================================================================
+2026-10-19 18:40:30 | INFO     | 📅 Processando ano 2024
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | 📥 [2024] ETAPA 1/3: Download de dados...
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-19 18:40:30 | INFO     | ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-19 18:40:30 | INFO     | ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-19 18:40:30 | INFO     | ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-19 18:40:30 | INFO     | ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-19 18:40:30 | SUCCESS  | ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-19 18:40:30 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | INFO     |   ✅ 1T2024.zip      |     7.85 MB
+2026-10-19 18:40:30 | INFO     |   ✅ 2T2024.zip      |     8.89 MB
+2026-10-19 18:40:30 | INFO     |   ✅ 3T2024.zip      |     9.11 MB
+2026-10-19 18:40:30 | INFO     |   ✅ 4T2024.zip      |    11.16 MB
+2026-10-19 18:40:30 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 18:40:30 | INFO     | ======================================================================
+2026-10-19 18:40:30 | SUCCESS  | ✅ [2024] Download completo
+2026-10-19 18:40:30 | INFO     | 🔄 [2024] ETAPA 2/3: Extração e transformação...
+2026-10-19 18:40:30 | INFO     | 🔄 Processando demonstrações contábeis de 2024 (ramo 41)...
+2026-10-19 18:40:30 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2024...
+2026-10-19 18:40:30 | INFO     | 🔓 Extraindo 1T2024.zip → extracted/1T2024/
+2026-10-19 18:40:31 | SUCCESS  | ✅ 1T2024.zip → 1T2024.csv (57498 KB)
+2026-10-19 18:40:31 | INFO     | 🔓 Extraindo 2T2024.zip → extracted/2T2024/
+2026-10-19 18:40:31 | SUCCESS  | ✅ 2T2024.zip → 2T2024.csv (60940 KB)
+2026-10-19 18:40:31 | INFO     | 🔓 Extraindo 3T2024.zip → extracted/3T2024/
+2026-10-19 18:40:31 | SUCCESS  | ✅ 3T2024.zip → 3T2024.csv (62287 KB)
+2026-10-19 18:40:31 | INFO     | 🔓 Extraindo 4T2024.zip → extracted/4T2024/
+2026-10-19 18:40:31 | SUCCESS  | ✅ 4T2024.zip → 4T2024.csv (79716 KB)
+2026-10-19 18:40:31 | INFO     | 📊 Lendo 1T2024...
+2026-10-19 18:40:33 | INFO     | 📊 Lendo 2T2024...
+2026-10-19 18:40:36 | INFO     | 📊 Lendo 3T2024...
+2026-10-19 18:40:38 | INFO     | 📊 Lendo 4T2024...
+2026-10-19 18:40:43 | INFO     | 📊 Linhas brutas: 3,061,992 | contas/trimestre: 1,991,110 | operadoras: 1,065
+2026-10-19 18:40:43 | INFO     | 🌳 Prefixos ['41']: 239,948 registros (2024)
+2026-10-19 18:40:43 | INFO     | 🌱 Operadoras com valor: 865
+2026-10-19 18:40:44 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:44 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:44 | SUCCESS  | ✅ Consolidação completa: 865 operadoras | R$ 261,179,847,787 (Método D - híbrido)
+2026-10-19 18:40:44 | INFO     | 🌳 [2024] dimensão 'gastos': 865 operadoras
+2026-10-19 18:40:45 | INFO     | 🌳 Prefixos ['31', '41', '25', '256', '12', '21', '23']: 967,362 registros (2024)
+2026-10-19 18:40:47 | INFO     | 🌱 Operadoras com valor: 1,065
+2026-10-19 18:40:47 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:47 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:47 | SUCCESS  | ✅ Consolidação completa: 1065 operadoras | R$ 322,954,355,046 (Método D - híbrido)
+2026-10-19 18:40:47 | INFO     | 🌳 [2024] dimensão 'financeira': 1065 operadoras
+2026-10-19 18:40:48 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 475,272 registros (2024)
+2026-10-19 18:40:49 | INFO     | 🌱 Operadoras com valor: 1,047
+2026-10-19 18:40:49 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:49 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:49 | SUCCESS  | ✅ Consolidação completa: 1047 operadoras | R$ 32,057,380,109 (Método D - híbrido)
+2026-10-19 18:40:49 | INFO     | 🌳 [2024] dimensão 'operacional': 1047 operadoras
+2026-10-19 18:40:50 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,715 registros (2024)
+2026-10-19 18:40:50 | INFO     | 🌱 Operadoras com valor: 977
+2026-10-19 18:40:50 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:40:50 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:40:50 | SUCCESS  | ✅ Consolidação completa: 977 operadoras | R$ 35,101,254,783 (Método D - híbrido)
+2026-10-19 18:40:50 | INFO     | 🌳 [2024] dimensão 'estrutura': 977 operadoras
+2026-10-19 18:40:50 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2024.csv (0.10 MB)
+2026-10-19 18:40:50 | SUCCESS  | ✅ [2024] 865 operadoras de gastos | 1065 operadoras no consolidado multi-dimensão
+2026-10-19 18:40:50 | INFO     | ⚠️  [2024] Gate de qualidade: não integrado nesta execução
+2026-10-19 18:40:50 | INFO     | 💾 [2024] ETAPA 3/3: Carga no MySQL...
+2026-10-19 18:40:50 | INFO     | 🧹 66 operadora(s) ausente(s) do novo conjunto removida(s) do período 2024
+2026-10-19 18:40:50 | SUCCESS  | ✅ 1,065 linhas do período 2024 carregadas
+2026-10-19 18:40:50 | SUCCESS  | ✅ [2024] 1065 registros no MySQL
+2026-10-19 18:40:50 | SUCCESS  | 💰 [2024] Total: R$ 261,179,847,787.35
+2026-10-19 18:40:50 | INFO     | 
+======================================================================
+2026-10-19 18:40:50 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 18:40:50 | INFO     | ======================================================================
+2026-10-19 18:40:50 | INFO     | ✅ 2024: 865 registros | R$ 261,179,847,787.35 | 20.06s
+2026-10-19 18:40:50 | INFO     | 
+⏱️  Tempo total: 20.06s
+2026-10-19 18:40:50 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 18:40:50 | INFO     | 📊 Total registros: 865
+2026-10-19 18:40:50 | INFO     | 💰 Total gastos: R$ 261,179,847,787.35
+2026-10-19 18:40:50 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | 
+======================================================================
+2026-10-19 18:40:57 | INFO     | 📅 Processando ano 2025
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 18:40:57 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 18:40:57 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 18:40:57 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 18:40:57 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 18:40:57 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 18:40:57 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 18:40:57 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 18:40:57 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 18:40:57 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 18:40:57 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 18:40:57 | INFO     | ======================================================================
+2026-10-19 18:40:57 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 18:40:57 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 18:40:57 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 18:40:57 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 18:40:57 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 18:40:57 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 18:40:57 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 18:40:57 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 18:40:57 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 18:40:58 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 18:40:58 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 18:40:58 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 18:40:58 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 18:41:00 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 18:41:02 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 18:41:05 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 18:41:09 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 18:41:10 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 18:41:10 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 18:41:11 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:41:11 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:41:11 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 18:41:11 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 18:41:11 | INFO     | 🌳 Prefixos ['31', '41', '25', '256', '12', '21', '23']: 960,135 registros (2025)
+2026-10-19 18:41:14 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 18:41:14 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:41:14 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:41:14 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 18:41:14 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 18:41:15 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 468,299 registros (2025)
+2026-10-19 18:41:16 | INFO     | 🌱 Operadoras com valor: 1,019
+2026-10-19 18:41:16 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:41:16 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:41:16 | SUCCESS  | ✅ Consolidação completa: 1019 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 18:41:16 | INFO     | 🌳 [2025] dimensão 'operacional': 1019 operadoras
+2026-10-19 18:41:16 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 18:41:17 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 18:41:17 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 18:41:17 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 18:41:17 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 18:41:17 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 18:41:17 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 18:41:17 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 18:41:17 | INFO     | ⚠️  [2025] Gate de qualidade: não integrado nesta execução
+2026-10-19 18:41:17 | INFO     | 💾 [2025] ETAPA 3/3: Carga no MySQL...
+2026-10-19 18:41:17 | INFO     | 🧹 5 operadora(s) ausente(s) do novo conjunto removida(s) do período 2025
+2026-10-19 18:41:17 | SUCCESS  | ✅ 1,050 linhas do período 2025 carregadas
+2026-10-19 18:41:17 | SUCCESS  | ✅ [2025] 1050 registros no MySQL
+2026-10-19 18:41:17 | SUCCESS  | 💰 [2025] Total: R$ 282,171,144,672.45
+2026-10-19 18:41:17 | INFO     | 
+======================================================================
+2026-10-19 18:41:17 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 18:41:17 | INFO     | ======================================================================
+2026-10-19 18:41:17 | INFO     | ✅ 2025: 851 registros | R$ 282,171,144,672.45 | 20.21s
+2026-10-19 18:41:17 | INFO     | 
+⏱️  Tempo total: 20.22s
+2026-10-19 18:41:17 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 18:41:17 | INFO     | 📊 Total registros: 851
+2026-10-19 18:41:17 | INFO     | 💰 Total gastos: R$ 282,171,144,672.45
+2026-10-19 18:41:17 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2023]
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | 
+======================================================================
+2026-10-19 19:13:04 | INFO     | 📅 Processando ano 2023
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | 📥 [2023] ETAPA 1/3: Download de dados...
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2023...
+2026-10-19 19:13:04 | INFO     | ⏭️  1T2023.zip já existe (7.57 MB), pulando...
+2026-10-19 19:13:04 | INFO     | ⏭️  2T2023.zip já existe (8.46 MB), pulando...
+2026-10-19 19:13:04 | INFO     | ⏭️  3T2023.zip já existe (9.49 MB), pulando...
+2026-10-19 19:13:04 | INFO     | ⏭️  4T2023.zip já existe (10.77 MB), pulando...
+2026-10-19 19:13:04 | SUCCESS  | ✅ Demonstrações de 2023: 4/4 trimestres baixados
+2026-10-19 19:13:04 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | INFO     |   ✅ 1T2023.zip      |     7.57 MB
+2026-10-19 19:13:04 | INFO     |   ✅ 2T2023.zip      |     8.46 MB
+2026-10-19 19:13:04 | INFO     |   ✅ 3T2023.zip      |     9.49 MB
+2026-10-19 19:13:04 | INFO     |   ✅ 4T2023.zip      |    10.77 MB
+2026-10-19 19:13:04 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 19:13:04 | INFO     | ======================================================================
+2026-10-19 19:13:04 | SUCCESS  | ✅ [2023] Download completo
+2026-10-19 19:13:04 | INFO     | 🔄 [2023] ETAPA 2/3: Extração e transformação...
+2026-10-19 19:13:04 | INFO     | 🔄 Processando demonstrações contábeis de 2023 (ramo 41)...
+2026-10-19 19:13:04 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2023...
+2026-10-19 19:13:04 | INFO     | 🔓 Extraindo 1T2023.zip → extracted/1T2023/
+2026-10-19 19:13:04 | SUCCESS  | ✅ 1T2023.zip → 1T2023.csv (60646 KB)
+2026-10-19 19:13:04 | INFO     | 🔓 Extraindo 2T2023.zip → extracted/2T2023/
+2026-10-19 19:13:04 | SUCCESS  | ✅ 2T2023.zip → 2T2023.csv (63691 KB)
+2026-10-19 19:13:04 | INFO     | 🔓 Extraindo 3T2023.zip → extracted/3T2023/
+2026-10-19 19:13:04 | SUCCESS  | ✅ 3T2023.zip → 3T2023.csv (65630 KB)
+2026-10-19 19:13:04 | INFO     | 🔓 Extraindo 4T2023.zip → extracted/4T2023/
+2026-10-19 19:13:05 | SUCCESS  | ✅ 4T2023.zip → 4T2023.csv (73523 KB)
+2026-10-19 19:13:05 | INFO     | 📊 Lendo 1T2023...
+2026-10-19 19:13:07 | INFO     | 📊 Lendo 2T2023...
+2026-10-19 19:13:09 | INFO     | 📊 Lendo 3T2023...
+2026-10-19 19:13:12 | INFO     | 📊 Lendo 4T2023...
+2026-10-19 19:13:16 | INFO     | 📊 Linhas brutas: 3,194,869 | contas/trimestre: 2,056,908 | operadoras: 1,092
+2026-10-19 19:13:17 | INFO     | 🌳 Prefixos ['41']: 237,852 registros (2023)
+2026-10-19 19:13:17 | INFO     | 🌱 Operadoras com valor: 881
+2026-10-19 19:13:18 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:18 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:18 | SUCCESS  | ✅ Consolidação completa: 881 operadoras | R$ 241,159,935,778 (Método D - híbrido)
+2026-10-19 19:13:18 | INFO     | 🌳 [2023] dimensão 'gastos': 881 operadoras
+2026-10-19 19:13:19 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '21', '23', '3', '4', '61']: 1,625,523 registros (2023)
+2026-10-19 19:13:23 | INFO     | 🌱 Operadoras com valor: 1,092
+2026-10-19 19:13:23 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:23 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:23 | SUCCESS  | ✅ Consolidação completa: 1092 operadoras | R$ 286,353,692,094 (Método D - híbrido)
+2026-10-19 19:13:23 | INFO     | 🌳 [2023] dimensão 'financeira': 1092 operadoras
+2026-10-19 19:13:24 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 493,124 registros (2023)
+2026-10-19 19:13:25 | INFO     | 🌱 Operadoras com valor: 1,080
+2026-10-19 19:13:25 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:25 | SUCCESS  | ✅ Consolidação completa: 1080 operadoras | R$ 28,716,564,618 (Método D - híbrido)
+2026-10-19 19:13:25 | INFO     | 🌳 [2023] dimensão 'operacional': 1080 operadoras
+2026-10-19 19:13:26 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 152,940 registros (2023)
+2026-10-19 19:13:26 | INFO     | 🌱 Operadoras com valor: 1,003
+2026-10-19 19:13:26 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:26 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:26 | SUCCESS  | ✅ Consolidação completa: 1003 operadoras | R$ 26,254,588,353 (Método D - híbrido)
+2026-10-19 19:13:26 | INFO     | 🌳 [2023] dimensão 'estrutura': 1003 operadoras
+2026-10-19 19:13:26 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2023.csv (0.10 MB)
+2026-10-19 19:13:26 | SUCCESS  | ✅ [2023] 881 operadoras de gastos | 1092 operadoras no consolidado multi-dimensão
+2026-10-19 19:13:26 | INFO     | ⚠️  [2023] Gate de qualidade: não integrado nesta execução
+2026-10-19 19:13:26 | INFO     | 💾 [2023] ETAPA 3/3: Carga no MySQL...
+2026-10-19 19:13:27 | SUCCESS  | ✅ 1,092 linhas do período 2023 carregadas
+2026-10-19 19:13:27 | SUCCESS  | ✅ [2023] 1092 registros no MySQL
+2026-10-19 19:13:27 | SUCCESS  | 💰 [2023] Total: R$ 241,159,935,778.45
+2026-10-19 19:13:27 | INFO     | 
+======================================================================
+2026-10-19 19:13:27 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 19:13:27 | INFO     | ======================================================================
+2026-10-19 19:13:27 | INFO     | ✅ 2023: 881 registros | R$ 241,159,935,778.45 | 22.87s
+2026-10-19 19:13:27 | INFO     | 
+⏱️  Tempo total: 22.87s
+2026-10-19 19:13:27 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 19:13:27 | INFO     | 📊 Total registros: 881
+2026-10-19 19:13:27 | INFO     | 💰 Total gastos: R$ 241,159,935,778.45
+2026-10-19 19:13:27 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2024]
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | 
+======================================================================
+2026-10-19 19:13:33 | INFO     | 📅 Processando ano 2024
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | 📥 [2024] ETAPA 1/3: Download de dados...
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-19 19:13:33 | INFO     | ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-19 19:13:33 | INFO     | ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-19 19:13:33 | INFO     | ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-19 19:13:33 | INFO     | ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-19 19:13:33 | SUCCESS  | ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-19 19:13:33 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | INFO     |   ✅ 1T2024.zip      |     7.85 MB
+2026-10-19 19:13:33 | INFO     |   ✅ 2T2024.zip      |     8.89 MB
+2026-10-19 19:13:33 | INFO     |   ✅ 3T2024.zip      |     9.11 MB
+2026-10-19 19:13:33 | INFO     |   ✅ 4T2024.zip      |    11.16 MB
+2026-10-19 19:13:33 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 19:13:33 | INFO     | ======================================================================
+2026-10-19 19:13:33 | SUCCESS  | ✅ [2024] Download completo
+2026-10-19 19:13:33 | INFO     | 🔄 [2024] ETAPA 2/3: Extração e transformação...
+2026-10-19 19:13:33 | INFO     | 🔄 Processando demonstrações contábeis de 2024 (ramo 41)...
+2026-10-19 19:13:33 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2024...
+2026-10-19 19:13:33 | INFO     | 🔓 Extraindo 1T2024.zip → extracted/1T2024/
+2026-10-19 19:13:33 | SUCCESS  | ✅ 1T2024.zip → 1T2024.csv (57498 KB)
+2026-10-19 19:13:33 | INFO     | 🔓 Extraindo 2T2024.zip → extracted/2T2024/
+2026-10-19 19:13:34 | SUCCESS  | ✅ 2T2024.zip → 2T2024.csv (60940 KB)
+2026-10-19 19:13:34 | INFO     | 🔓 Extraindo 3T2024.zip → extracted/3T2024/
+2026-10-19 19:13:34 | SUCCESS  | ✅ 3T2024.zip → 3T2024.csv (62287 KB)
+2026-10-19 19:13:34 | INFO     | 🔓 Extraindo 4T2024.zip → extracted/4T2024/
+2026-10-19 19:13:34 | SUCCESS  | ✅ 4T2024.zip → 4T2024.csv (79716 KB)
+2026-10-19 19:13:34 | INFO     | 📊 Lendo 1T2024...
+2026-10-19 19:13:36 | INFO     | 📊 Lendo 2T2024...
+2026-10-19 19:13:39 | INFO     | 📊 Lendo 3T2024...
+2026-10-19 19:13:41 | INFO     | 📊 Lendo 4T2024...
+2026-10-19 19:13:45 | INFO     | 📊 Linhas brutas: 3,061,992 | contas/trimestre: 1,991,110 | operadoras: 1,065
+2026-10-19 19:13:46 | INFO     | 🌳 Prefixos ['41']: 239,948 registros (2024)
+2026-10-19 19:13:46 | INFO     | 🌱 Operadoras com valor: 865
+2026-10-19 19:13:47 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:47 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:47 | SUCCESS  | ✅ Consolidação completa: 865 operadoras | R$ 261,179,847,787 (Método D - híbrido)
+2026-10-19 19:13:47 | INFO     | 🌳 [2024] dimensão 'gastos': 865 operadoras
+2026-10-19 19:13:48 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '21', '23', '3', '4', '61']: 1,572,006 registros (2024)
+2026-10-19 19:13:52 | INFO     | 🌱 Operadoras com valor: 1,065
+2026-10-19 19:13:52 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:52 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:52 | SUCCESS  | ✅ Consolidação completa: 1065 operadoras | R$ 322,954,355,046 (Método D - híbrido)
+2026-10-19 19:13:52 | INFO     | 🌳 [2024] dimensão 'financeira': 1065 operadoras
+2026-10-19 19:13:53 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 475,272 registros (2024)
+2026-10-19 19:13:54 | INFO     | 🌱 Operadoras com valor: 1,047
+2026-10-19 19:13:54 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:54 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:54 | SUCCESS  | ✅ Consolidação completa: 1047 operadoras | R$ 32,057,380,109 (Método D - híbrido)
+2026-10-19 19:13:54 | INFO     | 🌳 [2024] dimensão 'operacional': 1047 operadoras
+2026-10-19 19:13:55 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,715 registros (2024)
+2026-10-19 19:13:55 | INFO     | 🌱 Operadoras com valor: 977
+2026-10-19 19:13:55 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:13:55 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:13:55 | SUCCESS  | ✅ Consolidação completa: 977 operadoras | R$ 35,101,254,783 (Método D - híbrido)
+2026-10-19 19:13:55 | INFO     | 🌳 [2024] dimensão 'estrutura': 977 operadoras
+2026-10-19 19:13:55 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2024.csv (0.10 MB)
+2026-10-19 19:13:55 | SUCCESS  | ✅ [2024] 865 operadoras de gastos | 1065 operadoras no consolidado multi-dimensão
+2026-10-19 19:13:55 | INFO     | ⚠️  [2024] Gate de qualidade: não integrado nesta execução
+2026-10-19 19:13:55 | INFO     | 💾 [2024] ETAPA 3/3: Carga no MySQL...
+2026-10-19 19:13:55 | SUCCESS  | ✅ 1,065 linhas do período 2024 carregadas
+2026-10-19 19:13:55 | SUCCESS  | ✅ [2024] 1065 registros no MySQL
+2026-10-19 19:13:55 | SUCCESS  | 💰 [2024] Total: R$ 261,179,847,787.35
+2026-10-19 19:13:55 | INFO     | 
+======================================================================
+2026-10-19 19:13:55 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 19:13:55 | INFO     | ======================================================================
+2026-10-19 19:13:55 | INFO     | ✅ 2024: 865 registros | R$ 261,179,847,787.35 | 22.25s
+2026-10-19 19:13:55 | INFO     | 
+⏱️  Tempo total: 22.26s
+2026-10-19 19:13:55 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 19:13:55 | INFO     | 📊 Total registros: 865
+2026-10-19 19:13:55 | INFO     | 💰 Total gastos: R$ 261,179,847,787.35
+2026-10-19 19:13:55 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | 
+======================================================================
+2026-10-19 19:14:02 | INFO     | 📅 Processando ano 2025
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 19:14:02 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 19:14:02 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 19:14:02 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 19:14:02 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 19:14:02 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 19:14:02 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 19:14:02 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 19:14:02 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 19:14:02 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 19:14:02 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 19:14:02 | INFO     | ======================================================================
+2026-10-19 19:14:02 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 19:14:02 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 19:14:02 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 19:14:02 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 19:14:02 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 19:14:02 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 19:14:02 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 19:14:02 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 19:14:02 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 19:14:02 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 19:14:02 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 19:14:02 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 19:14:02 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 19:14:05 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 19:14:07 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 19:14:09 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 19:14:14 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 19:14:14 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 19:14:15 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 19:14:16 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:14:16 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:14:16 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 19:14:16 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 19:14:16 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '21', '23', '3', '4', '61']: 1,559,409 registros (2025)
+2026-10-19 19:14:20 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 19:14:20 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:14:20 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:14:20 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 19:14:20 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 19:14:21 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 468,299 registros (2025)
+2026-10-19 19:14:22 | INFO     | 🌱 Operadoras com valor: 1,019
+2026-10-19 19:14:22 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:14:22 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:14:22 | SUCCESS  | ✅ Consolidação completa: 1019 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 19:14:22 | INFO     | 🌳 [2025] dimensão 'operacional': 1019 operadoras
+2026-10-19 19:14:23 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 19:14:23 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 19:14:23 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:14:23 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:14:23 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 19:14:23 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 19:14:23 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 19:14:23 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 19:14:23 | INFO     | ⚠️  [2025] Gate de qualidade: não integrado nesta execução
+2026-10-19 19:14:23 | INFO     | 💾 [2025] ETAPA 3/3: Carga no MySQL...
+2026-10-19 19:14:24 | SUCCESS  | ✅ 1,050 linhas do período 2025 carregadas
+2026-10-19 19:14:24 | SUCCESS  | ✅ [2025] 1050 registros no MySQL
+2026-10-19 19:14:24 | SUCCESS  | 💰 [2025] Total: R$ 282,171,144,672.45
+2026-10-19 19:14:24 | INFO     | 
+======================================================================
+2026-10-19 19:14:24 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 19:14:24 | INFO     | ======================================================================
+2026-10-19 19:14:24 | INFO     | ✅ 2025: 851 registros | R$ 282,171,144,672.45 | 22.06s
+2026-10-19 19:14:24 | INFO     | 
+⏱️  Tempo total: 22.06s
+2026-10-19 19:14:24 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 19:14:24 | INFO     | 📊 Total registros: 851
+2026-10-19 19:14:24 | INFO     | 💰 Total gastos: R$ 282,171,144,672.45
+2026-10-19 19:14:24 | INFO     | ======================================================================
+2026-10-19 19:14:29 | INFO     | ======================================================================
+2026-10-19 19:14:29 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2026]
+2026-10-19 19:14:29 | INFO     | ======================================================================
+2026-10-19 19:14:29 | INFO     | 
+======================================================================
+2026-10-19 19:14:29 | INFO     | 📅 Processando ano 2026
+2026-10-19 19:14:29 | INFO     | ======================================================================
+2026-10-19 19:14:29 | INFO     | 📥 [2026] ETAPA 1/3: Download de dados...
+2026-10-19 19:14:29 | INFO     | ======================================================================
+2026-10-19 19:14:29 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 19:14:29 | INFO     | ======================================================================
+2026-10-19 19:14:29 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2026...
+2026-10-19 19:14:29 | INFO     | ⏭️  1T2026.zip já existe (7.31 MB), pulando...
+2026-10-19 19:14:29 | INFO     | ⏭️  2T2026.zip já existe (9.05 MB), pulando...
+2026-10-19 19:14:29 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 19:14:35 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 19:14:40 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 19:14:40 | ERROR    | ❌ Erro ao baixar 3T2026: RetryError[<Future at 0x2326dc60310 state=finished raised HTTPStatusError>]
+2026-10-19 19:14:40 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 19:14:45 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 19:14:50 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 19:14:50 | ERROR    | ❌ Erro ao baixar 4T2026: RetryError[<Future at 0x2326e5f6fd0 state=finished raised HTTPStatusError>]
+2026-10-19 19:14:50 | SUCCESS  | ✅ Demonstrações de 2026: 2/4 trimestres baixados
+2026-10-19 19:14:50 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 19:14:50 | INFO     | ======================================================================
+2026-10-19 19:14:50 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 19:14:50 | INFO     | ======================================================================
+2026-10-19 19:14:50 | INFO     |   ✅ 1T2026.zip      |     7.31 MB
+2026-10-19 19:14:50 | INFO     |   ✅ 2T2026.zip      |     9.05 MB
+2026-10-19 19:14:50 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 19:14:50 | INFO     | ======================================================================
+2026-10-19 19:14:50 | SUCCESS  | ✅ [2026] Download completo
+2026-10-19 19:14:50 | INFO     | 🔄 [2026] ETAPA 2/3: Extração e transformação...
+2026-10-19 19:14:50 | INFO     | 🔄 Processando demonstrações contábeis de 2026 (ramo 41)...
+2026-10-19 19:14:50 | INFO     | 📦 Extraindo 2 arquivos ZIP de 2026...
+2026-10-19 19:14:50 | INFO     | 🔓 Extraindo 1T2026.zip → extracted/1T2026/
+2026-10-19 19:14:50 | SUCCESS  | ✅ 1T2026.zip → 1T2026.csv (58519 KB)
+2026-10-19 19:14:50 | INFO     | 🔓 Extraindo 2T2026.zip → extracted/2T2026/
+2026-10-19 19:14:51 | SUCCESS  | ✅ 2T2026.zip → 2T2026.csv (62779 KB)
+2026-10-19 19:14:51 | INFO     | 📊 Lendo 1T2026...
+2026-10-19 19:14:53 | INFO     | 📊 Lendo 2T2026...
+2026-10-19 19:14:56 | INFO     | 📊 Linhas brutas: 1,433,994 | contas/trimestre: 939,057 | operadoras: 796
+2026-10-19 19:14:56 | INFO     | 🌳 Prefixos ['41']: 119,111 registros (2026)
+2026-10-19 19:14:57 | INFO     | 🌱 Operadoras com valor: 712
+2026-10-19 19:14:57 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:14:57 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:14:57 | SUCCESS  | ✅ Consolidação completa: 712 operadoras | R$ 145,798,149,527 (Método D - híbrido)
+2026-10-19 19:14:57 | INFO     | 🌳 [2026] dimensão 'gastos': 712 operadoras
+2026-10-19 19:14:58 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '21', '23', '3', '4', '61']: 736,049 registros (2026)
+2026-10-19 19:15:01 | INFO     | 🌱 Operadoras com valor: 796
+2026-10-19 19:15:01 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:15:01 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:15:01 | SUCCESS  | ✅ Consolidação completa: 796 operadoras | R$ 183,515,841,643 (Método D - híbrido)
+2026-10-19 19:15:01 | INFO     | 🌳 [2026] dimensão 'financeira': 796 operadoras
+2026-10-19 19:15:01 | INFO     | 🌳 Prefixos ['46', '461', '468', '44', '463']: 218,351 registros (2026)
+2026-10-19 19:15:02 | INFO     | 🌱 Operadoras com valor: 786
+2026-10-19 19:15:02 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:15:02 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:15:02 | SUCCESS  | ✅ Consolidação completa: 786 operadoras | R$ 16,788,407,394 (Método D - híbrido)
+2026-10-19 19:15:02 | INFO     | 🌳 [2026] dimensão 'operacional': 786 operadoras
+2026-10-19 19:15:02 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 73,836 registros (2026)
+2026-10-19 19:15:03 | INFO     | 🌱 Operadoras com valor: 760
+2026-10-19 19:15:03 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 19:15:03 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 19:15:03 | SUCCESS  | ✅ Consolidação completa: 760 operadoras | R$ 57,763,650,046 (Método D - híbrido)
+2026-10-19 19:15:03 | INFO     | 🌳 [2026] dimensão 'estrutura': 760 operadoras
+2026-10-19 19:15:03 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2026.csv (0.07 MB)
+2026-10-19 19:15:03 | SUCCESS  | ✅ [2026] 712 operadoras de gastos | 796 operadoras no consolidado multi-dimensão
+2026-10-19 19:15:03 | INFO     | ⚠️  [2026] Gate de qualidade: não integrado nesta execução
+2026-10-19 19:15:03 | INFO     | 💾 [2026] ETAPA 3/3: Carga no MySQL...
+2026-10-19 19:15:03 | WARNING  | ⚠️  Coluna gasto_3T não encontrada, adicionando com 0
+2026-10-19 19:15:03 | WARNING  | ⚠️  Coluna gasto_4T não encontrada, adicionando com 0
+2026-10-19 19:15:03 | SUCCESS  | ✅ 796 linhas do período 2026 carregadas
+2026-10-19 19:15:03 | SUCCESS  | ✅ [2026] 796 registros no MySQL
+2026-10-19 19:15:03 | SUCCESS  | 💰 [2026] Total: R$ 145,798,149,526.54
+2026-10-19 19:15:03 | INFO     | 
+======================================================================
+2026-10-19 19:15:03 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 19:15:03 | INFO     | ======================================================================
+2026-10-19 19:15:03 | INFO     | ✅ 2026: 712 registros | R$ 145,798,149,526.54 | 33.76s
+2026-10-19 19:15:03 | INFO     | 
+⏱️  Tempo total: 33.77s
+2026-10-19 19:15:03 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 19:15:03 | INFO     | 📊 Total registros: 712
+2026-10-19 19:15:03 | INFO     | 💰 Total gastos: R$ 145,798,149,526.54
+2026-10-19 19:15:03 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2023]
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | 
+======================================================================
+2026-10-19 20:41:32 | INFO     | 📅 Processando ano 2023
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | 📥 [2023] ETAPA 1/3: Download de dados...
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2023...
+2026-10-19 20:41:32 | INFO     | ⏭️  1T2023.zip já existe (7.57 MB), pulando...
+2026-10-19 20:41:32 | INFO     | ⏭️  2T2023.zip já existe (8.46 MB), pulando...
+2026-10-19 20:41:32 | INFO     | ⏭️  3T2023.zip já existe (9.49 MB), pulando...
+2026-10-19 20:41:32 | INFO     | ⏭️  4T2023.zip já existe (10.77 MB), pulando...
+2026-10-19 20:41:32 | SUCCESS  | ✅ Demonstrações de 2023: 4/4 trimestres baixados
+2026-10-19 20:41:32 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | INFO     |   ✅ 1T2023.zip      |     7.57 MB
+2026-10-19 20:41:32 | INFO     |   ✅ 2T2023.zip      |     8.46 MB
+2026-10-19 20:41:32 | INFO     |   ✅ 3T2023.zip      |     9.49 MB
+2026-10-19 20:41:32 | INFO     |   ✅ 4T2023.zip      |    10.77 MB
+2026-10-19 20:41:32 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:41:32 | INFO     | ======================================================================
+2026-10-19 20:41:32 | SUCCESS  | ✅ [2023] Download completo
+2026-10-19 20:41:32 | INFO     | 🔄 [2023] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:41:32 | INFO     | 🔄 Processando demonstrações contábeis de 2023 (ramo 41)...
+2026-10-19 20:41:32 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2023...
+2026-10-19 20:41:32 | INFO     | 🔓 Extraindo 1T2023.zip → extracted/1T2023/
+2026-10-19 20:41:32 | SUCCESS  | ✅ 1T2023.zip → 1T2023.csv (60646 KB)
+2026-10-19 20:41:32 | INFO     | 🔓 Extraindo 2T2023.zip → extracted/2T2023/
+2026-10-19 20:41:33 | SUCCESS  | ✅ 2T2023.zip → 2T2023.csv (63691 KB)
+2026-10-19 20:41:33 | INFO     | 🔓 Extraindo 3T2023.zip → extracted/3T2023/
+2026-10-19 20:41:33 | SUCCESS  | ✅ 3T2023.zip → 3T2023.csv (65630 KB)
+2026-10-19 20:41:33 | INFO     | 🔓 Extraindo 4T2023.zip → extracted/4T2023/
+2026-10-19 20:41:33 | SUCCESS  | ✅ 4T2023.zip → 4T2023.csv (73523 KB)
+2026-10-19 20:41:33 | INFO     | 📊 Lendo 1T2023...
+2026-10-19 20:41:36 | INFO     | 📊 Lendo 2T2023...
+2026-10-19 20:41:38 | INFO     | 📊 Lendo 3T2023...
+2026-10-19 20:41:41 | INFO     | 📊 Lendo 4T2023...
+2026-10-19 20:41:45 | INFO     | 📊 Linhas brutas: 3,194,869 | contas/trimestre: 2,056,908 | operadoras: 1,092
+2026-10-19 20:41:46 | INFO     | 🌳 Prefixos ['41']: 237,852 registros (2023)
+2026-10-19 20:41:46 | INFO     | 🌱 Operadoras com valor: 881
+2026-10-19 20:41:47 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:41:47 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:41:47 | SUCCESS  | ✅ Consolidação completa: 881 operadoras | R$ 241,159,935,778 (Método D - híbrido)
+2026-10-19 20:41:47 | INFO     | 🌳 [2023] dimensão 'gastos': 881 operadoras
+2026-10-19 20:41:48 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 2,049,435 registros (2023)
+2026-10-19 20:41:53 | INFO     | 🌱 Operadoras com valor: 1,092
+2026-10-19 20:41:53 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:41:53 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:41:53 | SUCCESS  | ✅ Consolidação completa: 1092 operadoras | R$ 286,353,692,094 (Método D - híbrido)
+2026-10-19 20:41:53 | INFO     | 🌳 [2023] dimensão 'financeira': 1092 operadoras
+2026-10-19 20:41:54 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 554,113 registros (2023)
+2026-10-19 20:41:56 | INFO     | 🌱 Operadoras com valor: 1,082
+2026-10-19 20:41:56 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:41:56 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:41:56 | SUCCESS  | ✅ Consolidação completa: 1082 operadoras | R$ 28,716,564,618 (Método D - híbrido)
+2026-10-19 20:41:56 | INFO     | 🌳 [2023] dimensão 'operacional': 1082 operadoras
+2026-10-19 20:41:56 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 152,940 registros (2023)
+2026-10-19 20:41:57 | INFO     | 🌱 Operadoras com valor: 1,003
+2026-10-19 20:41:57 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:41:57 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:41:57 | SUCCESS  | ✅ Consolidação completa: 1003 operadoras | R$ 26,254,588,353 (Método D - híbrido)
+2026-10-19 20:41:57 | INFO     | 🌳 [2023] dimensão 'estrutura': 1003 operadoras
+2026-10-19 20:41:57 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2023.csv (0.10 MB)
+2026-10-19 20:41:57 | SUCCESS  | ✅ [2023] 881 operadoras de gastos | 1092 operadoras no consolidado multi-dimensão
+2026-10-19 20:41:57 | INFO     | ⚠️  [2023] Gate de qualidade: não integrado nesta execução
+2026-10-19 20:41:57 | INFO     | 💾 [2023] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:41:57 | SUCCESS  | ✅ 1,092 linhas do período 2023 carregadas
+2026-10-19 20:41:57 | SUCCESS  | ✅ [2023] 1092 registros no MySQL
+2026-10-19 20:41:57 | SUCCESS  | 💰 [2023] Total: R$ 241,159,935,778.45
+2026-10-19 20:41:57 | INFO     | 
+======================================================================
+2026-10-19 20:41:57 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:41:57 | INFO     | ======================================================================
+2026-10-19 20:41:57 | INFO     | ✅ 2023: 881 registros | R$ 241,159,935,778.45 | 25.04s
+2026-10-19 20:41:57 | INFO     | 
+⏱️  Tempo total: 25.05s
+2026-10-19 20:41:57 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:41:57 | INFO     | 📊 Total registros: 881
+2026-10-19 20:41:57 | INFO     | 💰 Total gastos: R$ 241,159,935,778.45
+2026-10-19 20:41:57 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2024]
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | 
+======================================================================
+2026-10-19 20:42:22 | INFO     | 📅 Processando ano 2024
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | 📥 [2024] ETAPA 1/3: Download de dados...
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-19 20:42:22 | INFO     | ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-19 20:42:22 | INFO     | ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-19 20:42:22 | INFO     | ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-19 20:42:22 | INFO     | ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-19 20:42:22 | SUCCESS  | ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-19 20:42:22 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | INFO     |   ✅ 1T2024.zip      |     7.85 MB
+2026-10-19 20:42:22 | INFO     |   ✅ 2T2024.zip      |     8.89 MB
+2026-10-19 20:42:22 | INFO     |   ✅ 3T2024.zip      |     9.11 MB
+2026-10-19 20:42:22 | INFO     |   ✅ 4T2024.zip      |    11.16 MB
+2026-10-19 20:42:22 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:42:22 | INFO     | ======================================================================
+2026-10-19 20:42:22 | SUCCESS  | ✅ [2024] Download completo
+2026-10-19 20:42:22 | INFO     | 🔄 [2024] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:42:22 | INFO     | 🔄 Processando demonstrações contábeis de 2024 (ramo 41)...
+2026-10-19 20:42:22 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2024...
+2026-10-19 20:42:22 | INFO     | 🔓 Extraindo 1T2024.zip → extracted/1T2024/
+2026-10-19 20:42:22 | SUCCESS  | ✅ 1T2024.zip → 1T2024.csv (57498 KB)
+2026-10-19 20:42:22 | INFO     | 🔓 Extraindo 2T2024.zip → extracted/2T2024/
+2026-10-19 20:42:23 | SUCCESS  | ✅ 2T2024.zip → 2T2024.csv (60940 KB)
+2026-10-19 20:42:23 | INFO     | 🔓 Extraindo 3T2024.zip → extracted/3T2024/
+2026-10-19 20:42:23 | SUCCESS  | ✅ 3T2024.zip → 3T2024.csv (62287 KB)
+2026-10-19 20:42:23 | INFO     | 🔓 Extraindo 4T2024.zip → extracted/4T2024/
+2026-10-19 20:42:23 | SUCCESS  | ✅ 4T2024.zip → 4T2024.csv (79716 KB)
+2026-10-19 20:42:23 | INFO     | 📊 Lendo 1T2024...
+2026-10-19 20:42:25 | INFO     | 📊 Lendo 2T2024...
+2026-10-19 20:42:27 | INFO     | 📊 Lendo 3T2024...
+2026-10-19 20:42:30 | INFO     | 📊 Lendo 4T2024...
+2026-10-19 20:42:34 | INFO     | 📊 Linhas brutas: 3,061,992 | contas/trimestre: 1,991,110 | operadoras: 1,065
+2026-10-19 20:42:35 | INFO     | 🌳 Prefixos ['41']: 239,948 registros (2024)
+2026-10-19 20:42:35 | INFO     | 🌱 Operadoras com valor: 865
+2026-10-19 20:42:36 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:42:36 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:42:36 | SUCCESS  | ✅ Consolidação completa: 865 operadoras | R$ 261,179,847,787 (Método D - híbrido)
+2026-10-19 20:42:36 | INFO     | 🌳 [2024] dimensão 'gastos': 865 operadoras
+2026-10-19 20:42:36 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,984,218 registros (2024)
+2026-10-19 20:42:42 | INFO     | 🌱 Operadoras com valor: 1,065
+2026-10-19 20:42:42 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:42:42 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:42:42 | SUCCESS  | ✅ Consolidação completa: 1065 operadoras | R$ 322,954,355,046 (Método D - híbrido)
+2026-10-19 20:42:42 | INFO     | 🌳 [2024] dimensão 'financeira': 1065 operadoras
+2026-10-19 20:42:42 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 535,467 registros (2024)
+2026-10-19 20:42:44 | INFO     | 🌱 Operadoras com valor: 1,049
+2026-10-19 20:42:44 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:42:44 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:42:44 | SUCCESS  | ✅ Consolidação completa: 1049 operadoras | R$ 32,057,380,109 (Método D - híbrido)
+2026-10-19 20:42:44 | INFO     | 🌳 [2024] dimensão 'operacional': 1049 operadoras
+2026-10-19 20:42:45 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,715 registros (2024)
+2026-10-19 20:42:45 | INFO     | 🌱 Operadoras com valor: 977
+2026-10-19 20:42:45 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:42:45 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:42:45 | SUCCESS  | ✅ Consolidação completa: 977 operadoras | R$ 35,101,254,783 (Método D - híbrido)
+2026-10-19 20:42:45 | INFO     | 🌳 [2024] dimensão 'estrutura': 977 operadoras
+2026-10-19 20:42:45 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2024.csv (0.10 MB)
+2026-10-19 20:42:45 | SUCCESS  | ✅ [2024] 865 operadoras de gastos | 1065 operadoras no consolidado multi-dimensão
+2026-10-19 20:42:45 | INFO     | ⚠️  [2024] Gate de qualidade: não integrado nesta execução
+2026-10-19 20:42:45 | INFO     | 💾 [2024] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:42:46 | SUCCESS  | ✅ 1,065 linhas do período 2024 carregadas
+2026-10-19 20:42:46 | SUCCESS  | ✅ [2024] 1065 registros no MySQL
+2026-10-19 20:42:46 | SUCCESS  | 💰 [2024] Total: R$ 261,179,847,787.35
+2026-10-19 20:42:46 | INFO     | 
+======================================================================
+2026-10-19 20:42:46 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:42:46 | INFO     | ======================================================================
+2026-10-19 20:42:46 | INFO     | ✅ 2024: 865 registros | R$ 261,179,847,787.35 | 23.50s
+2026-10-19 20:42:46 | INFO     | 
+⏱️  Tempo total: 23.51s
+2026-10-19 20:42:46 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:42:46 | INFO     | 📊 Total registros: 865
+2026-10-19 20:42:46 | INFO     | 💰 Total gastos: R$ 261,179,847,787.35
+2026-10-19 20:42:46 | INFO     | ======================================================================
+2026-10-19 20:42:46 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     | 
+======================================================================
+2026-10-19 20:42:51 | INFO     | 📅 Processando ano 2025
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 20:42:51 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 20:42:51 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 20:42:51 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 20:42:51 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 20:42:51 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 20:42:51 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 20:42:51 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 20:42:51 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 20:42:51 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 20:42:51 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:42:51 | INFO     | ======================================================================
+2026-10-19 20:42:51 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 20:42:51 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:42:51 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 20:42:51 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 20:42:51 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 20:42:51 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 20:42:51 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 20:42:51 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 20:42:51 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 20:42:52 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 20:42:52 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 20:42:52 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 20:42:52 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 20:42:54 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 20:42:56 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 20:42:59 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 20:43:03 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 20:43:03 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 20:43:04 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 20:43:05 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:05 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:05 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 20:43:05 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 20:43:05 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,968,775 registros (2025)
+2026-10-19 20:43:10 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 20:43:10 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:10 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:10 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 20:43:10 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 20:43:11 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 528,136 registros (2025)
+2026-10-19 20:43:13 | INFO     | 🌱 Operadoras com valor: 1,021
+2026-10-19 20:43:13 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:13 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:13 | SUCCESS  | ✅ Consolidação completa: 1021 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 20:43:13 | INFO     | 🌳 [2025] dimensão 'operacional': 1021 operadoras
+2026-10-19 20:43:14 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 20:43:14 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 20:43:14 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:14 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:14 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 20:43:14 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 20:43:14 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 20:43:14 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 20:43:14 | INFO     | ⚠️  [2025] Gate de qualidade: não integrado nesta execução
+2026-10-19 20:43:14 | INFO     | 💾 [2025] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:43:15 | SUCCESS  | ✅ 1,050 linhas do período 2025 carregadas
+2026-10-19 20:43:15 | SUCCESS  | ✅ [2025] 1050 registros no MySQL
+2026-10-19 20:43:15 | SUCCESS  | 💰 [2025] Total: R$ 282,171,144,672.45
+2026-10-19 20:43:15 | INFO     | 
+======================================================================
+2026-10-19 20:43:15 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:43:15 | INFO     | ======================================================================
+2026-10-19 20:43:15 | INFO     | ✅ 2025: 851 registros | R$ 282,171,144,672.45 | 23.82s
+2026-10-19 20:43:15 | INFO     | 
+⏱️  Tempo total: 23.82s
+2026-10-19 20:43:15 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:43:15 | INFO     | 📊 Total registros: 851
+2026-10-19 20:43:15 | INFO     | 💰 Total gastos: R$ 282,171,144,672.45
+2026-10-19 20:43:15 | INFO     | ======================================================================
+2026-10-19 20:43:15 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:43:18 | INFO     | ======================================================================
+2026-10-19 20:43:18 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2026]
+2026-10-19 20:43:18 | INFO     | ======================================================================
+2026-10-19 20:43:18 | INFO     | 
+======================================================================
+2026-10-19 20:43:18 | INFO     | 📅 Processando ano 2026
+2026-10-19 20:43:18 | INFO     | ======================================================================
+2026-10-19 20:43:18 | INFO     | 📥 [2026] ETAPA 1/3: Download de dados...
+2026-10-19 20:43:18 | INFO     | ======================================================================
+2026-10-19 20:43:18 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:43:18 | INFO     | ======================================================================
+2026-10-19 20:43:18 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2026...
+2026-10-19 20:43:18 | INFO     | ⏭️  1T2026.zip já existe (7.31 MB), pulando...
+2026-10-19 20:43:18 | INFO     | ⏭️  2T2026.zip já existe (9.05 MB), pulando...
+2026-10-19 20:43:18 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:43:22 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:43:27 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:43:28 | ERROR    | ❌ Erro ao baixar 3T2026: RetryError[<Future at 0x21466775a50 state=finished raised HTTPStatusError>]
+2026-10-19 20:43:28 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:43:33 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:43:37 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:43:38 | ERROR    | ❌ Erro ao baixar 4T2026: RetryError[<Future at 0x214667774d0 state=finished raised HTTPStatusError>]
+2026-10-19 20:43:38 | SUCCESS  | ✅ Demonstrações de 2026: 2/4 trimestres baixados
+2026-10-19 20:43:38 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:43:38 | INFO     | ======================================================================
+2026-10-19 20:43:38 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:43:38 | INFO     | ======================================================================
+2026-10-19 20:43:38 | INFO     |   ✅ 1T2026.zip      |     7.31 MB
+2026-10-19 20:43:38 | INFO     |   ✅ 2T2026.zip      |     9.05 MB
+2026-10-19 20:43:38 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:43:38 | INFO     | ======================================================================
+2026-10-19 20:43:38 | SUCCESS  | ✅ [2026] Download completo
+2026-10-19 20:43:38 | INFO     | 🔄 [2026] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:43:38 | INFO     | 🔄 Processando demonstrações contábeis de 2026 (ramo 41)...
+2026-10-19 20:43:38 | INFO     | 📦 Extraindo 2 arquivos ZIP de 2026...
+2026-10-19 20:43:38 | INFO     | 🔓 Extraindo 1T2026.zip → extracted/1T2026/
+2026-10-19 20:43:39 | SUCCESS  | ✅ 1T2026.zip → 1T2026.csv (58519 KB)
+2026-10-19 20:43:39 | INFO     | 🔓 Extraindo 2T2026.zip → extracted/2T2026/
+2026-10-19 20:43:39 | SUCCESS  | ✅ 2T2026.zip → 2T2026.csv (62779 KB)
+2026-10-19 20:43:39 | INFO     | 📊 Lendo 1T2026...
+2026-10-19 20:43:41 | INFO     | 📊 Lendo 2T2026...
+2026-10-19 20:43:44 | INFO     | 📊 Linhas brutas: 1,433,994 | contas/trimestre: 939,057 | operadoras: 796
+2026-10-19 20:43:45 | INFO     | 🌳 Prefixos ['41']: 119,111 registros (2026)
+2026-10-19 20:43:45 | INFO     | 🌱 Operadoras com valor: 712
+2026-10-19 20:43:45 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:45 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:45 | SUCCESS  | ✅ Consolidação completa: 712 operadoras | R$ 145,798,149,527 (Método D - híbrido)
+2026-10-19 20:43:45 | INFO     | 🌳 [2026] dimensão 'gastos': 712 operadoras
+2026-10-19 20:43:46 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 935,848 registros (2026)
+2026-10-19 20:43:50 | INFO     | 🌱 Operadoras com valor: 796
+2026-10-19 20:43:50 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:50 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:50 | SUCCESS  | ✅ Consolidação completa: 796 operadoras | R$ 183,515,841,643 (Método D - híbrido)
+2026-10-19 20:43:50 | INFO     | 🌳 [2026] dimensão 'financeira': 796 operadoras
+2026-10-19 20:43:50 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 247,998 registros (2026)
+2026-10-19 20:43:52 | INFO     | 🌱 Operadoras com valor: 787
+2026-10-19 20:43:52 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:52 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:52 | SUCCESS  | ✅ Consolidação completa: 787 operadoras | R$ 16,788,407,394 (Método D - híbrido)
+2026-10-19 20:43:52 | INFO     | 🌳 [2026] dimensão 'operacional': 787 operadoras
+2026-10-19 20:43:52 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 73,836 registros (2026)
+2026-10-19 20:43:52 | INFO     | 🌱 Operadoras com valor: 760
+2026-10-19 20:43:52 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:43:52 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:43:52 | SUCCESS  | ✅ Consolidação completa: 760 operadoras | R$ 57,763,650,046 (Método D - híbrido)
+2026-10-19 20:43:52 | INFO     | 🌳 [2026] dimensão 'estrutura': 760 operadoras
+2026-10-19 20:43:52 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2026.csv (0.07 MB)
+2026-10-19 20:43:52 | SUCCESS  | ✅ [2026] 712 operadoras de gastos | 796 operadoras no consolidado multi-dimensão
+2026-10-19 20:43:52 | INFO     | ⚠️  [2026] Gate de qualidade: não integrado nesta execução
+2026-10-19 20:43:52 | INFO     | 💾 [2026] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:43:52 | WARNING  | ⚠️  Coluna gasto_3T não encontrada, adicionando com 0
+2026-10-19 20:43:52 | WARNING  | ⚠️  Coluna gasto_4T não encontrada, adicionando com 0
+2026-10-19 20:43:53 | SUCCESS  | ✅ 796 linhas do período 2026 carregadas
+2026-10-19 20:43:53 | SUCCESS  | ✅ [2026] 796 registros no MySQL
+2026-10-19 20:43:53 | SUCCESS  | 💰 [2026] Total: R$ 145,798,149,526.54
+2026-10-19 20:43:53 | INFO     | 
+======================================================================
+2026-10-19 20:43:53 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:43:53 | INFO     | ======================================================================
+2026-10-19 20:43:53 | INFO     | ✅ 2026: 712 registros | R$ 145,798,149,526.54 | 35.12s
+2026-10-19 20:43:53 | INFO     | 
+⏱️  Tempo total: 35.13s
+2026-10-19 20:43:53 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:43:53 | INFO     | 📊 Total registros: 712
+2026-10-19 20:43:53 | INFO     | 💰 Total gastos: R$ 145,798,149,526.54
+2026-10-19 20:43:53 | INFO     | ======================================================================
+2026-10-19 20:43:53 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     | 
+======================================================================
+2026-10-19 20:45:36 | INFO     | 📅 Processando ano 2025
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 20:45:36 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 20:45:36 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 20:45:36 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 20:45:36 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 20:45:36 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 20:45:36 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 20:45:36 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 20:45:36 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 20:45:36 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 20:45:36 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:45:36 | INFO     | ======================================================================
+2026-10-19 20:45:36 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 20:45:36 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:45:36 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 20:45:36 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 20:45:36 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 20:45:37 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 20:45:37 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 20:45:37 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 20:45:37 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 20:45:37 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 20:45:37 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 20:45:37 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 20:45:37 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 20:45:40 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 20:45:43 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 20:45:46 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 20:45:52 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 20:45:52 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 20:45:53 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 20:45:54 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:45:54 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:45:54 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 20:45:54 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 20:45:55 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,968,775 registros (2025)
+2026-10-19 20:46:01 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 20:46:01 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:46:01 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:46:01 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 20:46:01 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 20:46:01 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 528,136 registros (2025)
+2026-10-19 20:46:03 | INFO     | 🌱 Operadoras com valor: 1,021
+2026-10-19 20:46:03 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:46:04 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:46:04 | SUCCESS  | ✅ Consolidação completa: 1021 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 20:46:04 | INFO     | 🌳 [2025] dimensão 'operacional': 1021 operadoras
+2026-10-19 20:46:05 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 20:46:05 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 20:46:05 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:46:05 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:46:05 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 20:46:05 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 20:46:05 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 20:46:05 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN logradouro
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN numero
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN complemento
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN bairro
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN cep
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN ddd
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN telefone
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN fax
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN endereco_eletronico
+2026-10-19 20:46:06 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN representante
+2026-10-19 20:46:07 | INFO     | 🛠️  Migração: ALTER TABLE-operadoras ADD COLUMN cargo_representante
+2026-10-19 20:46:07 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:46:07 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 20:46:07 | INFO     | ⚠️  [2025] Gate de qualidade: não integrado nesta execução
+2026-10-19 20:46:07 | INFO     | 💾 [2025] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:46:07 | SUCCESS  | ✅ 1,050 linhas do período 2025 carregadas
+2026-10-19 20:46:07 | SUCCESS  | ✅ [2025] 1050 registros no MySQL
+2026-10-19 20:46:07 | SUCCESS  | 💰 [2025] Total: R$ 282,171,144,672.45
+2026-10-19 20:46:07 | INFO     | 
+======================================================================
+2026-10-19 20:46:07 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:46:07 | INFO     | ======================================================================
+2026-10-19 20:46:07 | INFO     | ✅ 2025: 851 registros | R$ 282,171,144,672.45 | 31.16s
+2026-10-19 20:46:07 | INFO     | 
+⏱️  Tempo total: 31.18s
+2026-10-19 20:46:07 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:46:07 | INFO     | 📊 Total registros: 851
+2026-10-19 20:46:07 | INFO     | 💰 Total gastos: R$ 282,171,144,672.45
+2026-10-19 20:46:07 | INFO     | ======================================================================
+2026-10-19 20:46:07 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     | 
+======================================================================
+2026-10-19 20:46:54 | INFO     | 📅 Processando ano 2025
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 20:46:54 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 20:46:54 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 20:46:54 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 20:46:54 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 20:46:54 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 20:46:54 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 20:46:54 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 20:46:54 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 20:46:54 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 20:46:54 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:46:54 | INFO     | ======================================================================
+2026-10-19 20:46:54 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 20:46:54 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:46:54 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 20:46:54 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 20:46:54 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 20:46:54 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 20:46:54 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 20:46:55 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 20:46:55 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 20:46:55 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 20:46:55 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 20:46:55 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 20:46:55 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 20:46:57 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 20:47:00 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 20:47:02 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 20:47:07 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 20:47:07 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 20:47:07 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 20:47:08 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:08 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:08 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 20:47:08 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 20:47:09 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,968,775 registros (2025)
+2026-10-19 20:47:14 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 20:47:14 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:14 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:14 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 20:47:14 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 20:47:15 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 528,136 registros (2025)
+2026-10-19 20:47:17 | INFO     | 🌱 Operadoras com valor: 1,021
+2026-10-19 20:47:17 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:17 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:17 | SUCCESS  | ✅ Consolidação completa: 1021 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 20:47:17 | INFO     | 🌳 [2025] dimensão 'operacional': 1021 operadoras
+2026-10-19 20:47:18 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 20:47:18 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 20:47:18 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:18 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:18 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 20:47:18 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 20:47:18 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 20:47:18 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:19 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:47:19 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     | 
+======================================================================
+2026-10-19 20:47:29 | INFO     | 📅 Processando ano 2025
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 20:47:29 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 20:47:29 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 20:47:29 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 20:47:29 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 20:47:29 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 20:47:29 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 20:47:29 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 20:47:29 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 20:47:29 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 20:47:29 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:47:29 | INFO     | ======================================================================
+2026-10-19 20:47:29 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 20:47:29 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:47:29 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 20:47:29 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 20:47:29 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 20:47:29 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 20:47:29 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 20:47:29 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 20:47:29 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 20:47:29 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 20:47:29 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 20:47:30 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 20:47:30 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 20:47:32 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 20:47:34 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 20:47:37 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 20:47:41 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 20:47:41 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 20:47:42 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 20:47:43 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:43 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:43 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 20:47:43 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 20:47:43 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,968,775 registros (2025)
+2026-10-19 20:47:48 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 20:47:48 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:49 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:49 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 20:47:49 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 20:47:49 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 528,136 registros (2025)
+2026-10-19 20:47:51 | INFO     | 🌱 Operadoras com valor: 1,021
+2026-10-19 20:47:51 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:51 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:51 | SUCCESS  | ✅ Consolidação completa: 1021 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 20:47:51 | INFO     | 🌳 [2025] dimensão 'operacional': 1021 operadoras
+2026-10-19 20:47:52 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 20:47:52 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 20:47:52 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:47:52 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:52 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 20:47:52 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 20:47:52 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 20:47:52 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:47:52 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:47:52 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 20:47:58 | INFO     | GATE DE QUALIDADE - ANO 2025 - VEREDITO: APROVADO
+2026-10-19 20:47:58 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:47:58 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:47:58 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:47:58 | INFO     |    [OK] ramo_411_presente      845 operadoras com contas 411 não-zero
+2026-10-19 20:47:58 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:47:58 | INFO     |    [OK] volume_plausivel       1,975,611 linhas
+2026-10-19 20:47:58 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:47:58 | INFO     |    [OK] comparacao_ano_base    total=282.2Bi vs base=261.2Bi (1.08x)
+2026-10-19 20:47:58 | INFO     | 💾 [2025] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:47:58 | SUCCESS  | ✅ 1,050 linhas do período 2025 carregadas
+2026-10-19 20:47:58 | SUCCESS  | ✅ [2025] 1050 registros no MySQL
+2026-10-19 20:47:58 | SUCCESS  | 💰 [2025] Total: R$ 282,171,144,672.45
+2026-10-19 20:47:58 | INFO     | 
+======================================================================
+2026-10-19 20:47:58 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:47:58 | INFO     | ======================================================================
+2026-10-19 20:47:58 | INFO     | ✅ 2025: 851 registros | R$ 282,171,144,672.45 | 29.39s
+2026-10-19 20:47:58 | INFO     | 
+⏱️  Tempo total: 29.41s
+2026-10-19 20:47:58 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:47:58 | INFO     | 📊 Total registros: 851
+2026-10-19 20:47:58 | INFO     | 💰 Total gastos: R$ 282,171,144,672.45
+2026-10-19 20:47:58 | INFO     | ======================================================================
+2026-10-19 20:47:58 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2023]
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     | 
+======================================================================
+2026-10-19 20:48:04 | INFO     | 📅 Processando ano 2023
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     | 📥 [2023] ETAPA 1/3: Download de dados...
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2023...
+2026-10-19 20:48:04 | INFO     | ⏭️  1T2023.zip já existe (7.57 MB), pulando...
+2026-10-19 20:48:04 | INFO     | ⏭️  2T2023.zip já existe (8.46 MB), pulando...
+2026-10-19 20:48:04 | INFO     | ⏭️  3T2023.zip já existe (9.49 MB), pulando...
+2026-10-19 20:48:04 | INFO     | ⏭️  4T2023.zip já existe (10.77 MB), pulando...
+2026-10-19 20:48:04 | SUCCESS  | ✅ Demonstrações de 2023: 4/4 trimestres baixados
+2026-10-19 20:48:04 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | INFO     |   ✅ 1T2023.zip      |     7.57 MB
+2026-10-19 20:48:04 | INFO     |   ✅ 2T2023.zip      |     8.46 MB
+2026-10-19 20:48:04 | INFO     |   ✅ 3T2023.zip      |     9.49 MB
+2026-10-19 20:48:04 | INFO     |   ✅ 4T2023.zip      |    10.77 MB
+2026-10-19 20:48:04 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:48:04 | INFO     | ======================================================================
+2026-10-19 20:48:04 | SUCCESS  | ✅ [2023] Download completo
+2026-10-19 20:48:04 | INFO     | 🔄 [2023] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:48:04 | INFO     | 🔄 Processando demonstrações contábeis de 2023 (ramo 41)...
+2026-10-19 20:48:04 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2023...
+2026-10-19 20:48:04 | INFO     | 🔓 Extraindo 1T2023.zip → extracted/1T2023/
+2026-10-19 20:48:04 | SUCCESS  | ✅ 1T2023.zip → 1T2023.csv (60646 KB)
+2026-10-19 20:48:04 | INFO     | 🔓 Extraindo 2T2023.zip → extracted/2T2023/
+2026-10-19 20:48:04 | SUCCESS  | ✅ 2T2023.zip → 2T2023.csv (63691 KB)
+2026-10-19 20:48:04 | INFO     | 🔓 Extraindo 3T2023.zip → extracted/3T2023/
+2026-10-19 20:48:05 | SUCCESS  | ✅ 3T2023.zip → 3T2023.csv (65630 KB)
+2026-10-19 20:48:05 | INFO     | 🔓 Extraindo 4T2023.zip → extracted/4T2023/
+2026-10-19 20:48:05 | SUCCESS  | ✅ 4T2023.zip → 4T2023.csv (73523 KB)
+2026-10-19 20:48:05 | INFO     | 📊 Lendo 1T2023...
+2026-10-19 20:48:07 | INFO     | 📊 Lendo 2T2023...
+2026-10-19 20:48:09 | INFO     | 📊 Lendo 3T2023...
+2026-10-19 20:48:12 | INFO     | 📊 Lendo 4T2023...
+2026-10-19 20:48:17 | INFO     | 📊 Linhas brutas: 3,194,869 | contas/trimestre: 2,056,908 | operadoras: 1,092
+2026-10-19 20:48:17 | INFO     | 🌳 Prefixos ['41']: 237,852 registros (2023)
+2026-10-19 20:48:17 | INFO     | 🌱 Operadoras com valor: 881
+2026-10-19 20:48:18 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:18 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:18 | SUCCESS  | ✅ Consolidação completa: 881 operadoras | R$ 241,159,935,778 (Método D - híbrido)
+2026-10-19 20:48:18 | INFO     | 🌳 [2023] dimensão 'gastos': 881 operadoras
+2026-10-19 20:48:19 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 2,049,435 registros (2023)
+2026-10-19 20:48:25 | INFO     | 🌱 Operadoras com valor: 1,092
+2026-10-19 20:48:25 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:25 | SUCCESS  | ✅ Consolidação completa: 1092 operadoras | R$ 286,353,692,094 (Método D - híbrido)
+2026-10-19 20:48:25 | INFO     | 🌳 [2023] dimensão 'financeira': 1092 operadoras
+2026-10-19 20:48:25 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 554,113 registros (2023)
+2026-10-19 20:48:27 | INFO     | 🌱 Operadoras com valor: 1,082
+2026-10-19 20:48:27 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:27 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:27 | SUCCESS  | ✅ Consolidação completa: 1082 operadoras | R$ 28,716,564,618 (Método D - híbrido)
+2026-10-19 20:48:27 | INFO     | 🌳 [2023] dimensão 'operacional': 1082 operadoras
+2026-10-19 20:48:28 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 152,940 registros (2023)
+2026-10-19 20:48:28 | INFO     | 🌱 Operadoras com valor: 1,003
+2026-10-19 20:48:28 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:28 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:28 | SUCCESS  | ✅ Consolidação completa: 1003 operadoras | R$ 26,254,588,353 (Método D - híbrido)
+2026-10-19 20:48:28 | INFO     | 🌳 [2023] dimensão 'estrutura': 1003 operadoras
+2026-10-19 20:48:28 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2023.csv (0.10 MB)
+2026-10-19 20:48:28 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:28 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:48:28 | SUCCESS  | ✅ [2023] 881 operadoras de gastos | 1092 operadoras no consolidado multi-dimensão
+2026-10-19 20:48:33 | INFO     | GATE DE QUALIDADE - ANO 2023 - VEREDITO: APROVADO
+2026-10-19 20:48:33 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:48:33 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:48:33 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:48:33 | INFO     |    [OK] ramo_411_presente      878 operadoras com contas 411 não-zero
+2026-10-19 20:48:33 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:48:33 | INFO     |    [OK] volume_plausivel       2,056,908 linhas
+2026-10-19 20:48:33 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:48:33 | INFO     | 💾 [2023] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:48:34 | SUCCESS  | ✅ 1,092 linhas do período 2023 carregadas
+2026-10-19 20:48:34 | SUCCESS  | ✅ [2023] 1092 registros no MySQL
+2026-10-19 20:48:34 | SUCCESS  | 💰 [2023] Total: R$ 241,159,935,778.45
+2026-10-19 20:48:34 | INFO     | 
+======================================================================
+2026-10-19 20:48:34 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:48:34 | INFO     | ======================================================================
+2026-10-19 20:48:34 | INFO     | ✅ 2023: 881 registros | R$ 241,159,935,778.45 | 29.82s
+2026-10-19 20:48:34 | INFO     | 
+⏱️  Tempo total: 29.84s
+2026-10-19 20:48:34 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:48:34 | INFO     | 📊 Total registros: 881
+2026-10-19 20:48:34 | INFO     | 💰 Total gastos: R$ 241,159,935,778.45
+2026-10-19 20:48:34 | INFO     | ======================================================================
+2026-10-19 20:48:34 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2024]
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     | 
+======================================================================
+2026-10-19 20:48:37 | INFO     | 📅 Processando ano 2024
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     | 📥 [2024] ETAPA 1/3: Download de dados...
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-19 20:48:37 | INFO     | ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-19 20:48:37 | INFO     | ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-19 20:48:37 | INFO     | ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-19 20:48:37 | INFO     | ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-19 20:48:37 | SUCCESS  | ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-19 20:48:37 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | INFO     |   ✅ 1T2024.zip      |     7.85 MB
+2026-10-19 20:48:37 | INFO     |   ✅ 2T2024.zip      |     8.89 MB
+2026-10-19 20:48:37 | INFO     |   ✅ 3T2024.zip      |     9.11 MB
+2026-10-19 20:48:37 | INFO     |   ✅ 4T2024.zip      |    11.16 MB
+2026-10-19 20:48:37 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:48:37 | INFO     | ======================================================================
+2026-10-19 20:48:37 | SUCCESS  | ✅ [2024] Download completo
+2026-10-19 20:48:37 | INFO     | 🔄 [2024] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:48:37 | INFO     | 🔄 Processando demonstrações contábeis de 2024 (ramo 41)...
+2026-10-19 20:48:37 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2024...
+2026-10-19 20:48:37 | INFO     | 🔓 Extraindo 1T2024.zip → extracted/1T2024/
+2026-10-19 20:48:37 | SUCCESS  | ✅ 1T2024.zip → 1T2024.csv (57498 KB)
+2026-10-19 20:48:37 | INFO     | 🔓 Extraindo 2T2024.zip → extracted/2T2024/
+2026-10-19 20:48:37 | SUCCESS  | ✅ 2T2024.zip → 2T2024.csv (60940 KB)
+2026-10-19 20:48:37 | INFO     | 🔓 Extraindo 3T2024.zip → extracted/3T2024/
+2026-10-19 20:48:37 | SUCCESS  | ✅ 3T2024.zip → 3T2024.csv (62287 KB)
+2026-10-19 20:48:37 | INFO     | 🔓 Extraindo 4T2024.zip → extracted/4T2024/
+2026-10-19 20:48:38 | SUCCESS  | ✅ 4T2024.zip → 4T2024.csv (79716 KB)
+2026-10-19 20:48:38 | INFO     | 📊 Lendo 1T2024...
+2026-10-19 20:48:40 | INFO     | 📊 Lendo 2T2024...
+2026-10-19 20:48:42 | INFO     | 📊 Lendo 3T2024...
+2026-10-19 20:48:45 | INFO     | 📊 Lendo 4T2024...
+2026-10-19 20:48:49 | INFO     | 📊 Linhas brutas: 3,061,992 | contas/trimestre: 1,991,110 | operadoras: 1,065
+2026-10-19 20:48:49 | INFO     | 🌳 Prefixos ['41']: 239,948 registros (2024)
+2026-10-19 20:48:50 | INFO     | 🌱 Operadoras com valor: 865
+2026-10-19 20:48:51 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:51 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:51 | SUCCESS  | ✅ Consolidação completa: 865 operadoras | R$ 261,179,847,787 (Método D - híbrido)
+2026-10-19 20:48:51 | INFO     | 🌳 [2024] dimensão 'gastos': 865 operadoras
+2026-10-19 20:48:51 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,984,218 registros (2024)
+2026-10-19 20:48:57 | INFO     | 🌱 Operadoras com valor: 1,065
+2026-10-19 20:48:57 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:57 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:57 | SUCCESS  | ✅ Consolidação completa: 1065 operadoras | R$ 322,954,355,046 (Método D - híbrido)
+2026-10-19 20:48:57 | INFO     | 🌳 [2024] dimensão 'financeira': 1065 operadoras
+2026-10-19 20:48:57 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 535,467 registros (2024)
+2026-10-19 20:48:59 | INFO     | 🌱 Operadoras com valor: 1,049
+2026-10-19 20:48:59 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:48:59 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:48:59 | SUCCESS  | ✅ Consolidação completa: 1049 operadoras | R$ 32,057,380,109 (Método D - híbrido)
+2026-10-19 20:48:59 | INFO     | 🌳 [2024] dimensão 'operacional': 1049 operadoras
+2026-10-19 20:49:00 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,715 registros (2024)
+2026-10-19 20:49:00 | INFO     | 🌱 Operadoras com valor: 977
+2026-10-19 20:49:00 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:49:00 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:49:00 | SUCCESS  | ✅ Consolidação completa: 977 operadoras | R$ 35,101,254,783 (Método D - híbrido)
+2026-10-19 20:49:00 | INFO     | 🌳 [2024] dimensão 'estrutura': 977 operadoras
+2026-10-19 20:49:00 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2024.csv (0.10 MB)
+2026-10-19 20:49:00 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:49:00 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:49:00 | SUCCESS  | ✅ [2024] 865 operadoras de gastos | 1065 operadoras no consolidado multi-dimensão
+2026-10-19 20:49:06 | INFO     | GATE DE QUALIDADE - ANO 2024 - VEREDITO: APROVADO
+2026-10-19 20:49:06 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:49:06 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:49:06 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:49:06 | INFO     |    [OK] ramo_411_presente      861 operadoras com contas 411 não-zero
+2026-10-19 20:49:06 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:49:06 | INFO     |    [OK] volume_plausivel       1,991,110 linhas
+2026-10-19 20:49:06 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:49:06 | INFO     |    [OK] comparacao_ano_base    total=261.2Bi vs base=241.2Bi (1.08x)
+2026-10-19 20:49:06 | INFO     | 💾 [2024] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:49:06 | SUCCESS  | ✅ 1,065 linhas do período 2024 carregadas
+2026-10-19 20:49:06 | SUCCESS  | ✅ [2024] 1065 registros no MySQL
+2026-10-19 20:49:06 | SUCCESS  | 💰 [2024] Total: R$ 261,179,847,787.35
+2026-10-19 20:49:06 | INFO     | 
+======================================================================
+2026-10-19 20:49:06 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:49:06 | INFO     | ======================================================================
+2026-10-19 20:49:06 | INFO     | ✅ 2024: 865 registros | R$ 261,179,847,787.35 | 29.90s
+2026-10-19 20:49:06 | INFO     | 
+⏱️  Tempo total: 29.92s
+2026-10-19 20:49:06 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:49:06 | INFO     | 📊 Total registros: 865
+2026-10-19 20:49:06 | INFO     | 💰 Total gastos: R$ 261,179,847,787.35
+2026-10-19 20:49:06 | INFO     | ======================================================================
+2026-10-19 20:49:06 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:49:09 | INFO     | ======================================================================
+2026-10-19 20:49:09 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2026]
+2026-10-19 20:49:09 | INFO     | ======================================================================
+2026-10-19 20:49:09 | INFO     | 
+======================================================================
+2026-10-19 20:49:09 | INFO     | 📅 Processando ano 2026
+2026-10-19 20:49:09 | INFO     | ======================================================================
+2026-10-19 20:49:09 | INFO     | 📥 [2026] ETAPA 1/3: Download de dados...
+2026-10-19 20:49:09 | INFO     | ======================================================================
+2026-10-19 20:49:09 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:49:09 | INFO     | ======================================================================
+2026-10-19 20:49:09 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2026...
+2026-10-19 20:49:09 | INFO     | ⏭️  1T2026.zip já existe (7.31 MB), pulando...
+2026-10-19 20:49:09 | INFO     | ⏭️  2T2026.zip já existe (9.05 MB), pulando...
+2026-10-19 20:49:09 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:49:15 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:49:20 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:49:21 | ERROR    | ❌ Erro ao baixar 3T2026: RetryError[<Future at 0x2a045ed3ad0 state=finished raised HTTPStatusError>]
+2026-10-19 20:49:21 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:49:26 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:49:31 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:49:32 | ERROR    | ❌ Erro ao baixar 4T2026: RetryError[<Future at 0x2a045edea90 state=finished raised HTTPStatusError>]
+2026-10-19 20:49:32 | SUCCESS  | ✅ Demonstrações de 2026: 2/4 trimestres baixados
+2026-10-19 20:49:32 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:49:32 | INFO     | ======================================================================
+2026-10-19 20:49:32 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:49:32 | INFO     | ======================================================================
+2026-10-19 20:49:32 | INFO     |   ✅ 1T2026.zip      |     7.31 MB
+2026-10-19 20:49:32 | INFO     |   ✅ 2T2026.zip      |     9.05 MB
+2026-10-19 20:49:32 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:49:32 | INFO     | ======================================================================
+2026-10-19 20:49:32 | SUCCESS  | ✅ [2026] Download completo
+2026-10-19 20:49:32 | INFO     | 🔄 [2026] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:49:32 | INFO     | 🔄 Processando demonstrações contábeis de 2026 (ramo 41)...
+2026-10-19 20:49:32 | INFO     | 📦 Extraindo 2 arquivos ZIP de 2026...
+2026-10-19 20:49:32 | INFO     | 🔓 Extraindo 1T2026.zip → extracted/1T2026/
+2026-10-19 20:49:32 | SUCCESS  | ✅ 1T2026.zip → 1T2026.csv (58519 KB)
+2026-10-19 20:49:32 | INFO     | 🔓 Extraindo 2T2026.zip → extracted/2T2026/
+2026-10-19 20:49:33 | SUCCESS  | ✅ 2T2026.zip → 2T2026.csv (62779 KB)
+2026-10-19 20:49:33 | INFO     | 📊 Lendo 1T2026...
+2026-10-19 20:49:33 | ERROR    | ❌ [2026] Erro na extração: Não foi possível ler C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\raw\demonstracoes\2026\extracted\1T2026\1T2026.csv
+2026-10-19 20:49:33 | INFO     | 
+======================================================================
+2026-10-19 20:49:33 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:49:33 | INFO     | ======================================================================
+2026-10-19 20:49:33 | INFO     | ❌ 2026: 0 registros | R$ 0.00 | 23.68s
+2026-10-19 20:49:33 | INFO     | 
+⏱️  Tempo total: 23.69s
+2026-10-19 20:49:33 | INFO     | ✅ Sucessos: 0/1
+2026-10-19 20:49:33 | INFO     | 📊 Total registros: 0
+2026-10-19 20:49:33 | INFO     | 💰 Total gastos: R$ 0.00
+2026-10-19 20:49:33 | INFO     | ======================================================================
+2026-10-19 20:49:33 | ERROR    | PIPELINE FINALIZOU COM ERROS!
+2026-10-19 20:50:10 | INFO     | ======================================================================
+2026-10-19 20:50:10 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2026]
+2026-10-19 20:50:10 | INFO     | ======================================================================
+2026-10-19 20:50:10 | INFO     | 
+======================================================================
+2026-10-19 20:50:10 | INFO     | 📅 Processando ano 2026
+2026-10-19 20:50:10 | INFO     | ======================================================================
+2026-10-19 20:50:10 | INFO     | 📥 [2026] ETAPA 1/3: Download de dados...
+2026-10-19 20:50:10 | INFO     | ======================================================================
+2026-10-19 20:50:10 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:50:10 | INFO     | ======================================================================
+2026-10-19 20:50:10 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2026...
+2026-10-19 20:50:10 | INFO     | ⏭️  1T2026.zip já existe (7.31 MB), pulando...
+2026-10-19 20:50:10 | INFO     | ⏭️  2T2026.zip já existe (9.05 MB), pulando...
+2026-10-19 20:50:10 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:50:15 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:50:20 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:50:21 | ERROR    | ❌ Erro ao baixar 3T2026: RetryError[<Future at 0x1f9acf53690 state=finished raised HTTPStatusError>]
+2026-10-19 20:50:21 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:50:25 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:50:30 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:50:31 | ERROR    | ❌ Erro ao baixar 4T2026: RetryError[<Future at 0x1f9acf5ea10 state=finished raised HTTPStatusError>]
+2026-10-19 20:50:31 | SUCCESS  | ✅ Demonstrações de 2026: 2/4 trimestres baixados
+2026-10-19 20:50:31 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:50:31 | INFO     | ======================================================================
+2026-10-19 20:50:31 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:50:31 | INFO     | ======================================================================
+2026-10-19 20:50:31 | INFO     |   ✅ 1T2026.zip      |     7.31 MB
+2026-10-19 20:50:31 | INFO     |   ✅ 2T2026.zip      |     9.05 MB
+2026-10-19 20:50:31 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:50:31 | INFO     | ======================================================================
+2026-10-19 20:50:31 | SUCCESS  | ✅ [2026] Download completo
+2026-10-19 20:50:31 | INFO     | 🔄 [2026] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:50:31 | INFO     | 🔄 Processando demonstrações contábeis de 2026 (ramo 41)...
+2026-10-19 20:50:31 | INFO     | 📦 Extraindo 2 arquivos ZIP de 2026...
+2026-10-19 20:50:31 | INFO     | 🔓 Extraindo 1T2026.zip → extracted/1T2026/
+2026-10-19 20:50:31 | SUCCESS  | ✅ 1T2026.zip → 1T2026.csv (58519 KB)
+2026-10-19 20:50:31 | INFO     | 🔓 Extraindo 2T2026.zip → extracted/2T2026/
+2026-10-19 20:50:32 | SUCCESS  | ✅ 2T2026.zip → 2T2026.csv (62779 KB)
+2026-10-19 20:50:32 | INFO     | 📊 Lendo 1T2026...
+2026-10-19 20:50:34 | INFO     | 📊 Lendo 2T2026...
+2026-10-19 20:50:37 | INFO     | 📊 Linhas brutas: 1,433,994 | contas/trimestre: 939,057 | operadoras: 796
+2026-10-19 20:50:37 | INFO     | 🌳 Prefixos ['41']: 119,111 registros (2026)
+2026-10-19 20:50:38 | INFO     | 🌱 Operadoras com valor: 712
+2026-10-19 20:50:38 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:50:38 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:50:38 | SUCCESS  | ✅ Consolidação completa: 712 operadoras | R$ 145,798,149,527 (Método D - híbrido)
+2026-10-19 20:50:38 | INFO     | 🌳 [2026] dimensão 'gastos': 712 operadoras
+2026-10-19 20:50:38 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 935,848 registros (2026)
+2026-10-19 20:50:44 | INFO     | 🌱 Operadoras com valor: 796
+2026-10-19 20:50:44 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:50:44 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:50:44 | SUCCESS  | ✅ Consolidação completa: 796 operadoras | R$ 183,515,841,643 (Método D - híbrido)
+2026-10-19 20:50:44 | INFO     | 🌳 [2026] dimensão 'financeira': 796 operadoras
+2026-10-19 20:50:44 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 247,998 registros (2026)
+2026-10-19 20:50:48 | INFO     | 🌱 Operadoras com valor: 787
+2026-10-19 20:50:48 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:50:48 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:50:48 | SUCCESS  | ✅ Consolidação completa: 787 operadoras | R$ 16,788,407,394 (Método D - híbrido)
+2026-10-19 20:50:48 | INFO     | 🌳 [2026] dimensão 'operacional': 787 operadoras
+2026-10-19 20:50:48 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 73,836 registros (2026)
+2026-10-19 20:50:49 | INFO     | 🌱 Operadoras com valor: 760
+2026-10-19 20:50:49 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:50:49 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:50:49 | SUCCESS  | ✅ Consolidação completa: 760 operadoras | R$ 57,763,650,046 (Método D - híbrido)
+2026-10-19 20:50:49 | INFO     | 🌳 [2026] dimensão 'estrutura': 760 operadoras
+2026-10-19 20:50:50 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2026.csv (0.07 MB)
+2026-10-19 20:50:50 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:50:51 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:50:51 | SUCCESS  | ✅ [2026] 712 operadoras de gastos | 796 operadoras no consolidado multi-dimensão
+2026-10-19 20:50:55 | INFO     | GATE DE QUALIDADE - ANO 2026 - VEREDITO: APROVADO
+2026-10-19 20:50:55 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:50:55 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:50:55 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:50:55 | INFO     |    [OK] ramo_411_presente      707 operadoras com contas 411 não-zero
+2026-10-19 20:50:55 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:50:55 | INFO     |    [OK] volume_plausivel       939,057 linhas
+2026-10-19 20:50:55 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:50:55 | INFO     |    [OK] comparacao_ano_base    total=145.8Bi vs base=282.2Bi (0.52x)
+2026-10-19 20:50:55 | INFO     | 💾 [2026] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:50:55 | WARNING  | ⚠️  Coluna gasto_3T não encontrada, adicionando com 0
+2026-10-19 20:50:55 | WARNING  | ⚠️  Coluna gasto_4T não encontrada, adicionando com 0
+2026-10-19 20:50:55 | SUCCESS  | ✅ 796 linhas do período 2026 carregadas
+2026-10-19 20:50:55 | SUCCESS  | ✅ [2026] 796 registros no MySQL
+2026-10-19 20:50:55 | SUCCESS  | 💰 [2026] Total: R$ 145,798,149,526.54
+2026-10-19 20:50:55 | INFO     | 
+======================================================================
+2026-10-19 20:50:55 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:50:55 | INFO     | ======================================================================
+2026-10-19 20:50:55 | INFO     | ✅ 2026: 712 registros | R$ 145,798,149,526.54 | 45.66s
+2026-10-19 20:50:55 | INFO     | 
+⏱️  Tempo total: 45.67s
+2026-10-19 20:50:55 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:50:55 | INFO     | 📊 Total registros: 712
+2026-10-19 20:50:55 | INFO     | 💰 Total gastos: R$ 145,798,149,526.54
+2026-10-19 20:50:55 | INFO     | ======================================================================
+2026-10-19 20:50:55 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2023]
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     | 
+======================================================================
+2026-10-19 20:52:58 | INFO     | 📅 Processando ano 2023
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     | 📥 [2023] ETAPA 1/3: Download de dados...
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2023...
+2026-10-19 20:52:58 | INFO     | ⏭️  1T2023.zip já existe (7.57 MB), pulando...
+2026-10-19 20:52:58 | INFO     | ⏭️  2T2023.zip já existe (8.46 MB), pulando...
+2026-10-19 20:52:58 | INFO     | ⏭️  3T2023.zip já existe (9.49 MB), pulando...
+2026-10-19 20:52:58 | INFO     | ⏭️  4T2023.zip já existe (10.77 MB), pulando...
+2026-10-19 20:52:58 | SUCCESS  | ✅ Demonstrações de 2023: 4/4 trimestres baixados
+2026-10-19 20:52:58 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | INFO     |   ✅ 1T2023.zip      |     7.57 MB
+2026-10-19 20:52:58 | INFO     |   ✅ 2T2023.zip      |     8.46 MB
+2026-10-19 20:52:58 | INFO     |   ✅ 3T2023.zip      |     9.49 MB
+2026-10-19 20:52:58 | INFO     |   ✅ 4T2023.zip      |    10.77 MB
+2026-10-19 20:52:58 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:52:58 | INFO     | ======================================================================
+2026-10-19 20:52:58 | SUCCESS  | ✅ [2023] Download completo
+2026-10-19 20:52:58 | INFO     | 🔄 [2023] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:52:58 | INFO     | 🔄 Processando demonstrações contábeis de 2023 (ramo 41)...
+2026-10-19 20:52:58 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2023...
+2026-10-19 20:52:58 | INFO     | 🔓 Extraindo 1T2023.zip → extracted/1T2023/
+2026-10-19 20:52:58 | SUCCESS  | ✅ 1T2023.zip → 1T2023.csv (60646 KB)
+2026-10-19 20:52:58 | INFO     | 🔓 Extraindo 2T2023.zip → extracted/2T2023/
+2026-10-19 20:52:59 | SUCCESS  | ✅ 2T2023.zip → 2T2023.csv (63691 KB)
+2026-10-19 20:52:59 | INFO     | 🔓 Extraindo 3T2023.zip → extracted/3T2023/
+2026-10-19 20:52:59 | SUCCESS  | ✅ 3T2023.zip → 3T2023.csv (65630 KB)
+2026-10-19 20:52:59 | INFO     | 🔓 Extraindo 4T2023.zip → extracted/4T2023/
+2026-10-19 20:52:59 | SUCCESS  | ✅ 4T2023.zip → 4T2023.csv (73523 KB)
+2026-10-19 20:52:59 | INFO     | 📊 Lendo 1T2023...
+2026-10-19 20:53:02 | INFO     | 📊 Lendo 2T2023...
+2026-10-19 20:53:04 | INFO     | 📊 Lendo 3T2023...
+2026-10-19 20:53:07 | INFO     | 📊 Lendo 4T2023...
+2026-10-19 20:53:12 | INFO     | 📊 Linhas brutas: 3,194,869 | contas/trimestre: 2,056,908 | operadoras: 1,092
+2026-10-19 20:53:12 | INFO     | 🌳 Prefixos ['41']: 237,852 registros (2023)
+2026-10-19 20:53:13 | INFO     | 🌱 Operadoras com valor: 881
+2026-10-19 20:53:14 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:14 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:14 | SUCCESS  | ✅ Consolidação completa: 881 operadoras | R$ 241,159,935,778 (Método D - híbrido)
+2026-10-19 20:53:14 | INFO     | 🌳 [2023] dimensão 'gastos': 881 operadoras
+2026-10-19 20:53:14 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 2,049,435 registros (2023)
+2026-10-19 20:53:21 | INFO     | 🌱 Operadoras com valor: 1,092
+2026-10-19 20:53:21 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:22 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:22 | SUCCESS  | ✅ Consolidação completa: 1092 operadoras | R$ 286,353,692,094 (Método D - híbrido)
+2026-10-19 20:53:22 | INFO     | 🌳 [2023] dimensão 'financeira': 1092 operadoras
+2026-10-19 20:53:22 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 554,113 registros (2023)
+2026-10-19 20:53:24 | INFO     | 🌱 Operadoras com valor: 1,082
+2026-10-19 20:53:24 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:24 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:24 | SUCCESS  | ✅ Consolidação completa: 1082 operadoras | R$ 28,716,564,618 (Método D - híbrido)
+2026-10-19 20:53:24 | INFO     | 🌳 [2023] dimensão 'operacional': 1082 operadoras
+2026-10-19 20:53:25 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 152,940 registros (2023)
+2026-10-19 20:53:25 | INFO     | 🌱 Operadoras com valor: 1,003
+2026-10-19 20:53:25 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:25 | SUCCESS  | ✅ Consolidação completa: 1003 operadoras | R$ 26,254,588,353 (Método D - híbrido)
+2026-10-19 20:53:25 | INFO     | 🌳 [2023] dimensão 'estrutura': 1003 operadoras
+2026-10-19 20:53:25 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2023.csv (0.10 MB)
+2026-10-19 20:53:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:26 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:53:26 | SUCCESS  | ✅ [2023] 881 operadoras de gastos | 1092 operadoras no consolidado multi-dimensão
+2026-10-19 20:53:31 | INFO     | GATE DE QUALIDADE - ANO 2023 - VEREDITO: APROVADO
+2026-10-19 20:53:31 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:53:31 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:53:31 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:53:31 | INFO     |    [OK] ramo_411_presente      878 operadoras com contas 411 não-zero
+2026-10-19 20:53:31 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:53:31 | INFO     |    [OK] volume_plausivel       2,056,908 linhas
+2026-10-19 20:53:31 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:53:31 | INFO     | 💾 [2023] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:53:31 | SUCCESS  | ✅ 1,092 linhas do período 2023 carregadas
+2026-10-19 20:53:31 | SUCCESS  | ✅ [2023] 1092 registros no MySQL
+2026-10-19 20:53:31 | SUCCESS  | 💰 [2023] Total: R$ 241,159,935,778.45
+2026-10-19 20:53:31 | INFO     | 
+======================================================================
+2026-10-19 20:53:31 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:53:31 | INFO     | ======================================================================
+2026-10-19 20:53:31 | INFO     | ✅ 2023: 881 registros | R$ 241,159,935,778.45 | 33.03s
+2026-10-19 20:53:31 | INFO     | 
+⏱️  Tempo total: 33.06s
+2026-10-19 20:53:31 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:53:31 | INFO     | 📊 Total registros: 881
+2026-10-19 20:53:31 | INFO     | 💰 Total gastos: R$ 241,159,935,778.45
+2026-10-19 20:53:31 | INFO     | ======================================================================
+2026-10-19 20:53:31 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2024]
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     | 
+======================================================================
+2026-10-19 20:53:34 | INFO     | 📅 Processando ano 2024
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     | 📥 [2024] ETAPA 1/3: Download de dados...
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2024...
+2026-10-19 20:53:34 | INFO     | ⏭️  1T2024.zip já existe (7.85 MB), pulando...
+2026-10-19 20:53:34 | INFO     | ⏭️  2T2024.zip já existe (8.89 MB), pulando...
+2026-10-19 20:53:34 | INFO     | ⏭️  3T2024.zip já existe (9.11 MB), pulando...
+2026-10-19 20:53:34 | INFO     | ⏭️  4T2024.zip já existe (11.16 MB), pulando...
+2026-10-19 20:53:34 | SUCCESS  | ✅ Demonstrações de 2024: 4/4 trimestres baixados
+2026-10-19 20:53:34 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | INFO     |   ✅ 1T2024.zip      |     7.85 MB
+2026-10-19 20:53:34 | INFO     |   ✅ 2T2024.zip      |     8.89 MB
+2026-10-19 20:53:34 | INFO     |   ✅ 3T2024.zip      |     9.11 MB
+2026-10-19 20:53:34 | INFO     |   ✅ 4T2024.zip      |    11.16 MB
+2026-10-19 20:53:34 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:53:34 | INFO     | ======================================================================
+2026-10-19 20:53:34 | SUCCESS  | ✅ [2024] Download completo
+2026-10-19 20:53:34 | INFO     | 🔄 [2024] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:53:34 | INFO     | 🔄 Processando demonstrações contábeis de 2024 (ramo 41)...
+2026-10-19 20:53:35 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2024...
+2026-10-19 20:53:35 | INFO     | 🔓 Extraindo 1T2024.zip → extracted/1T2024/
+2026-10-19 20:53:35 | SUCCESS  | ✅ 1T2024.zip → 1T2024.csv (57498 KB)
+2026-10-19 20:53:35 | INFO     | 🔓 Extraindo 2T2024.zip → extracted/2T2024/
+2026-10-19 20:53:35 | SUCCESS  | ✅ 2T2024.zip → 2T2024.csv (60940 KB)
+2026-10-19 20:53:35 | INFO     | 🔓 Extraindo 3T2024.zip → extracted/3T2024/
+2026-10-19 20:53:35 | SUCCESS  | ✅ 3T2024.zip → 3T2024.csv (62287 KB)
+2026-10-19 20:53:35 | INFO     | 🔓 Extraindo 4T2024.zip → extracted/4T2024/
+2026-10-19 20:53:36 | SUCCESS  | ✅ 4T2024.zip → 4T2024.csv (79716 KB)
+2026-10-19 20:53:36 | INFO     | 📊 Lendo 1T2024...
+2026-10-19 20:53:38 | INFO     | 📊 Lendo 2T2024...
+2026-10-19 20:53:40 | INFO     | 📊 Lendo 3T2024...
+2026-10-19 20:53:43 | INFO     | 📊 Lendo 4T2024...
+2026-10-19 20:53:48 | INFO     | 📊 Linhas brutas: 3,061,992 | contas/trimestre: 1,991,110 | operadoras: 1,065
+2026-10-19 20:53:48 | INFO     | 🌳 Prefixos ['41']: 239,948 registros (2024)
+2026-10-19 20:53:49 | INFO     | 🌱 Operadoras com valor: 865
+2026-10-19 20:53:50 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:50 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:50 | SUCCESS  | ✅ Consolidação completa: 865 operadoras | R$ 261,179,847,787 (Método D - híbrido)
+2026-10-19 20:53:50 | INFO     | 🌳 [2024] dimensão 'gastos': 865 operadoras
+2026-10-19 20:53:50 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,984,218 registros (2024)
+2026-10-19 20:53:56 | INFO     | 🌱 Operadoras com valor: 1,065
+2026-10-19 20:53:56 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:56 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:56 | SUCCESS  | ✅ Consolidação completa: 1065 operadoras | R$ 322,954,355,046 (Método D - híbrido)
+2026-10-19 20:53:56 | INFO     | 🌳 [2024] dimensão 'financeira': 1065 operadoras
+2026-10-19 20:53:57 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 535,467 registros (2024)
+2026-10-19 20:53:59 | INFO     | 🌱 Operadoras com valor: 1,049
+2026-10-19 20:53:59 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:53:59 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:53:59 | SUCCESS  | ✅ Consolidação completa: 1049 operadoras | R$ 32,057,380,109 (Método D - híbrido)
+2026-10-19 20:53:59 | INFO     | 🌳 [2024] dimensão 'operacional': 1049 operadoras
+2026-10-19 20:53:59 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,715 registros (2024)
+2026-10-19 20:54:00 | INFO     | 🌱 Operadoras com valor: 977
+2026-10-19 20:54:00 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:54:00 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:00 | SUCCESS  | ✅ Consolidação completa: 977 operadoras | R$ 35,101,254,783 (Método D - híbrido)
+2026-10-19 20:54:00 | INFO     | 🌳 [2024] dimensão 'estrutura': 977 operadoras
+2026-10-19 20:54:00 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2024.csv (0.10 MB)
+2026-10-19 20:54:00 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:00 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:54:00 | SUCCESS  | ✅ [2024] 865 operadoras de gastos | 1065 operadoras no consolidado multi-dimensão
+2026-10-19 20:54:06 | INFO     | GATE DE QUALIDADE - ANO 2024 - VEREDITO: APROVADO
+2026-10-19 20:54:06 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:54:06 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:54:06 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:54:06 | INFO     |    [OK] ramo_411_presente      861 operadoras com contas 411 não-zero
+2026-10-19 20:54:06 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:54:06 | INFO     |    [OK] volume_plausivel       1,991,110 linhas
+2026-10-19 20:54:06 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:54:06 | INFO     |    [OK] comparacao_ano_base    total=261.2Bi vs base=241.2Bi (1.08x)
+2026-10-19 20:54:06 | INFO     | 💾 [2024] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:54:06 | SUCCESS  | ✅ 1,065 linhas do período 2024 carregadas
+2026-10-19 20:54:06 | SUCCESS  | ✅ [2024] 1065 registros no MySQL
+2026-10-19 20:54:06 | SUCCESS  | 💰 [2024] Total: R$ 261,179,847,787.35
+2026-10-19 20:54:07 | INFO     | 
+======================================================================
+2026-10-19 20:54:07 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:54:07 | INFO     | ======================================================================
+2026-10-19 20:54:07 | INFO     | ✅ 2024: 865 registros | R$ 261,179,847,787.35 | 32.00s
+2026-10-19 20:54:07 | INFO     | 
+⏱️  Tempo total: 32.04s
+2026-10-19 20:54:07 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:54:07 | INFO     | 📊 Total registros: 865
+2026-10-19 20:54:07 | INFO     | 💰 Total gastos: R$ 261,179,847,787.35
+2026-10-19 20:54:07 | INFO     | ======================================================================
+2026-10-19 20:54:07 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2025]
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     | 
+======================================================================
+2026-10-19 20:54:10 | INFO     | 📅 Processando ano 2025
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     | 📥 [2025] ETAPA 1/3: Download de dados...
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2025...
+2026-10-19 20:54:10 | INFO     | ⏭️  1T2025.zip já existe (7.95 MB), pulando...
+2026-10-19 20:54:10 | INFO     | ⏭️  2T2025.zip já existe (8.80 MB), pulando...
+2026-10-19 20:54:10 | INFO     | ⏭️  3T2025.zip já existe (9.02 MB), pulando...
+2026-10-19 20:54:10 | INFO     | ⏭️  4T2025.zip já existe (10.97 MB), pulando...
+2026-10-19 20:54:10 | SUCCESS  | ✅ Demonstrações de 2025: 4/4 trimestres baixados
+2026-10-19 20:54:10 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | INFO     |   ✅ 1T2025.zip      |     7.95 MB
+2026-10-19 20:54:10 | INFO     |   ✅ 2T2025.zip      |     8.80 MB
+2026-10-19 20:54:10 | INFO     |   ✅ 3T2025.zip      |     9.02 MB
+2026-10-19 20:54:10 | INFO     |   ✅ 4T2025.zip      |    10.97 MB
+2026-10-19 20:54:10 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:54:10 | INFO     | ======================================================================
+2026-10-19 20:54:10 | SUCCESS  | ✅ [2025] Download completo
+2026-10-19 20:54:10 | INFO     | 🔄 [2025] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:54:10 | INFO     | 🔄 Processando demonstrações contábeis de 2025 (ramo 41)...
+2026-10-19 20:54:10 | INFO     | 📦 Extraindo 4 arquivos ZIP de 2025...
+2026-10-19 20:54:10 | INFO     | 🔓 Extraindo 1T2025.zip → extracted/1T2025/
+2026-10-19 20:54:10 | SUCCESS  | ✅ 1T2025.zip → 1T2025.csv (58697 KB)
+2026-10-19 20:54:10 | INFO     | 🔓 Extraindo 2T2025.zip → extracted/2T2025/
+2026-10-19 20:54:10 | SUCCESS  | ✅ 2T2025.zip → 2T2025.csv (60065 KB)
+2026-10-19 20:54:10 | INFO     | 🔓 Extraindo 3T2025.zip → extracted/3T2025/
+2026-10-19 20:54:10 | SUCCESS  | ✅ 3T2025.zip → 3T2025.csv (61490 KB)
+2026-10-19 20:54:10 | INFO     | 🔓 Extraindo 4T2025.zip → extracted/4T2025/
+2026-10-19 20:54:11 | SUCCESS  | ✅ 4T2025.zip → 4T2025.csv (78385 KB)
+2026-10-19 20:54:11 | INFO     | 📊 Lendo 1T2025...
+2026-10-19 20:54:13 | INFO     | 📊 Lendo 2T2025...
+2026-10-19 20:54:15 | INFO     | 📊 Lendo 3T2025...
+2026-10-19 20:54:18 | INFO     | 📊 Lendo 4T2025...
+2026-10-19 20:54:22 | INFO     | 📊 Linhas brutas: 3,040,534 | contas/trimestre: 1,975,611 | operadoras: 1,050
+2026-10-19 20:54:23 | INFO     | 🌳 Prefixos ['41']: 241,397 registros (2025)
+2026-10-19 20:54:23 | INFO     | 🌱 Operadoras com valor: 851
+2026-10-19 20:54:24 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:54:24 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:24 | SUCCESS  | ✅ Consolidação completa: 851 operadoras | R$ 282,171,144,672 (Método D - híbrido)
+2026-10-19 20:54:24 | INFO     | 🌳 [2025] dimensão 'gastos': 851 operadoras
+2026-10-19 20:54:25 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 1,968,775 registros (2025)
+2026-10-19 20:54:30 | INFO     | 🌱 Operadoras com valor: 1,050
+2026-10-19 20:54:30 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:54:30 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:30 | SUCCESS  | ✅ Consolidação completa: 1050 operadoras | R$ 355,403,721,488 (Método D - híbrido)
+2026-10-19 20:54:30 | INFO     | 🌳 [2025] dimensão 'financeira': 1050 operadoras
+2026-10-19 20:54:31 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 528,136 registros (2025)
+2026-10-19 20:54:33 | INFO     | 🌱 Operadoras com valor: 1,021
+2026-10-19 20:54:33 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:54:33 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:33 | SUCCESS  | ✅ Consolidação completa: 1021 operadoras | R$ 32,323,730,603 (Método D - híbrido)
+2026-10-19 20:54:33 | INFO     | 🌳 [2025] dimensão 'operacional': 1021 operadoras
+2026-10-19 20:54:33 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 151,343 registros (2025)
+2026-10-19 20:54:34 | INFO     | 🌱 Operadoras com valor: 964
+2026-10-19 20:54:34 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:54:34 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:34 | SUCCESS  | ✅ Consolidação completa: 964 operadoras | R$ 38,645,768,689 (Método D - híbrido)
+2026-10-19 20:54:34 | INFO     | 🌳 [2025] dimensão 'estrutura': 964 operadoras
+2026-10-19 20:54:34 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2025.csv (0.10 MB)
+2026-10-19 20:54:34 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:54:34 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:54:34 | SUCCESS  | ✅ [2025] 851 operadoras de gastos | 1050 operadoras no consolidado multi-dimensão
+2026-10-19 20:54:40 | INFO     | GATE DE QUALIDADE - ANO 2025 - VEREDITO: APROVADO
+2026-10-19 20:54:40 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:54:40 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:54:40 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:54:40 | INFO     |    [OK] ramo_411_presente      845 operadoras com contas 411 não-zero
+2026-10-19 20:54:40 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:54:40 | INFO     |    [OK] volume_plausivel       1,975,611 linhas
+2026-10-19 20:54:40 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:54:40 | INFO     |    [OK] comparacao_ano_base    total=282.2Bi vs base=261.2Bi (1.08x)
+2026-10-19 20:54:40 | INFO     | 💾 [2025] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:54:40 | SUCCESS  | ✅ 1,050 linhas do período 2025 carregadas
+2026-10-19 20:54:40 | SUCCESS  | ✅ [2025] 1050 registros no MySQL
+2026-10-19 20:54:40 | SUCCESS  | 💰 [2025] Total: R$ 282,171,144,672.45
+2026-10-19 20:54:40 | INFO     | 
+======================================================================
+2026-10-19 20:54:40 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:54:40 | INFO     | ======================================================================
+2026-10-19 20:54:40 | INFO     | ✅ 2025: 851 registros | R$ 282,171,144,672.45 | 30.77s
+2026-10-19 20:54:40 | INFO     | 
+⏱️  Tempo total: 30.79s
+2026-10-19 20:54:40 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:54:40 | INFO     | 📊 Total registros: 851
+2026-10-19 20:54:40 | INFO     | 💰 Total gastos: R$ 282,171,144,672.45
+2026-10-19 20:54:40 | INFO     | ======================================================================
+2026-10-19 20:54:40 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!
+2026-10-19 20:54:44 | INFO     | ======================================================================
+2026-10-19 20:54:44 | INFO     | 🚀 PIPELINE ETL INICIADO - Anos: [2026]
+2026-10-19 20:54:44 | INFO     | ======================================================================
+2026-10-19 20:54:44 | INFO     | 
+======================================================================
+2026-10-19 20:54:44 | INFO     | 📅 Processando ano 2026
+2026-10-19 20:54:44 | INFO     | ======================================================================
+2026-10-19 20:54:44 | INFO     | 📥 [2026] ETAPA 1/3: Download de dados...
+2026-10-19 20:54:44 | INFO     | ======================================================================
+2026-10-19 20:54:44 | INFO     | 🚀 INICIANDO DOWNLOAD COMPLETO DE DADOS DA ANS
+2026-10-19 20:54:44 | INFO     | ======================================================================
+2026-10-19 20:54:44 | INFO     | 🚀 Iniciando download de demonstrações contábeis de 2026...
+2026-10-19 20:54:44 | INFO     | ⏭️  1T2026.zip já existe (7.31 MB), pulando...
+2026-10-19 20:54:44 | INFO     | ⏭️  2T2026.zip já existe (9.05 MB), pulando...
+2026-10-19 20:54:44 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:54:49 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:54:58 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/3T2026.zip
+2026-10-19 20:54:58 | ERROR    | ❌ Erro ao baixar 3T2026: RetryError[<Future at 0x208320d3490 state=finished raised HTTPStatusError>]
+2026-10-19 20:54:58 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:55:03 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:55:08 | INFO     | ⬇️  Iniciando download: https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/2026/4T2026.zip
+2026-10-19 20:55:10 | ERROR    | ❌ Erro ao baixar 4T2026: RetryError[<Future at 0x208320de7d0 state=finished raised HTTPStatusError>]
+2026-10-19 20:55:10 | SUCCESS  | ✅ Demonstrações de 2026: 2/4 trimestres baixados
+2026-10-19 20:55:10 | INFO     | ⏭️  CADOP já existe (338.7 KB), pulando...
+2026-10-19 20:55:10 | INFO     | ======================================================================
+2026-10-19 20:55:10 | INFO     | 📊 RESUMO DO DOWNLOAD
+2026-10-19 20:55:10 | INFO     | ======================================================================
+2026-10-19 20:55:10 | INFO     |   ✅ 1T2026.zip      |     7.31 MB
+2026-10-19 20:55:10 | INFO     |   ✅ 2T2026.zip      |     9.05 MB
+2026-10-19 20:55:10 | INFO     |   ✅ relatorio_cadop.csv |    338.7 KB
+2026-10-19 20:55:10 | INFO     | ======================================================================
+2026-10-19 20:55:10 | SUCCESS  | ✅ [2026] Download completo
+2026-10-19 20:55:10 | INFO     | 🔄 [2026] ETAPA 2/3: Extração e transformação...
+2026-10-19 20:55:10 | INFO     | 🔄 Processando demonstrações contábeis de 2026 (ramo 41)...
+2026-10-19 20:55:10 | INFO     | 📦 Extraindo 2 arquivos ZIP de 2026...
+2026-10-19 20:55:10 | INFO     | 🔓 Extraindo 1T2026.zip → extracted/1T2026/
+2026-10-19 20:55:10 | SUCCESS  | ✅ 1T2026.zip → 1T2026.csv (58519 KB)
+2026-10-19 20:55:10 | INFO     | 🔓 Extraindo 2T2026.zip → extracted/2T2026/
+2026-10-19 20:55:10 | SUCCESS  | ✅ 2T2026.zip → 2T2026.csv (62779 KB)
+2026-10-19 20:55:10 | INFO     | 📊 Lendo 1T2026...
+2026-10-19 20:55:13 | INFO     | 📊 Lendo 2T2026...
+2026-10-19 20:55:16 | INFO     | 📊 Linhas brutas: 1,433,994 | contas/trimestre: 939,057 | operadoras: 796
+2026-10-19 20:55:16 | INFO     | 🌳 Prefixos ['41']: 119,111 registros (2026)
+2026-10-19 20:55:17 | INFO     | 🌱 Operadoras com valor: 712
+2026-10-19 20:55:17 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:55:17 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:55:17 | SUCCESS  | ✅ Consolidação completa: 712 operadoras | R$ 145,798,149,527 (Método D - híbrido)
+2026-10-19 20:55:17 | INFO     | 🌳 [2026] dimensão 'gastos': 712 operadoras
+2026-10-19 20:55:17 | INFO     | 🌳 Prefixos ['31', '41', '69', '25', '121', '122', '21', '23', '1', '3', '4', '61']: 935,848 registros (2026)
+2026-10-19 20:55:22 | INFO     | 🌱 Operadoras com valor: 796
+2026-10-19 20:55:22 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:55:22 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:55:22 | SUCCESS  | ✅ Consolidação completa: 796 operadoras | R$ 183,515,841,643 (Método D - híbrido)
+2026-10-19 20:55:22 | INFO     | 🌳 [2026] dimensão 'financeira': 796 operadoras
+2026-10-19 20:55:23 | INFO     | 🌳 Prefixos ['46', '461', '462', '463', '464', '465', '466', '468', '44', '211', '231']: 247,998 registros (2026)
+2026-10-19 20:55:24 | INFO     | 🌱 Operadoras com valor: 787
+2026-10-19 20:55:24 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:55:24 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:55:24 | SUCCESS  | ✅ Consolidação completa: 787 operadoras | R$ 16,788,407,394 (Método D - híbrido)
+2026-10-19 20:55:24 | INFO     | 🌳 [2026] dimensão 'operacional': 787 operadoras
+2026-10-19 20:55:24 | INFO     | 🌳 Prefixos ['132', '133', '134', '132139013', '134129011']: 73,836 registros (2026)
+2026-10-19 20:55:25 | INFO     | 🌱 Operadoras com valor: 760
+2026-10-19 20:55:25 | INFO     | 🔗 Juntando com CADOP...
+2026-10-19 20:55:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:55:25 | SUCCESS  | ✅ Consolidação completa: 760 operadoras | R$ 57,763,650,046 (Método D - híbrido)
+2026-10-19 20:55:25 | INFO     | 🌳 [2026] dimensão 'estrutura': 760 operadoras
+2026-10-19 20:55:25 | SUCCESS  | 💾 CSV salvo: C:\Users\lcost\Documents\Codigos\Projetos lv1\ans-app\etl\data\processed\gastos_assistenciais_2026.csv (0.07 MB)
+2026-10-19 20:55:25 | SUCCESS  | ✅ CADOP carregado: 1106 operadoras
+2026-10-19 20:55:25 | SUCCESS  | ✅ Cadastro sincronizado: 1,106 operadoras
+2026-10-19 20:55:25 | SUCCESS  | ✅ [2026] 712 operadoras de gastos | 796 operadoras no consolidado multi-dimensão
+2026-10-19 20:55:28 | INFO     | GATE DE QUALIDADE - ANO 2026 - VEREDITO: APROVADO
+2026-10-19 20:55:28 | INFO     |    [OK] colunas_obrigatorias   todas presentes
+2026-10-19 20:55:28 | INFO     |    [OK] reg_ans_valido         100.0% de REG_ANS numéricos
+2026-10-19 20:55:28 | INFO     |    [OK] valores_numericos      0.00% de VL_SALDO_FINAL não numéricos
+2026-10-19 20:55:28 | INFO     |    [OK] ramo_411_presente      707 operadoras com contas 411 não-zero
+2026-10-19 20:55:28 | INFO     |    [OK] estrutura_codigos      profundidade máxima=9 dígitos, folhas longas=sim
+2026-10-19 20:55:28 | INFO     |    [OK] volume_plausivel       939,057 linhas
+2026-10-19 20:55:28 | INFO     |    [OK] sem_duplicidades       0 duplicatas exatas
+2026-10-19 20:55:28 | INFO     |    [OK] comparacao_ano_base    total=145.8Bi vs base=282.2Bi (0.52x)
+2026-10-19 20:55:28 | INFO     | 💾 [2026] ETAPA 3/3: Carga no MySQL...
+2026-10-19 20:55:28 | WARNING  | ⚠️  Coluna gasto_3T não encontrada, adicionando com 0
+2026-10-19 20:55:28 | WARNING  | ⚠️  Coluna gasto_4T não encontrada, adicionando com 0
+2026-10-19 20:55:28 | SUCCESS  | ✅ 796 linhas do período 2026 carregadas
+2026-10-19 20:55:28 | SUCCESS  | ✅ [2026] 796 registros no MySQL
+2026-10-19 20:55:28 | SUCCESS  | 💰 [2026] Total: R$ 145,798,149,526.54
+2026-10-19 20:55:28 | INFO     | 
+======================================================================
+2026-10-19 20:55:28 | INFO     | 📊 RESUMO FINAL DO PIPELINE
+2026-10-19 20:55:28 | INFO     | ======================================================================
+2026-10-19 20:55:28 | INFO     | ✅ 2026: 712 registros | R$ 145,798,149,526.54 | 44.45s
+2026-10-19 20:55:28 | INFO     | 
+⏱️  Tempo total: 44.46s
+2026-10-19 20:55:28 | INFO     | ✅ Sucessos: 1/1
+2026-10-19 20:55:28 | INFO     | 📊 Total registros: 712
+2026-10-19 20:55:28 | INFO     | 💰 Total gastos: R$ 145,798,149,526.54
+2026-10-19 20:55:28 | INFO     | ======================================================================
+2026-10-19 20:55:28 | SUCCESS  | PIPELINE EXECUTADO COM SUCESSO!

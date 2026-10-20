@@ -1,10 +1,73 @@
-# Dependencies
+# ---------------------------------------------------------------------------
+# Dependências
+# ---------------------------------------------------------------------------
 node_modules/
-
-# Build artifacts
-dist/
-
-# Python cache and coverage
+.venv/
+venv/
+env/
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+dist/
+build/
+*.egg
+
+# ---------------------------------------------------------------------------
+# Configuração local e segredos
+# ---------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Dados brutos e derivados (reconstruídos pelo ETL)
+# ---------------------------------------------------------------------------
+# ~1 GB de ZIPs/CSVs da ANS: versionados por engano, tornavam o clone e o
+# pipeline pesados sem nenhum ganho (o download é reprodutível).
+etl/data/raw/
+etl/data/processed/
+etl/data/uploads/
+etl/data/relatorios/
+
+# ---------------------------------------------------------------------------
+# Backups de banco e artefatos de execução
+# ---------------------------------------------------------------------------
+backups/
+*.sql
+*.dump
+*.log
+etl_pipeline.log
+etl_download.log
+etl_extract.log
+
+# ---------------------------------------------------------------------------
+# Cobertura e testes
+# ---------------------------------------------------------------------------
 .coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# ---------------------------------------------------------------------------
+# Editores e SO
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Frontend
+# ---------------------------------------------------------------------------
+frontend/vue-app/dist/
+frontend/vue-app/node_modules/
